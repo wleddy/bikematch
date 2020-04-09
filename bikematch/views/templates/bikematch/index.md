@@ -5,7 +5,7 @@ now during the coronavirus outbreak. This might include traveling to essential j
 errands, or participating in mutual aid for vulnerable people who cannot leave their homes.  
 
 Sacramento Area Bicycle Advocates are connecting those who have an extra bicycle to folks in the community
- who need one. Whether you have a bike or need a bike, fill out the form below, and we will match you.
+ who need one. Whether you have a bike or need a bike, contact us via the links below, and we will match you.
  
 ## How it will work:
 ### If you need a bike;
