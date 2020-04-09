@@ -1,0 +1,123 @@
+/*  styles to override default_style.css
+
+    Check the settings for LOCAL_STATIC_FOLDER and then
+    copy this file to that location.
+
+    Uncomment and or make changes to this file
+    to override the defaults
+
+*/
+
+
+/* change the fixed width of the right menu here*/
+/*
+.menu_space {
+    margin-right:0px;
+}
+.menu_width {
+    width:0px;
+}
+*/
+
+/*p {margin-top:0;margin-bottom:.4em;}*/
+
+/*
+pre {
+    overflow-x: scroll;
+}
+
+*/
+
+
+/* colors */
+/* Brown & tan */
+
+/* Menu Styles*/
+.w3-menu-color,.w3-drop-menu-hover-color:hover,
+.w3-primary-color,.w3-primary-hover-color:hover,
+.w3-drop-menu-section-hover-color:hover,.w3-drop-menu-section-color:hover,
+.w3-drop-menu-section-color
+{color:#fff!important;background-color:rgb(63, 36, 20)!important}
+.w3-primary-border-color,.w3-primary-hover-border-color:hover{border-color:rgb(63, 36, 20)!important}
+
+.w3-menu-hover-color:hover,
+.w3-secondary-color,.w3-secondary-hover-color:hover,.w3-drop-menu-color,
+.w3-label-color,.w3-label-hover-color:hover,.roster-hover-color:hover
+{color:#000!important;background-color:rgb(247, 240, 230)!important}
+.w3-secondary-border-color,.w3-secondary-hover-border-color:hover{border-color:rgb(247, 240, 230)!important}
+
+.w3-menu-border {
+    border:solid 1pt rgb(247, 240, 230)!important;
+}
+
+
+/* for field labels and buttons */
+/* required fields */
+/* red */
+/*.w3-label-color,.w3-label-hover-color:hover{color:#000!important;background-color:#ddffdd!important}*/
+/*
+.w3-label-req,.w3-hover-label-req:hover{color:#000!important;background-color:#ffdddd!important}
+.w3-text-req,.w3-hover-text-req:hover{color:#f44336!important}
+
+*/
+/* buttons */
+/*
+.w3-save-button-color,.w3-save-button-hover-color:hover{color:#fff!important;background-color:#009688!important}
+.w3-delete-button-color,.w3-delete-button-hover-color:hover{color:#fff!important;background-color:#ff5722!important}
+.w3-cancel-button-color,.w3-delete-button-hover-color:hover{color:#fff!important;background-color:#3f51b5!important}
+*/
+
+
+/* Some styles for staffing */
+
+/* for signup pages */
+.event-contain{margin:6pt 0 0 0;}
+@media (min-width:993px){.event-contain{margin:10pt 16.6666% 0 16.6666%;}}
+.job-contain{margin:0;}
+@media (min-width:993px){.job-contain{margin:0 16.6666%;}}
+.participant-badge {padding:7pt;min-width:29pt;}
+.filled-bar {cursor:text;padding:3pt 0pt}
+
+/* special styling for old event listings */
+.past-event, hr.past-event{
+    background-color:#ddd;
+    color:black;
+}
+div.past-event{
+    padding-top:12pt;
+}
+
+hr.past-event{
+    padding:0;
+    margin:0;
+    border-color:black;
+}
+
+/* set the open shift colors for the spreadheet view of roster */
+.filled-shift, .filled-volunteer-shift {background-color:lightgreen;}
+.open-shift {background-color:yellow;}
+.open-volunteer-shift {background-color:lightblue;}
+
+/* some background colors for event types */
+/* at least initially used for calendar activity types */
+.yellow-background {
+    background-color: rgba(255, 255, 0, 0.5);
+}
+.green-background {
+    background-color: rgba(0, 143, 0, 0.3);
+}
+.red-background {
+    background-color: rgba(194, 0, 0, 0.3);
+}
+.blue-background {
+    background-color: rgba(0, 0, 178, 0.3);
+}
+.turquoise-background {
+    background-color: rgba(0, 255, 253, 0.5);
+}
+.coffee-background {
+    background-color: rgba(128, 63, 0, 0.3);
+}
+.silver-background {
+    background-color: rgba(214, 214, 214, 1.0);
+}
