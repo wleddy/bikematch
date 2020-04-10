@@ -1,10 +1,10 @@
-## How it will work:
+## How it works:
 Fill out the form here and tell us about the bike.
 
 We will contact you to arrange to get the bike from you.
 
 ### Guidelines
-1. Donated bike don't need to be in "ready to ride" condition, but we're lot looking 
+1. Donated bike don't need to be in "ready to ride" condition, but we're not looking 
 project bikes either. 
 2. For sanitary purposes, clean the bike thoroughly before hand-off 
 (handlebars, gear shifters, seat, etc).

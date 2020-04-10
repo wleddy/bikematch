@@ -7,20 +7,20 @@ errands, or participating in mutual aid for vulnerable people who cannot leave t
 Sacramento Area Bicycle Advocates are connecting those who have an extra bicycle to folks in the community
  who need one. Whether you have a bike or need a bike, contact us via the links below, and we will match you.
  
-## How it will work:
+## How it works:
 ### If you need a bike;
-Fill out the ['needabike' form](/needabike/) and tell us about yourself
+Fill out the ['Ineedabike' form]({{ url_for('bikematch.needabike') }}) and tell us about yourself
 and what you need.
 
 We will contact you to let you know what bikes we have and arrange to get it to you.
 
 ### If you have a bike;
-Fill out the ['haveabike' form](/haveabike/) and tell us about the bike.
+Fill out the ['Ihaveabike' form]({{ url_for('bikematch.haveabike') }}) and tell us about the bike.
 
 We will contact you to arrange to get the bike from you.
 
 ### Guidelines
-1. Donated bike don't need to be in "ready to ride" condition, but we're lot looking 
+1. Donated bike don't need to be in "ready to ride" condition, but we're not looking 
 project bikes either. 
 2. If you are offering a bike, for sanitary purposes, clean the bike thoroughly before hand-off 
 (handlebars, gear shifters, seat, etc).

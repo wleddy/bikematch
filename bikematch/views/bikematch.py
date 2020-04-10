@@ -24,8 +24,8 @@ def home():
 
     return render_template('index.html',rendered_html=rendered_html,)
 
-@mod.route('/haveabike', methods=['POST', 'GET',])
-@mod.route('/haveabike/', methods=['POST', 'GET',])
+@mod.route('/ihaveabike', methods=['POST', 'GET',])
+@mod.route('/ihaveabike/', methods=['POST', 'GET',])
 def haveabike():
     """handle bike donation contact"""
     setExits()
@@ -36,8 +36,8 @@ def haveabike():
                         custom_message=render_markdown_for('haveabike_contact.md',mod),
                         )
                         
-@mod.route('/needabike', methods=['POST', 'GET',])
-@mod.route('/needabike/', methods=['POST', 'GET',])
+@mod.route('/ineedabike', methods=['POST', 'GET',])
+@mod.route('/ineedabike/', methods=['POST', 'GET',])
 def needabike():
     """handle request for a bike"""
     setExits()

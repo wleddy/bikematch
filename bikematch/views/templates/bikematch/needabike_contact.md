@@ -1,4 +1,4 @@
- ## How it will work:
+ ## How it works:
 ### If you need a bike;
 Fill out the form here and tell us about yourself
 and what you need.
