@@ -4,7 +4,7 @@ Bicycles are essential transportation for many who need to get around at any tim
 now during the coronavirus outbreak. This might include traveling to essential jobs, running crucial 
 errands, or participating in mutual aid for vulnerable people who cannot leave their homes.  
 
-Sacramento Area Bicycle Advocates are connecting those who have an extra bicycle to folks in the community
+Sacramento Area Bicycle Advocates is connecting those who have an extra bicycle to folks in the community
  who need one. Whether you have a bike or need a bike, contact us via the links below, and we will match you.
  
 ## How it works:
@@ -20,8 +20,8 @@ Fill out the ['Ihaveabike' form]({{ url_for('bikematch.haveabike') }}) and tell 
 We will contact you to arrange to get the bike from you.
 
 ### Guidelines
-1. Donated bike don't need to be in "ready to ride" condition, but we're not looking 
-project bikes either. 
+1. Donated bikes don't need to be in "ready to ride" condition, but we're not looking 
+for project bikes either. 
 2. If you are offering a bike, for sanitary purposes, clean the bike thoroughly before hand-off 
 (handlebars, gear shifters, seat, etc).
 2. SABA will perform adjustments and minor repairs that the bikes may need prior to hand-off to recipients.
