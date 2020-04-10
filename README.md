@@ -21,7 +21,8 @@ A typical approach to setting up a new BikeMatch project would be to:
 * From the terminal run `. setup_env`  
   This will create the instance directory:
     * The 'instance' directory is where you'll keep your private info such as the encryption key and email account info. The database files
-    are usually stored here too.
+    are usually stored here too. You can use the file `default_site_settings.py` as a template. Copy or move it to the instance
+    directory as `site_settings.py` and make changes as needed.
     
     * setup_env will also try to create virtualenv directory 'env' and pip the requirements into it.  
 
