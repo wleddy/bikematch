@@ -33,7 +33,6 @@
                     <p>{{ input_field(context['email'],"email",label="Email Address",req=True)}}</p>
                     <p>{{ input_field(context['neighborhood'],"neighborhood",label="Your neighborhood")}}</p>
                     <p>{{ input_field(context['height'],"height",label="How tall are you? (for bike fit)")}}</p>
-                    <p>{{ input_field(context['needfor'],"needfor",label="Why are you requesting a bike?")}}</p>
                     <p>{{ label_only("Any special type of bike, Questions or Comments?:")}}
                         <textarea name="comment" rows="8" style="width:100%;">{{ context['comment'] }}</textarea> 
                      </p>
