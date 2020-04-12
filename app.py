@@ -5,6 +5,7 @@ from shotglass2 import shotglass
 from shotglass2.takeabeltof.database import Database
 from shotglass2.takeabeltof.jinja_filters import register_jinja_filters
 from shotglass2.users.admin import Admin
+from bikematch.models import Bike
 
 # Create app
 # setting static_folder to None allows me to handle loading myself
@@ -46,7 +47,7 @@ def initalize_all_tables(db=None):
     shotglass.initalize_user_tables(db)
     
     ### setup any other tables you need here....
-    
+    Bike(db).init_table()
     
 def get_db(filespec=None):
     """Return a connection to the database.
@@ -112,12 +113,20 @@ def _before():
         ]
     # g.admin items are added to the navigation menu by default
     g.admin = Admin(g.db) # This is where user access rules are stored
+    g.admin.register(Bike,url_for('bikematch.display'),display_name='Find a Bike',top_level=True,minimum_rank_required=50)
+    
     shotglass.user_setup() # g.admin now holds access rules Users, Prefs and Roles
 
 @app.teardown_request
 def _teardown(exception):
     if 'db' in g:
         g.db.close()
+
+    
+@app.errorhandler(413)
+def request_too_large(error):
+    flash("The image is too large to save. Max size is {}MB".format(int(shotglass.get_site_config().get("MAX_CONTENT_LENGTH",".25"))/1048576))
+    return redirect(url_for('bikematch.display'))
 
 
 @app.errorhandler(404)

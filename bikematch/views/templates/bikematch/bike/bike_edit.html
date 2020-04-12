@@ -1,0 +1,29 @@
+{% extends "form_layout.html" %}
+
+{% from "_form_helpers.html" import input_field, select_field, radio_field, checkbox_field, label_only %}
+
+{% block fieldset %}
+<fieldset>
+    <p>{{ input_field(rec.id,"id",type="hidden",default=0)}}</p>
+    <p>{{ label_only('Bike Description')}}</p>
+    <p><textarea style="width:100%;" rows="6" name="bike_description">{{ rec.bike_description | default('',True)}}</textarea></p>
+    <p>{{ input_field(rec.serial_number,"serial_number")}}</p>
+    <p>{{ label_only('Bike Image')}}
+    {% if rec.image_path %}
+    <img src="{{ url_for('static',filename=rec.image_path)}}" class="w3-border w3-padding" style="width:100%;max-width:500px" />
+    {% else %}
+    {{ input_field(rec.image_path, "image_file",label=None,type="file")}}
+    {% endif %}
+    </p>
+    <p>{{ input_field(rec.donation_date,"donation_date")}}</p>
+    <p>{{ input_field(rec.donor_name,"donor_name")}}</p>
+    <p>{{ input_field(rec.donor_email,"donor_email")}}</p>
+    <p>{{ label_only('Donor Information')}}</p>
+    <p><textarea style="width:100%;" rows="6" name="donor_comment">{{ rec.donor_comment | default('',True) }}</textarea></p>
+    <p>{{ input_field(rec.delivery_date,"delivery_date")}}</p>
+    <p>{{ input_field(rec.recipient_name,"recipient_name")}}</p>
+    <p>{{ input_field(rec.recipient_email,"recipient_email")}}</p>
+    <p>{{ label_only('Recipient Information')}}</p>
+    <p><textarea style="width:100%;" rows="6" name="recipient_comment">{{ rec.recipient_comment | default('',True) }}</textarea></p>
+</fieldset>
+{% endblock fieldset %}

@@ -1,18 +1,26 @@
+import os
+import json
+from pathlib import Path
 from flask import request, session, g, redirect, url_for, abort, \
      render_template, flash, Blueprint, Response, safe_join
 from shotglass2.users.admin import login_required, table_access_required
-from shotglass2.takeabeltof.utils import render_markdown_for, printException, handle_request_error, send_static_file
+from shotglass2.shotglass import get_site_config
+from shotglass2.takeabeltof.utils import render_markdown_for, printException, handle_request_error, send_static_file, \
+    cleanRecordID
+from shotglass2.takeabeltof.file_upload import FileUpload
 from shotglass2.takeabeltof.date_utils import datetime_as_string
-import os
-import json
-
+from bikematch.models import Bike
+from werkzeug.exceptions import RequestEntityTooLarge
+    
 mod = Blueprint('bikematch',__name__, template_folder='templates/bikematch', url_prefix='')
 
 
 def setExits():
-    # g.homeURL = url_for('bikematch.home')
-    # g.aboutURL = url_for('bikematch.about')
-    # g.contactURL = url_for('bikematch.contact')
+    g.homeURL = url_for('bikematch.home')
+    g.listURL = url_for('bikematch.display')
+    g.editURL = url_for('bikematch.edit')
+    g.deleteURL = url_for('bikematch.delete')
+    g.contactURL = url_for('bikematch.contact')
     g.title = 'Home'
 
 @mod.route('/')
@@ -23,6 +31,94 @@ def home():
     rendered_html = render_markdown_for('index.md',mod)
 
     return render_template('index.html',rendered_html=rendered_html,)
+
+
+@mod.route('/bikes', methods=['POST', 'GET',])
+@mod.route('/bikes/', methods=['POST', 'GET',])
+@table_access_required(Bike)
+def display():
+    """List bike records """
+    
+    setExits()
+    g.title = "Bike Records"
+    recs = Bike(g.db).select()
+    
+    return render_template('bike/bike_list.html',recs=recs)
+    
+        
+@mod.route('/bike/edit/<int:bike_id>', methods=['POST', 'GET',])
+@mod.route('/bike/edit/<int:bike_id>/', methods=['POST', 'GET',])
+@mod.route('/bike/edit', methods=['POST', 'GET',])
+@mod.route('/bike/edit/', methods=['POST', 'GET',])
+@table_access_required(Bike)
+def edit(bike_id=None):
+    """Edit or create bike records including uploaded images"""
+    from app import app
+    
+    # import pdb;pdb.set_trace()
+    
+    setExits()
+    g.title = "Edit Bike Record"
+    site_config = get_site_config()
+    bike_id = cleanRecordID(request.form.get('id',bike_id))
+    if bike_id < 0:
+        flash('Invalid Bike ID')
+        return redirect(g.listURL)
+    bike = Bike(g.db)
+    if bike_id == 0:
+        rec = bike.new()
+    else:
+        rec = Bike(g.db).get(bike_id)
+    
+    if rec and request.form:
+        bike.update(rec,request.form)
+        bike.save(rec,commit=True)
+
+        file = request.files.get('image_file')
+        if file and file.filename:
+            upload = FileUpload(local_path=mod.name)
+            upload.save(file)
+            if upload.success:
+                rec.image_path = upload.saved_file_path_string
+                bike.save(rec,commit=True)
+                return redirect(g.listURL)
+            else:
+                flash(upload.error_text)
+        else:
+            return redirect(g.listURL)
+
+        
+    return render_template('bike/bike_edit.html',rec=rec)
+        
+@mod.route('/bike/delete/<int:bike_id>', methods=['POST', 'GET',])
+@mod.route('/bike/delete/<int:bike_id>/', methods=['POST', 'GET',])
+@mod.route('/bike/delete', methods=['POST', 'GET',])
+@mod.route('/bike/delete/', methods=['POST', 'GET',])
+@table_access_required(Bike)
+def delete(bike_id=None):
+    """View or create bike records including uploaded images"""
+    from app import app
+    setExits()
+    g.title = "Delete Bike Record"
+    # import pdb;pdb.set_trace()
+    bike_id = cleanRecordID(bike_id)
+    bike = Bike(g.db)
+    rec = Bike(g.db).get(bike_id)
+        
+    if rec:
+        if rec.image_path:
+            upload = FileUpload()
+            path = upload.get_file_path(rec.image_path)
+            # path = Path(app.root_path,get_site_config()['UPLOAD_FOLDER'],rec.image_path)
+            if path.exists() and not path.is_dir():
+                path.unlink() #remove file
+        bike.delete(rec.id,commit=True)
+    else:
+        flash('Invalid Bike ID')
+        
+    return redirect(g.listURL)
+        
+
 
 @mod.route('/ihaveabike', methods=['POST', 'GET',])
 @mod.route('/ihaveabike/', methods=['POST', 'GET',])
@@ -72,7 +168,6 @@ def sendcontact(**kwargs):
         html_template: The template to use for the contact form
     
     """
-    from shotglass2.shotglass import get_site_config
     from shotglass2.takeabeltof.mailer import send_message
     
     #import pdb;pdb.set_trace()
