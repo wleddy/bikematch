@@ -1,6 +1,14 @@
 # SABA #BikeMatch
 
-This is currently a simple set of contact forms to help us match bike donors to bike recipients.
+This is primarily a simple set of contact forms to help us match bike donors to bike recipients.
+
+You can use it just like that and deal with the responses off line as you see fit.
+
+I have also added the ability to record information about the bikes and who gave and got them. 
+Don't yet know if this is going to be useful to anyone, but it's there in a preliminary sort of
+way.
+
+You need to log in to see the Bike and "Folks" menu options to manage the records.
 
 
 ## Installation 

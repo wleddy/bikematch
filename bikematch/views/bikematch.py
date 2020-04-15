@@ -9,7 +9,7 @@ from shotglass2.takeabeltof.utils import render_markdown_for, printException, ha
     cleanRecordID
 from shotglass2.takeabeltof.file_upload import FileUpload
 from shotglass2.takeabeltof.date_utils import datetime_as_string
-from bikematch.models import Bike
+from bikematch.models import Bike, Folks
 from werkzeug.exceptions import RequestEntityTooLarge
     
 mod = Blueprint('bikematch',__name__, template_folder='templates/bikematch', url_prefix='')
@@ -64,6 +64,11 @@ def edit(bike_id=None):
     if bike_id < 0:
         flash('Invalid Bike ID')
         return redirect(g.listURL)
+        
+    donor_recs = Folks(g.db).select(where="donor_or_recipient = 'donor'")
+    recipient_recs = Folks(g.db).select(where="donor_or_recipient = 'recipient'")
+        
+            
     bike = Bike(g.db)
     if bike_id == 0:
         rec = bike.new()
@@ -88,7 +93,7 @@ def edit(bike_id=None):
             return redirect(g.listURL)
 
         
-    return render_template('bike/bike_edit.html',rec=rec)
+    return render_template('bike/bike_edit.html',rec=rec,donor_recs=donor_recs,recipient_recs=recipient_recs)
         
 @mod.route('/bike/delete/<int:bike_id>', methods=['POST', 'GET',])
 @mod.route('/bike/delete/<int:bike_id>/', methods=['POST', 'GET',])

@@ -1,0 +1,33 @@
+{% extends "form_layout.html" %}
+
+{% from "_form_helpers.html" import input_field, select_field, radio_field, checkbox_field, label_only %}
+
+{% block head %}
+{{ super() }}
+{% include "anytime_head.html"%}
+{% endblock head %}
+
+{% block fieldset %}
+<fieldset>
+    <p>{{ input_field(rec.id,"id",type="hidden",default=0)}}</p>
+    <p>{{ select_field('donor_or_recipient')}}
+        <option value="donor" {% if rec.donor_or_recipient == 'donor'%}selected{% endif %} >Donor</option>
+        <option value="recipient"{% if rec.donor_or_recipient == 'recipient'%}selected{% endif %} >Recipient</option>
+        </select>
+    </p>
+    <div class="w3-row">
+        <p class="w3_col w3-half">{{ input_field(rec.first_name,"first_name", req=True)}}</p>
+        <p class="w3_col w3-half" style="padding-left:6pt;">{{ input_field(rec.last_name,"last_name")}}</p>
+    </div>
+    <p>{{ input_field(rec.email,"email")}}</p>
+    <p>{{ input_field(rec.phone,"phone")}}</p>
+    <p>{{ input_field(rec.address,"address")}}</p>
+    <div class="w3-row">
+        <p class="w3_col w3-half">{{ input_field(rec.city,"city")}}</p>
+        <p class="w3_col l2 m2 s2" style="padding-left:6pt;">{{ input_field(rec.state,"state")}}</p>
+        <p class="w3_col l3 m3 s3" style="padding-left:6pt;">{{ input_field(rec.zip,"zip")}}</p>
+    </div>
+    <p>{{ label_only('Comment')}}</p>
+    <p><textarea style="width:100%;" rows="6" name="comment">{{ rec.comment | default('',True) }}</textarea></p>
+</fieldset>
+{% endblock fieldset %}

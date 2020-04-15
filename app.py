@@ -5,7 +5,7 @@ from shotglass2 import shotglass
 from shotglass2.takeabeltof.database import Database
 from shotglass2.takeabeltof.jinja_filters import register_jinja_filters
 from shotglass2.users.admin import Admin
-from bikematch.models import Bike
+from bikematch.models import Bike, Folks
 
 # Create app
 # setting static_folder to None allows me to handle loading myself
@@ -48,6 +48,7 @@ def initalize_all_tables(db=None):
     
     ### setup any other tables you need here....
     Bike(db).init_table()
+    Folks(db).init_table()
     
 def get_db(filespec=None):
     """Return a connection to the database.
@@ -113,7 +114,8 @@ def _before():
         ]
     # g.admin items are added to the navigation menu by default
     g.admin = Admin(g.db) # This is where user access rules are stored
-    g.admin.register(Bike,url_for('bikematch.display'),display_name='Find a Bike',top_level=True,minimum_rank_required=50)
+    g.admin.register(Bike,url_for('bikematch.display'),display_name='Bikes',top_level=True,minimum_rank_required=50)
+    g.admin.register(Folks,url_for('folks.display'),display_name='Folks',top_level=True,minimum_rank_required=50)
     
     shotglass.user_setup() # g.admin now holds access rules Users, Prefs and Roles
 
@@ -153,8 +155,9 @@ shotglass.register_users(app)
 # from shotglass2.www.views import home
 # app.add_url_rule('/contact/',home.contact)
 
-from bikematch.views import bikematch
+from bikematch.views import bikematch, folks
 app.register_blueprint(bikematch.mod)
+app.register_blueprint(folks.mod)
 
 
 if __name__ == '__main__':

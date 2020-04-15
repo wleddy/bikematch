@@ -21,8 +21,8 @@
 			<td onclick="window.location='{{ g.editURL }}{{rec.id}}/'">{{ rec.donation_date }}</td>
 			<td onclick="window.location='{{ g.editURL }}{{rec.id}}/'">{{ rec.bike_description | truncate(24) }}</td>
 			<td onclick="window.location='{{ g.editURL }}{{rec.id}}/'">{{ rec.serial_number }}</td>
-			<td onclick="window.location='{{ g.editURL }}{{rec.id}}/'">{{ rec.donor_name }}</td>
-			<td onclick="window.location='{{ g.editURL }}{{rec.id}}/'">{{ rec.recipient_name }}</td>
+			<td onclick="window.location='{{ g.editURL }}{{rec.id}}/'">{{ rec.donor_first_name | default('',True) }} {{ rec.donor_last_name | default('',True) }}</td>
+			<td onclick="window.location='{{ g.editURL }}{{rec.id}}/'">{{ rec.recipient_first_name | default('None',True) }} {{ rec.recipient_last_name | default('',True) }}</td>
 		</tr>
 		{% endfor %}
 	  </table>

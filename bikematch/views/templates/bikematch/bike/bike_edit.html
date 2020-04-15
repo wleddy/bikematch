@@ -2,6 +2,20 @@
 
 {% from "_form_helpers.html" import input_field, select_field, radio_field, checkbox_field, label_only %}
 
+{% block head %}
+{{ super() }}
+{% include "anytime_head.html"%}
+<script>
+    function send_emails(donor_id, recipient_id){
+        if(donor_id == 0 || recipient_id == 0 ){
+            alert("You must select a donor and a recipient first.");
+            return;
+        }
+        alert("This is not connected yet. Sorry.")
+    }
+</script>
+{% endblock head %}
+
 {% block fieldset %}
 <fieldset>
     <p>{{ input_field(rec.id,"id",type="hidden",default=0)}}</p>
@@ -15,15 +29,36 @@
     {{ input_field(rec.image_path, "image_file",label=None,type="file")}}
     {% endif %}
     </p>
-    <p>{{ input_field(rec.donation_date,"donation_date")}}</p>
-    <p>{{ input_field(rec.donor_name,"donor_name")}}</p>
-    <p>{{ input_field(rec.donor_email,"donor_email")}}</p>
-    <p>{{ label_only('Donor Information')}}</p>
-    <p><textarea style="width:100%;" rows="6" name="donor_comment">{{ rec.donor_comment | default('',True) }}</textarea></p>
-    <p>{{ input_field(rec.delivery_date,"delivery_date")}}</p>
-    <p>{{ input_field(rec.recipient_name,"recipient_name")}}</p>
-    <p>{{ input_field(rec.recipient_email,"recipient_email")}}</p>
-    <p>{{ label_only('Recipient Information')}}</p>
-    <p><textarea style="width:100%;" rows="6" name="recipient_comment">{{ rec.recipient_comment | default('',True) }}</textarea></p>
-</fieldset>
+    <h3>Donor</h3>
+    <div class="w3-row">
+        <p class="w3-col w3-half">
+            {{ select_field('donor_id',label="Donor Name", id="donor_id") }}
+                <option value="0" selected >Select a Donor</option>
+                {% if donor_recs %}
+                {% for donor_rec in donor_recs %}
+                <option value="{{ donor_rec.id }}" {% if rec.donor_id == donor_rec.id %}selected{% endif %}>{{ donor_rec.first_name }} {{ donor_rec.last_name }}</option>
+                {% endfor %}
+                {% endif %}
+            </select>
+        </p>
+        <p class="w3-col w3-half" style="padding-left:6pt;">{{ input_field(rec.donation_date,"donation_date",class="DatePickerButton",id="donatation_date")}}</p>
+        <script>addPicker("donatation_date","%m/%d/%Y")</script>
+    </div>
+    <h3>Recipient</h3>
+    <div class="w3-row">
+        <p class="w3-col w3-half">
+            {{ select_field('recipient_id',label="Recipient Name", id="recipient_id") }}
+                <option value="0" selected >Select a Recipient</option>
+                {% if recipient_recs %}
+                {% for recipient_rec in recipient_recs %}
+                <option value="{{ recipient_rec.id }}" {% if rec.recipient_id == recipient_rec.id %}selected{% endif %}>{{ recipient_rec.first_name }} {{ recipient_rec.last_name }}</option>
+                {% endfor %}
+                {% endif %}
+            </select>
+        </p>
+        <p class="w3-col w3-half" style="padding-left:6pt;">{{ input_field(rec.delivery_date,"delivery_date",class="DatePickerButton", id="delivery_date")}}</p>
+        <script>addPicker("delivery_date","%m/%d/%Y")</script>
+    </div>
+    <p><input type="button" value='Send Emails' name="send_email" onclick="send_emails($('#donor_id option:selected').val(),$('#recipient_id option:selected').val());" /></p>
+ </fieldset>
 {% endblock fieldset %}
