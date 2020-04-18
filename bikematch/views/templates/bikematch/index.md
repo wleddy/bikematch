@@ -27,7 +27,7 @@ to make your own arrangements to hand off the bike.
 pinch.
 
     **As an alternative:** If you have a bike that you're not really using, but you're not quite ready to give up for
-    good, consider a long term "rental" via [spinlister's 'wheels for heros' campaign](https://www.spinlister.com/blog/wheelsforheroes/).
+    good, consider a long term "rental" via the [Spinlister.com 'Wheels for Heros' campaign](https://www.spinlister.com/blog/wheelsforheroes/).
     They will rent the bike for $1 to a healthcare worker for as long as you are willing.
 
 2. If you are offering a bike, for sanitary purposes, clean the bike thoroughly before hand-off 
