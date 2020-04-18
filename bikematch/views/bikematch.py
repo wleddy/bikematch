@@ -12,7 +12,7 @@ from shotglass2.takeabeltof.date_utils import datetime_as_string
 from bikematch.models import Bike, Folks
 from werkzeug.exceptions import RequestEntityTooLarge
     
-mod = Blueprint('bikematch',__name__, template_folder='templates/bikematch', url_prefix='')
+mod = Blueprint('bikematch',__name__, template_folder='templates/bikematch', url_prefix='', static_folder="static/")
 
 
 def setExits():
