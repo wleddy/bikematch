@@ -1,12 +1,12 @@
 {% extends "layout.html" %}
 {% block title %}{{ g.title }}{% endblock %}
 {% block body %}
-
+<div class="sg-body-text">
 {% if rendered_html %}
 {{ rendered_html | safe() }}
 {% else %}
 <h2>Hmmmm...</h2>
 <p>There's nothing here... Better fix index.md'</p>
 {% endif %}
-
+</div>
 {% endblock body %}

@@ -111,6 +111,7 @@ def _before():
     g.menu_items = [{'title':'Home','url':url_for('bikematch.home')},
         {'title':'I Need a Bike','url':url_for('bikematch.needabike')},
         {'title':'I Have a Bike','url':url_for('bikematch.haveabike')},
+        {'title':'Alternative Sources','url':url_for('bikematch.alternatives')},
         ]
     # g.admin items are added to the navigation menu by default
     g.admin = Admin(g.db) # This is where user access rules are stored

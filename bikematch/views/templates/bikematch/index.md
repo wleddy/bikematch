@@ -12,13 +12,14 @@ who need one. Whether you have a bike or need a bike, contact us via the links b
 Fill out the ['Ineedabike' form]({{ url_for('bikematch.needabike') }}) and tell us about yourself
 and what you need.
 
-We will contact you to let you know what bikes we have and arrange to get it to you.
+We will contact you when we have a match for you. You and the donor will be provided with each other's contact 
+information so that you can make your own arrangements to hand off the bike.
 
 ### If you have a bike;
 Fill out the ['Ihaveabike' form]({{ url_for('bikematch.haveabike') }}) and tell us about the bike.
 
-We will contact you when we have a match for you. The donor and recipient will then contact each other
-to make your own arrangements to hand off the bike.
+We will contact you when we have a match for you. You and the recipient will be provided with each other's contact 
+information so that you can make your own arrangements to hand off the bike.
 
 ### Guidelines
 1. Participation in the Bike Match program constitues your agreement to the terms of the
@@ -27,13 +28,11 @@ to make your own arrangements to hand off the bike.
 pinch.
 
     **As an alternative:** If you have a bike that you're not really using, but you're not quite ready to give up for
-    good, consider a long term "rental" via the [Spinlister.com 'Wheels for Heros' campaign](https://www.spinlister.com/blog/wheelsforheroes/).
-    They will rent the bike for $1 to a healthcare worker for as long as you are willing.
+    good, you may wish to [consider these options...]({{url_for('bikematch.alternatives')}}).
 
-2. If you are offering a bike, for sanitary purposes, clean the bike thoroughly before hand-off 
-(handlebars, gear shifters, seat, etc).
 3. The bike hand-off will take place between the donor and recipient in an outdoor, 
 no-contact exchange in a public place observing social distancing guidelines.
-5. For sanitary purposes, all bike exchanges are permanent.
+2. For sanitary purposes, clean the bike thoroughly before hand-off 
+(handlebars, gear shifters, seat, etc). For the same reason, all bike exchanges are permanent.
 
 If you have any questions, please [contact us](/contact/).

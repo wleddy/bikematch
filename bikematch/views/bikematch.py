@@ -33,6 +33,15 @@ def home():
     return render_template('index.html',rendered_html=rendered_html,)
 
 
+@mod.route('/alternatives')
+def alternatives():
+    setExits()
+    g.title = 'Alternatives'
+    rendered_html = render_markdown_for('alternative_sources.md',mod)
+
+    return render_template('index.html',rendered_html=rendered_html,)
+
+
 @mod.route('/bikes', methods=['POST', 'GET',])
 @mod.route('/bikes/', methods=['POST', 'GET',])
 @table_access_required(Bike)

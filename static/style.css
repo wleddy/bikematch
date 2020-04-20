@@ -8,6 +8,16 @@
 
 */
 
+.sg-body-text {
+    margin:20pt auto;
+    width:80%;
+}
+@media (max-width:768px){
+    .sg-body-text {
+        margin:6pt;
+        width:100%;
+    }
+}
 
 /* change the fixed width of the right menu here*/
 /*
