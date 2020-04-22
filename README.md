@@ -1,5 +1,7 @@
 # SABA #BikeMatch
 
+***UPDATE***: I've mothballed this effort in favor of [bikematch.safelanes.org](http://bikematch.safelanes.org) at [braitsch/bikematch](https://github.com/braitsch/bikematch).
+
 This is primarily a simple set of contact forms to help us match bike donors to bike recipients.
 
 You can use it just like that and deal with the responses off line as you see fit.
