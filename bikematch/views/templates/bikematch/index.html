@@ -2,11 +2,36 @@
 {% block title %}{{ g.title }}{% endblock %}
 {% block body %}
 <div class="sg-body-text">
-{% if rendered_html %}
-{{ rendered_html | safe() }}
-{% else %}
-<h2>Hmmmm...</h2>
-<p>There's nothing here... Better fix index.md'</p>
-{% endif %}
+    <h1>SABA #BikeMatchSac</h1>
+    <p>Bicycles are essential transportation for many who need to get around at any time but especially 
+    now during the coronavirus outbreak. This might include traveling to essential jobs, running crucial 
+    errands, or participating in mutual aid for vulnerable people who cannot leave their homes.</p>
+    <p>Sacramento Area Bicycle Advocates is connecting those who have an extra bicycle to folks in the community
+    who need one. Whether you have a bike or need a bike, contact us via the links below, and we will match you.</p>
+    
+    <h2>How it works:</h2>
+    <h3>If you need a bike;</h3>
+    <p>Fill out the <a class="w3-button w3-primary-color w3-round-medium" href="http://bikematch.safelanes.org/sacramento/request/">I Need a Bike</a> form and tell us about yourself
+    and what you need.</p>
+    <p>We will contact you when we have a match for you. You and the donor will be provided with each other's contact 
+    information so that you can make your own arrangements to hand off the bike.</p>
+    
+    <h3>If you have a bike;</h3>
+    <p>Fill out the <a class="w3-button w3-primary-color w3-round-medium" href="http://bikematch.safelanes.org/sacramento/donate/">I Have a Bike</a> form and tell us about the bike.</p>
+    <p>We will contact you when we have a match for you. You and the recipient will be provided with each other's contact 
+    information so that you can make your own arrangements to hand off the bike.</p>
+    <h3>Guidelines</h3>
+    <ol>
+        <li>Participation in the Bike Match program constitues your agreement to the terms of the
+        <a href="/static/saba_bike_match_liability_waiver.pdf">LIABILITY WAIVER</a>.</li>
+        <li>Donated bikes should be in "ready to ride" condition. Something that you would ride, at least in a
+        pinch.
+        <li>The bike hand-off will take place between the donor and recipient in an outdoor, 
+        no-contact exchange in a public place observing social distancing guidelines.
+        </li>
+        <li>For sanitary purposes, clean the bike thoroughly before hand-off 
+    (handlebars, gear shifters, seat, etc). For the same reason, all bike exchanges are permanent.</li>
+    </ol>
+    <p>If you have any questions, please <a href="/contact/">contact us</a>.</p>
 </div>
 {% endblock body %}

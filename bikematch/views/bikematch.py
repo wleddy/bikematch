@@ -39,7 +39,7 @@ def alternatives():
     g.title = 'Alternatives'
     rendered_html = render_markdown_for('alternative_sources.md',mod)
 
-    return render_template('index.html',rendered_html=rendered_html,)
+    return render_template('markdown.html',rendered_html=rendered_html,)
 
 
 @mod.route('/bikes', methods=['POST', 'GET',])
@@ -123,7 +123,6 @@ def delete(bike_id=None):
         if rec.image_path:
             upload = FileUpload()
             path = upload.get_file_path(rec.image_path)
-            # path = Path(app.root_path,get_site_config()['UPLOAD_FOLDER'],rec.image_path)
             if path.exists() and not path.is_dir():
                 path.unlink() #remove file
         bike.delete(rec.id,commit=True)
