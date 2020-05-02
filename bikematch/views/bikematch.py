@@ -139,6 +139,8 @@ def haveabike():
     """handle bike donation contact"""
     setExits()
     g.title = 'I Have a Bike'
+    return redirect('http://bikematch.safelanes.org/sacramento/donate/')
+    
     return sendcontact(html_template='haveabike_contact.html',
                         subject='I have a Bike',
                         email_template='email/haveabike_email.html',
@@ -151,6 +153,9 @@ def needabike():
     """handle request for a bike"""
     setExits()
     g.title = 'I Need a Bike'
+    
+    return redirect('http://bikematch.safelanes.org/sacramento/request/')
+        
     return sendcontact(html_template='needabike_contact.html',
                         subject='Need A Bike',
                         email_template='email/needabike_email.html',

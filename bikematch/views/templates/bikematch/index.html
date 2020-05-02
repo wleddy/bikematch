@@ -9,15 +9,20 @@
     <p>Sacramento Area Bicycle Advocates is connecting those who have an extra bicycle to folks in the community
     who need one. Whether you have a bike or need a bike, contact us via the links below, and we will match you.</p>
     
+    <p>
+        We have teamed up with a number of other bike advocacy groups to create an on line platform to match up
+        people who have a bike to donate with those who need a bike.
+    </p>
+    
     <h2>How it works:</h2>
     <h3>If you need a bike;</h3>
-    <p>Fill out the <a class="w3-button w3-primary-color w3-round-medium" href="http://bikematch.safelanes.org/sacramento/request/">I Need a Bike</a> form and tell us about yourself
+    <p>Fill out the <a class="w3-button w3-primary-color w3-round-medium" href="{{ url_for('bikematch.needabike')}}">I Need a Bike</a> form and tell us about yourself
     and what you need.</p>
     <p>We will contact you when we have a match for you. You and the donor will be provided with each other's contact 
     information so that you can make your own arrangements to hand off the bike.</p>
     
     <h3>If you have a bike;</h3>
-    <p>Fill out the <a class="w3-button w3-primary-color w3-round-medium" href="http://bikematch.safelanes.org/sacramento/donate/">I Have a Bike</a> form and tell us about the bike.</p>
+    <p>Fill out the <a class="w3-button w3-primary-color w3-round-medium" href="{{ url_for('bikematch.haveabike')}}">I Have a Bike</a> form and tell us about the bike.</p>
     <p>We will contact you when we have a match for you. You and the recipient will be provided with each other's contact 
     information so that you can make your own arrangements to hand off the bike.</p>
     <h3>Guidelines</h3>
