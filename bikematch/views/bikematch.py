@@ -9,10 +9,11 @@ from shotglass2.takeabeltof.utils import render_markdown_for, printException, ha
     cleanRecordID
 from shotglass2.takeabeltof.file_upload import FileUpload
 from shotglass2.takeabeltof.date_utils import datetime_as_string
-from bikematch.models import Bike, Folks
+from shotglass2.takeabeltof.views import TableView
+from bikematch.models import DonorsAndRecipients, Match
 from werkzeug.exceptions import RequestEntityTooLarge
     
-mod = Blueprint('bikematch',__name__, template_folder='templates/bikematch', url_prefix='', static_folder="static/")
+mod = Blueprint('bikematch',__name__, template_folder='templates/', url_prefix='', static_folder="static/")
 
 
 def setExits():
@@ -30,63 +31,62 @@ def home():
     g.suppress_page_header = False
     rendered_html = render_markdown_for('index.md',mod)
 
-    return render_template('index.html',rendered_html=rendered_html,)
+    return render_template('bikematch/index.html',rendered_html=rendered_html,)
 
 
-@mod.route('/alternatives')
-def alternatives():
-    setExits()
-    g.title = 'Alternatives'
-    rendered_html = render_markdown_for('alternative_sources.md',mod)
 
-    return render_template('markdown.html',rendered_html=rendered_html,)
-
-
-@mod.route('/bikes', methods=['POST', 'GET',])
-@mod.route('/bikes/', methods=['POST', 'GET',])
-@table_access_required(Bike)
-def display():
-    """List bike records """
+# this handles table list and record delete
+@mod.route('/dr/<path:path>',methods=['GET','POST',])
+@mod.route('/dr/<path:path>/',methods=['GET','POST',])
+@mod.route('/dr/',methods=['GET','POST',])
+@table_access_required(DonorsAndRecipients)
+def display(path=None):
+    # import pdb;pdb.set_trace()
     
-    setExits()
-    g.title = "Bike Records"
-    recs = Bike(g.db).select()
+    view = TableView(DonorsAndRecipients,g.db)
+    # optionally specify the list fields
+    view.list_fields = [
+            {'name':'id','label':'ID','class':'w3-hide-small','search':True},
+            {'name':'full_name',},
+            {'name':'contact_type',},
+            {'name':'neighborhood',},
+            {'name':'bike_type','class':'w3-hide-small',},
+            {'name':'bike_size','class':'w3-hide-small',},
+        ]
     
-    return render_template('bike/bike_list.html',recs=recs)
+    return view.dispatch_request()
+
     
         
-@mod.route('/bike/edit/<int:bike_id>', methods=['POST', 'GET',])
-@mod.route('/bike/edit/<int:bike_id>/', methods=['POST', 'GET',])
-@mod.route('/bike/edit', methods=['POST', 'GET',])
-@mod.route('/bike/edit/', methods=['POST', 'GET',])
-@table_access_required(Bike)
-def edit(bike_id=None):
-    """Edit or create bike records including uploaded images"""
+@mod.route('/dr/edit/<int:rec_id>', methods=['POST', 'GET',])
+@mod.route('/dr/edit/<int:rec_id>/', methods=['POST', 'GET',])
+@mod.route('/dr/edit', methods=['POST', 'GET',])
+@mod.route('/dr/edit/', methods=['POST', 'GET',])
+@table_access_required(DonorsAndRecipients)
+def edit(rec_id=None):
+    """Edit or create contact records including uploaded images"""
     from app import app
     
     # import pdb;pdb.set_trace()
     
     setExits()
-    g.title = "Edit Bike Record"
+    g.title = "Edit Donor / Recipient Record"
     site_config = get_site_config()
-    bike_id = cleanRecordID(request.form.get('id',bike_id))
-    if bike_id < 0:
-        flash('Invalid Bike ID')
+    rec_id = cleanRecordID(request.form.get('id',rec_id))
+    if rec_id < 0:
+        flash('Invalid Record ID')
         return redirect(g.listURL)
         
-    donor_recs = Folks(g.db).select(where="donor_or_recipient = 'donor'")
-    recipient_recs = Folks(g.db).select(where="donor_or_recipient = 'recipient'")
-        
             
-    bike = Bike(g.db)
-    if bike_id == 0:
-        rec = bike.new()
+    contact = DonorsAndRecipients(g.db)
+    if rec_id == 0:
+        rec = contact.new()
     else:
-        rec = Bike(g.db).get(bike_id)
+        rec = DonorsAndRecipients(g.db).get(rec_id)
     
     if rec and request.form:
-        bike.update(rec,request.form)
-        bike.save(rec,commit=True)
+        contact.update(rec,request.form)
+        contact.save(rec,commit=True)
 
         file = request.files.get('image_file')
         if file and file.filename:
@@ -94,7 +94,7 @@ def edit(bike_id=None):
             upload.save(file)
             if upload.success:
                 rec.image_path = upload.saved_file_path_string
-                bike.save(rec,commit=True)
+                contact.save(rec,commit=True)
                 return redirect(g.listURL)
             else:
                 flash(upload.error_text)
@@ -102,22 +102,22 @@ def edit(bike_id=None):
             return redirect(g.listURL)
 
         
-    return render_template('bike/bike_edit.html',rec=rec,donor_recs=donor_recs,recipient_recs=recipient_recs)
+    return render_template('bikematch/dr/dr_edit.html',rec=rec,donor_recs=donor_recs,recipient_recs=recipient_recs)
         
-@mod.route('/bike/delete/<int:bike_id>', methods=['POST', 'GET',])
-@mod.route('/bike/delete/<int:bike_id>/', methods=['POST', 'GET',])
-@mod.route('/bike/delete', methods=['POST', 'GET',])
-@mod.route('/bike/delete/', methods=['POST', 'GET',])
-@table_access_required(Bike)
-def delete(bike_id=None):
-    """View or create bike records including uploaded images"""
+@mod.route('/dr/delete/<int:rec_id>', methods=['POST', 'GET',])
+@mod.route('/dr/delete/<int:rec_id>/', methods=['POST', 'GET',])
+@mod.route('/dr/delete', methods=['POST', 'GET',])
+@mod.route('/dr/delete/', methods=['POST', 'GET',])
+@table_access_required(DonorsAndRecipients)
+def delete(rec_id=None):
+    """View or create donor/recipient records including uploaded images"""
     from app import app
     setExits()
-    g.title = "Delete Bike Record"
+    g.title = "Delete Donor / Recipient Record"
     # import pdb;pdb.set_trace()
-    bike_id = cleanRecordID(bike_id)
-    bike = Bike(g.db)
-    rec = Bike(g.db).get(bike_id)
+    rec_id = cleanRecordID(rec_id)
+    dr = DonorsAndRecipients(g.db)
+    rec = dr.get(rec_id)
         
     if rec:
         if rec.image_path:
@@ -125,9 +125,9 @@ def delete(bike_id=None):
             path = upload.get_file_path(rec.image_path)
             if path.exists() and not path.is_dir():
                 path.unlink() #remove file
-        bike.delete(rec.id,commit=True)
+        dr.delete(rec.id,commit=True)
     else:
-        flash('Invalid Bike ID')
+        flash('Invalid Record ID')
         
     return redirect(g.listURL)
         
@@ -141,10 +141,10 @@ def haveabike():
     g.title = 'I Have a Bike'
     return redirect('http://bikematch.safelanes.org/sacramento/donate/')
     
-    return sendcontact(html_template='haveabike_contact.html',
+    return sendcontact(html_template='bikematch/haveabike_contact.html',
                         subject='I have a Bike',
-                        email_template='email/haveabike_email.html',
-                        custom_message=render_markdown_for('haveabike_contact.md',mod),
+                        email_template='bikematch/email/haveabike_email.html',
+                        custom_message=render_markdown_for('bikematch/haveabike_contact.md',mod),
                         )
                         
 @mod.route('/ineedabike', methods=['POST', 'GET',])
@@ -156,10 +156,10 @@ def needabike():
     
     return redirect('http://bikematch.safelanes.org/sacramento/request/')
         
-    return sendcontact(html_template='needabike_contact.html',
+    return sendcontact(html_template='bikematch/needabike_contact.html',
                         subject='Need A Bike',
-                        email_template='email/needabike_email.html',
-                        custom_message=render_markdown_for('needabike_contact.md',mod),
+                        email_template='bikematch/email/needabike_email.html',
+                        custom_message=render_markdown_for('bikematch/needabike_contact.md',mod),
                         )
     
 @mod.route('/contact', methods=['POST', 'GET',])
