@@ -19,9 +19,59 @@
 {% block fieldset %}
 <fieldset>
     <p>{{ input_field(rec.id,"id",type="hidden",default=0)}}</p>
-    <p>{{ label_only('Bike Description')}}</p>
-    <p><textarea style="width:100%;" rows="6" name="bike_description">{{ rec.bike_description | default('',True)}}</textarea></p>
-    <p>{{ input_field(rec.serial_number,"serial_number")}}</p>
+    <div class="w3-row">
+        <p class='w3-col w3-half'>{{ input_field(rec.first_name,"first_name",req=True,extras="autofocus")}}</p>
+        <p class='w3-col w3-half'>{{ input_field(rec.last_name,"last_name",req=True)}}</p>
+    </div>
+    <p>{{ input_field(rec.email,"email",req=True)}}</p>
+    <p>{{ input_field(rec.city,"city",req=True)}}</p>
+    <p>{{ input_field(rec.zip,"zip",label="Zip Code",req=True)}}</p>
+    <p>{{ input_field(rec.neighborhood,"neighborhood",req=True)}}</p>
+    <p>{{ select_field('d_or_r',label="Donor or Recipient") }}
+            <option value="Recipient" {% if rec.d_or_r == "Recipient" %}selected{% endif %}>Recipient</option>
+            <option value="Donor" {% if rec.d_or_r == "Donor" %}selected{% endif %}>Donor</option>
+        </select>
+    </p>
+    <p>{{ input_field(rec.occupation,"occupation",label="Recipient Occupation")}}</p>
+    <p>{{ label_only('Comment')}}</p>
+    <p><textarea style="width:100%;" rows="6" name="bike_comment">{{ rec.bike_comment | default('',True)}}</textarea></p>
+    <p>{{ input_field(rec.priority,"priority")}}</p>
+    <p>{{ label_only('Staff Comment')}}</p>
+    <p><textarea style="width:100%;" rows="6" name="staff_comment">{{ rec.staff_comment | default('',True)}}</textarea></p>
+    <div class="w3-row">
+        <p class="w3-small"><em>Height of rider</em></p>
+        <p class="w3-col w3-half">
+            {{ select_field('bike_size',label="Size", id="bike_size") }}
+                <option value="" selected >Select Size</option>
+                <option value="5&#39;0&quot;" {% if rec.bike_size == "5'0\"" %}selected{% endif %}>5&#39;0&quot;</option>
+                <option value="5&#39;1&quot;" {% if rec.bike_size == "5'1\"" %}selected{% endif %}>5&#39;1&quot;</option>
+                <option value="5&#39;2&quot;" {% if rec.bike_size == "5'2\"" %}selected{% endif %}>5&#39;2&quot;</option>
+                <option value="5&#39;3&quot;" {% if rec.bike_size == "5'3\"" %}selected{% endif %}>5&#39;3&quot;</option>
+                <option value="5&#39;4&quot;" {% if rec.bike_size == "5'4\"" %}selected{% endif %}>5&#39;4&quot;</option>
+                <option value="5&#39;5&quot;" {% if rec.bike_size == "5'5\"" %}selected{% endif %}>5&#39;5&quot;</option>
+                <option value="5&#39;6&quot;" {% if rec.bike_size == "5'6\"" %}selected{% endif %}>5&#39;6&quot;</option>
+                <option value="5&#39;7&quot;" {% if rec.bike_size == "5'7\"" %}selected{% endif %}>5&#39;7&quot;</option>
+                <option value="5&#39;8&quot;" {% if rec.bike_size == "5'8\"" %}selected{% endif %}>5&#39;8&quot;</option>
+                <option value="5&#39;9&quot;" {% if rec.bike_size == "5'9\"" %}selected{% endif %}>5&#39;9&quot;</option>
+                <option value="5&#39;10&quot;" {% if rec.bike_size == "5'10\"" %}selected{% endif %}>5&#39;10&quot;</option>
+                <option value="5&#39;11&quot;" {% if rec.bike_size == "5'11\"" %}selected{% endif %}>5&#39;11&quot;</option>
+                <option value="6&#39;0&quot;" {% if rec.bike_size == "6'0\"" %}selected{% endif %}>6&#39;0&quot;</option>
+                <option value="6&#39;1&quot;" {% if rec.bike_size == "6'1\"" %}selected{% endif %}>6&#39;1&quot;</option>
+                <option value="6&#39;2&quot;" {% if rec.bike_size == "6'2\"" %}selected{% endif %}>6&#39;2&quot;</option>
+                <option value="6&#39;3&quot;" {% if rec.bike_size == "6'3\"" %}selected{% endif %}>6&#39;3&quot;</option>
+                <option value="6&#39;4&quot;" {% if rec.bike_size == "6'4\"" %}selected{% endif %}>6&#39;4&quot;</option>
+                <option value="6&#39;5&quot;" {% if rec.bike_size == "6'5\"" %}selected{% endif %}>6&#39;5&quot;</option>
+            </select>
+        </p>
+        <p class="w3-col w3-half">
+            {{ select_field('bike_type',label="Type", id="bike_type") }}
+                <option value="" selected >Select a Type</option>
+                <option value="Road Bike" {% if rec.bike_type == "Road Bike" %}selected{% endif %}>Road Bike</option>
+                <option value="Mountain Bike" {% if rec.bike_type == "Mountain Bike" %}selected{% endif %}>Mountain Bike</option>
+                <option value="Hybrid Bike" {% if rec.bike_type == "Hybrid Bike" %}selected{% endif %}>Hybrid Bike</option>
+            </select>
+        </p>
+    </div>
     <p>{{ label_only('Bike Image')}}
     {% if rec.image_path %}
     <img src="{{ url_for('static',filename=rec.image_path)}}" class="w3-border w3-padding" style="width:100%;max-width:500px" />
@@ -29,36 +79,17 @@
     {{ input_field(rec.image_path, "image_file",label=None,type="file")}}
     {% endif %}
     </p>
-    <h3>Donor</h3>
+    <p style="padding-right:3pt">{{ label_only("Date Created") }}</p>
     <div class="w3-row">
-        <p class="w3-col w3-half">
-            {{ select_field('donor_id',label="Donor Name", id="donor_id") }}
-                <option value="0" selected >Select a Donor</option>
-                {% if donor_recs %}
-                {% for donor_rec in donor_recs %}
-                <option value="{{ donor_rec.id }}" {% if rec.donor_id == donor_rec.id %}selected{% endif %}>{{ donor_rec.first_name }} {{ donor_rec.last_name }}</option>
-                {% endfor %}
-                {% endif %}
-            </select>
+        <p class="w3-col w3-quarter">
+            {{ input_field(rec.created,"created",class="DatePickerButton",id="created",label=None)}}
         </p>
-        <p class="w3-col w3-half" style="padding-left:6pt;">{{ input_field(rec.donation_date,"donation_date",class="DatePickerButton",id="donatation_date")}}</p>
-        <script>addPicker("donatation_date","%m/%d/%Y")</script>
-    </div>
-    <h3>Recipient</h3>
-    <div class="w3-row">
-        <p class="w3-col w3-half">
-            {{ select_field('recipient_id',label="Recipient Name", id="recipient_id") }}
-                <option value="0" selected >Select a Recipient</option>
-                {% if recipient_recs %}
-                {% for recipient_rec in recipient_recs %}
-                <option value="{{ recipient_rec.id }}" {% if rec.recipient_id == recipient_rec.id %}selected{% endif %}>{{ recipient_rec.first_name }} {{ recipient_rec.last_name }}</option>
-                {% endfor %}
-                {% endif %}
-            </select>
+        <p class="w3-col l2 m2 s2 ">
+            <a href="javascript:addPicker('created','%m/%d/%y')"  class="DatePickerButton">
+            <img src="{{ url_for('static', filename='anytime/calendar.png' ) }}" alt="[calendar icon]"/>
+            </a>
         </p>
-        <p class="w3-col w3-half" style="padding-left:6pt;">{{ input_field(rec.delivery_date,"delivery_date",class="DatePickerButton", id="delivery_date")}}</p>
-        <script>addPicker("delivery_date","%m/%d/%Y")</script>
     </div>
-    <p><input type="button" value='Send Emails' name="send_email" onclick="send_emails($('#donor_id option:selected').val(),$('#recipient_id option:selected').val());" /></p>
+    
  </fieldset>
 {% endblock fieldset %}

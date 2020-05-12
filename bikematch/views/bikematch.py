@@ -6,9 +6,9 @@ from flask import request, session, g, redirect, url_for, abort, \
 from shotglass2.users.admin import login_required, table_access_required
 from shotglass2.shotglass import get_site_config
 from shotglass2.takeabeltof.utils import render_markdown_for, printException, handle_request_error, send_static_file, \
-    cleanRecordID
+    cleanRecordID, looksLikeEmailAddress
 from shotglass2.takeabeltof.file_upload import FileUpload
-from shotglass2.takeabeltof.date_utils import datetime_as_string
+from shotglass2.takeabeltof.date_utils import datetime_as_string, local_datetime_now, date_to_string, getDatetimeFromString
 from shotglass2.takeabeltof.views import TableView
 from bikematch.models import DonorsAndRecipients, Match
 from werkzeug.exceptions import RequestEntityTooLarge
@@ -46,10 +46,12 @@ def display(path=None):
     view = TableView(DonorsAndRecipients,g.db)
     # optionally specify the list fields
     view.list_fields = [
-            {'name':'id','label':'ID','class':'w3-hide-small','search':True},
+            {'name':'id','label':'ID','class':'w3-hide-medium w3-hide-small','search':True},
+            {'name':'created','label':'Added','type':'date', 'search':'date'},
             {'name':'full_name',},
-            {'name':'contact_type',},
-            {'name':'neighborhood',},
+            {'name':'d_or_r','label':'Type'},
+            {'name':'priority',},
+            {'name':'neighborhood','class':'w3-hide-small'},
             {'name':'bike_type','class':'w3-hide-small',},
             {'name':'bike_size','class':'w3-hide-small',},
         ]
@@ -65,8 +67,7 @@ def display(path=None):
 @table_access_required(DonorsAndRecipients)
 def edit(rec_id=None):
     """Edit or create contact records including uploaded images"""
-    from app import app
-    
+
     # import pdb;pdb.set_trace()
     
     setExits()
@@ -81,29 +82,34 @@ def edit(rec_id=None):
     contact = DonorsAndRecipients(g.db)
     if rec_id == 0:
         rec = contact.new()
+        rec.created = date_to_string(local_datetime_now(),'date')
     else:
-        rec = DonorsAndRecipients(g.db).get(rec_id)
-    
-    if rec and request.form:
-        contact.update(rec,request.form)
-        contact.save(rec,commit=True)
-
-        file = request.files.get('image_file')
-        if file and file.filename:
-            upload = FileUpload(local_path=mod.name)
-            upload.save(file)
-            if upload.success:
-                rec.image_path = upload.saved_file_path_string
-                contact.save(rec,commit=True)
-                return redirect(g.listURL)
-            else:
-                flash(upload.error_text)
-        else:
+        rec = contact.get(rec_id)
+        if not rec:
+            flash("Record not Found")
             return redirect(g.listURL)
+    
+    if request.form:
+        contact.update(rec,request.form)
+        if valididate_form(rec):
+            contact.save(rec,commit=True)
 
+            file = request.files.get('image_file')
+            if file and file.filename:
+                upload = FileUpload(local_path=mod.name)
+                upload.save(file)
+                if upload.success:
+                    rec.image_path = upload.saved_file_path_string
+                    contact.save(rec,commit=True)
+                    return redirect(g.listURL)
+                else:
+                    flash(upload.error_text)
+            else:
+                return redirect(g.listURL)
         
-    return render_template('bikematch/dr/dr_edit.html',rec=rec,donor_recs=donor_recs,recipient_recs=recipient_recs)
-        
+    return render_template('bikematch/dr/dr_edit.html',rec=rec,)
+    
+    
 @mod.route('/dr/delete/<int:rec_id>', methods=['POST', 'GET',])
 @mod.route('/dr/delete/<int:rec_id>/', methods=['POST', 'GET',])
 @mod.route('/dr/delete', methods=['POST', 'GET',])
@@ -111,7 +117,7 @@ def edit(rec_id=None):
 @table_access_required(DonorsAndRecipients)
 def delete(rec_id=None):
     """View or create donor/recipient records including uploaded images"""
-    from app import app
+
     setExits()
     g.title = "Delete Donor / Recipient Record"
     # import pdb;pdb.set_trace()
@@ -131,7 +137,6 @@ def delete(rec_id=None):
         
     return redirect(g.listURL)
         
-
 
 @mod.route('/ihaveabike', methods=['POST', 'GET',])
 @mod.route('/ihaveabike/', methods=['POST', 'GET',])
@@ -337,3 +342,42 @@ def robots():
     #from shotglass2.shotglass import get_site_config
     return redirect('/static/robots.txt')
 
+
+def valididate_form(rec):
+    valid_form = True
+    
+    if not rec.first_name or not rec.last_name:
+        flash("You must enter your full name")
+        valid_form = False
+    if not rec.email.strip():
+        flash("You must enter your email address")
+        valid_form = False
+    elif not looksLikeEmailAddress(rec.email):
+        flash("That is not a valid email address")
+        valid_form = False
+        
+    if not rec.city.strip():
+        flash("You must enter your city name")
+        valid_form = False
+    if not rec.zip.strip():
+        flash("You must enter your zip code")
+        valid_form = False
+    if not rec.neighborhood.strip():
+        flash("You must enter your neighborhood")
+        valid_form = False
+    if not rec.bike_size.strip():
+        flash("You must specify your height")
+        valid_form = False
+    if not rec.bike_type.strip():
+        flash("You must specify a bike type")
+        valid_form = False
+        
+    temp_date = getDatetimeFromString(rec.created.strip())
+    if not temp_date:
+        flash("The 'Created' date is not a valid date")
+        valid_form = False
+        
+        
+        
+        
+    return valid_form

@@ -8,7 +8,7 @@ class DonorsAndRecipients(SqliteTable):
     def __init__(self,db_connection):
         super().__init__(db_connection)
         self.table_name = 'donors_and_recipients'
-        self.order_by_col = 'lower(last_name), lower(first_name)'
+        self.order_by_col = 'created'
         self.defaults = {}
         self._display_name = "Donors & Recipients"
     
@@ -18,16 +18,18 @@ class DonorsAndRecipients(SqliteTable):
             'last_name' TEXT,
             'email' TEXT,
             'city' TEXT,
-            'state' TEXT,
             'zip' TEXT,
+            'phone' TEXT,
             'neighborhood' TEXT,
-            'contact_type' TEXT,
+            'd_or_r' TEXT,
             'created' DATETIME,
             'bike_size' TEXT,
             'bike_type' TEXT,
+            'occupation' TEXT,
             'bike_comment' TEXT,
             'image_path' TEXT,
             'staff_comment' TEXT,
+            'priority' TEXT,
             'match_id' INT
             """
         super().create_table(sql)
@@ -67,7 +69,8 @@ class Match(SqliteTable):
             'recipient_id' INT ,
             'match_date' DATETIME,
             'match_status' TEXT,
-            'match_comment' TEXT
+            'match_comment' TEXT,
+            'match_image_path' TEXT
              """
         super().create_table(sql)
 
