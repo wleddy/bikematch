@@ -12,6 +12,7 @@ from shotglass2.takeabeltof.date_utils import datetime_as_string, local_datetime
 from shotglass2.takeabeltof.views import TableView
 from bikematch.models import DonorsAndRecipients, Match
 from werkzeug.exceptions import RequestEntityTooLarge
+
     
 mod = Blueprint('bikematch',__name__, template_folder='templates/', url_prefix='', static_folder="static/")
 
@@ -73,7 +74,13 @@ def edit(rec_id=None):
     setExits()
     g.title = "Edit Donor / Recipient Record"
     site_config = get_site_config()
-    rec_id = cleanRecordID(request.form.get('id',rec_id))
+    save_success = False
+    try:
+        rec_id = cleanRecordID(request.form.get('id',rec_id))
+    except RequestEntityTooLarge as e:
+        flash("The image file you submitted was too large. Maximum size is {} MB".format(request.max_content_length))
+        return redirect(g.listURL)
+        
     if rec_id < 0:
         flash('Invalid Record ID')
         return redirect(g.listURL)
@@ -92,22 +99,37 @@ def edit(rec_id=None):
     if request.form:
         contact.update(rec,request.form)
         if valididate_form(rec):
-            contact.save(rec,commit=True)
-
+            contact.save(rec)
+            
             file = request.files.get('image_file')
             if file and file.filename:
                 upload = FileUpload(local_path=mod.name)
-                upload.save(file)
-                if upload.success:
-                    rec.image_path = upload.saved_file_path_string
-                    contact.save(rec,commit=True)
-                    return redirect(g.listURL)
-                else:
-                    flash(upload.error_text)
+                filename = file.filename
+                if rec.first_name and rec.last_name:
+                    # set the filename to the name of the donor
+                    #get the extension
+                    x = filename.find('.')
+                    if x > 0:
+                        filename = rec.first_name.lower() + "_" + rec.last_name.lower() + filename[x:].lower()
+                        upload.save(file,filename=filename)
+                        if upload.success:
+                            rec.image_path = upload.saved_file_path_string
+                            contact.save(rec,commit=True)
+                            save_success = True
+                        else:
+                            flash(upload.error_text)
+                    else:
+                        # there must be an extenstion
+                        flash('The image file must have an extension at the end of the name.')
+                        
             else:
-                return redirect(g.listURL)
+                contact.commit()
+                save_success = True
         
-    return render_template('bikematch/dr/dr_edit.html',rec=rec,)
+    if save_success:
+        return redirect(g.listURL)
+    else:
+        return render_template('bikematch/dr/dr_edit.html',rec=rec,)
     
     
 @mod.route('/dr/delete/<int:rec_id>', methods=['POST', 'GET',])
