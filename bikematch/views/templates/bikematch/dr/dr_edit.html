@@ -32,16 +32,10 @@
             <option value="Donor" {% if rec.d_or_r == "Donor" %}selected{% endif %}>Donor</option>
         </select>
     </p>
-    <p>{{ input_field(rec.occupation,"occupation",label="Recipient Occupation")}}</p>
-    <p>{{ label_only('Comment')}}</p>
-    <p><textarea style="width:100%;" rows="6" name="bike_comment">{{ rec.bike_comment | default('',True)}}</textarea></p>
-    <p>{{ input_field(rec.priority,"priority")}}</p>
-    <p>{{ label_only('Staff Comment')}}</p>
-    <p><textarea style="width:100%;" rows="6" name="staff_comment">{{ rec.staff_comment | default('',True)}}</textarea></p>
     <div class="w3-row">
         <p class="w3-small"><em>Height of rider</em></p>
         <p class="w3-col w3-half">
-            {{ select_field('bike_size',label="Size", id="bike_size") }}
+            {{ select_field('bike_size',label="Size", id="bike_size", req=True) }}
                 <option value="" selected >Select Size</option>
                 <option value="5&#39;0&quot;" {% if rec.bike_size == "5'0\"" %}selected{% endif %}>5&#39;0&quot;</option>
                 <option value="5&#39;1&quot;" {% if rec.bike_size == "5'1\"" %}selected{% endif %}>5&#39;1&quot;</option>
@@ -64,7 +58,7 @@
             </select>
         </p>
         <p class="w3-col w3-half">
-            {{ select_field('bike_type',label="Type", id="bike_type") }}
+            {{ select_field('bike_type',label="Type", id="bike_type", req=True) }}
                 <option value="" selected >Select a Type</option>
                 <option value="Road Bike" {% if rec.bike_type == "Road Bike" %}selected{% endif %}>Road Bike</option>
                 <option value="Mountain Bike" {% if rec.bike_type == "Mountain Bike" %}selected{% endif %}>Mountain Bike</option>
@@ -74,11 +68,17 @@
     </div>
     <p>{{ label_only('Bike Image')}}
     {% if rec.image_path %}
-    <img src="{{ url_for('static',filename=rec.image_path)}}" class="w3-border w3-padding" style="width:100%;max-width:500px" />
+    <img src="{{ url_for('static',filename=rec.image_path)}}" class="w3-border w3-padding" style="width:100%;max-width:250px" />
     {% else %}
     {{ input_field(rec.image_path, "image_file",label=None,type="file")}}
     {% endif %}
     </p>
+    <p>{{ input_field(rec.occupation,"occupation",label="Recipient Occupation")}}</p>
+    <p>{{ label_only('Comment')}}</p>
+    <p><textarea style="width:100%;" rows="6" name="bike_comment">{{ rec.bike_comment | default('',True)}}</textarea></p>
+    <p>{{ input_field(rec.priority,"priority")}}</p>
+    <p>{{ label_only('Staff Comment')}}</p>
+    <p><textarea style="width:100%;" rows="6" name="staff_comment">{{ rec.staff_comment | default('',True)}}</textarea></p>
     <p style="padding-right:3pt">{{ label_only("Date Created") }}</p>
     <div class="w3-row">
         <p class="w3-col w3-quarter">
