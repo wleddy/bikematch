@@ -20,7 +20,7 @@
 <fieldset>
     <p>{{ input_field(rec.id,"id",type="hidden",default=0)}}</p>
     <div class="w3-row">
-        <p class='w3-col w3-half'>{{ input_field(rec.first_name,"first_name",req=True,extras="autofocus")}}</p>
+        <p class='w3-col w3-half'>{{ input_field(rec.first_name,"first_name",req=True)}}</p>
         <p class='w3-col w3-half'>{{ input_field(rec.last_name,"last_name",req=True)}}</p>
     </div>
     <p>{{ input_field(rec.email,"email",req=True)}}</p>
