@@ -114,7 +114,7 @@ def _before():
  #        {'title':'Alternative Sources','url':url_for('bikematch.alternatives')},
  #        ]
     g.menu_items = [
-        {'title':'Saba Home','url':"http://sacbike.org"},
+        {'title':'SABA Home','url':"http://sacbike.org"},
         {'title':'Bikematch Home','url':url_for('bikematch.home')},
         ]
     # g.admin items are added to the navigation menu by default
