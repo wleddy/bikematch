@@ -14,7 +14,7 @@ from bikematch.models import DonorsAndRecipients, Match
 from werkzeug.exceptions import RequestEntityTooLarge
 
     
-mod = Blueprint('bikematch',__name__, template_folder='templates/', url_prefix='', static_folder="static/")
+mod = Blueprint('bikematch',__name__, template_folder='templates/bikematch', url_prefix='', static_folder="static/")
 
 
 def setExits():
@@ -30,9 +30,8 @@ def home():
     setExits()
     g.title = 'Home'
     g.suppress_page_header = False
-    rendered_html = render_markdown_for('index.md',mod)
 
-    return render_template('bikematch/index.html',rendered_html=rendered_html,)
+    return render_template('index.html',)
 
 
 
@@ -129,7 +128,7 @@ def edit(rec_id=None):
     if save_success:
         return redirect(g.listURL)
     else:
-        return render_template('bikematch/dr/dr_edit.html',rec=rec,)
+        return render_template('dr/dr_edit.html',rec=rec,)
     
     
 @mod.route('/dr/delete/<int:rec_id>', methods=['POST', 'GET',])
@@ -168,10 +167,10 @@ def haveabike():
     g.title = 'I Have a Bike'
     return redirect('http://bikematch.safelanes.org/sacramento/donate/')
     
-    return sendcontact(html_template='bikematch/haveabike_contact.html',
+    return sendcontact(html_template='haveabike_contact.html',
                         subject='I have a Bike',
-                        email_template='bikematch/email/haveabike_email.html',
-                        custom_message=render_markdown_for('bikematch/haveabike_contact.md',mod),
+                        email_template='email/haveabike_email.html',
+                        custom_message=render_markdown_for('haveabike_contact.md',mod),
                         )
                         
 @mod.route('/ineedabike', methods=['POST', 'GET',])
@@ -183,10 +182,10 @@ def needabike():
     
     return redirect('http://bikematch.safelanes.org/sacramento/request/')
         
-    return sendcontact(html_template='bikematch/needabike_contact.html',
+    return sendcontact(html_template='needabike_contact.html',
                         subject='Need A Bike',
-                        email_template='bikematch/email/needabike_email.html',
-                        custom_message=render_markdown_for('bikematch/needabike_contact.md',mod),
+                        email_template='email/needabike_email.html',
+                        custom_message=render_markdown_for('needabike_contact.md',mod),
                         )
     
 @mod.route('/contact', methods=['POST', 'GET',])
