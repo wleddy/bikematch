@@ -10,7 +10,7 @@ from shotglass2.takeabeltof.utils import render_markdown_for, printException, ha
 from shotglass2.takeabeltof.file_upload import FileUpload
 from shotglass2.takeabeltof.date_utils import datetime_as_string, local_datetime_now, date_to_string, getDatetimeFromString
 from shotglass2.takeabeltof.views import TableView
-from bikematch.models import DonorsAndRecipients, Match
+from bikematch.models import Folks, Match
 from werkzeug.exceptions import RequestEntityTooLarge
 
     
@@ -39,11 +39,11 @@ def home():
 @mod.route('/dr/<path:path>',methods=['GET','POST',])
 @mod.route('/dr/<path:path>/',methods=['GET','POST',])
 @mod.route('/dr/',methods=['GET','POST',])
-@table_access_required(DonorsAndRecipients)
+@table_access_required(Folks)
 def display(path=None):
     # import pdb;pdb.set_trace()
     
-    view = TableView(DonorsAndRecipients,g.db)
+    view = TableView(Folks,g.db)
     # optionally specify the list fields
     view.list_fields = [
             {'name':'id','label':'ID','class':'w3-hide-medium w3-hide-small','search':True},
@@ -55,7 +55,10 @@ def display(path=None):
             {'name':'bike_type','class':'w3-hide-small',},
             {'name':'bike_size','class':'w3-hide-small',},
         ]
-    
+        
+    view.list_search_widget_extras_template = 'dr_list_search_widget_extras.html'
+
+
     return view.dispatch_request()
 
     
@@ -64,7 +67,7 @@ def display(path=None):
 @mod.route('/dr/edit/<int:rec_id>/', methods=['POST', 'GET',])
 @mod.route('/dr/edit', methods=['POST', 'GET',])
 @mod.route('/dr/edit/', methods=['POST', 'GET',])
-@table_access_required(DonorsAndRecipients)
+@table_access_required(Folks)
 def edit(rec_id=None):
     """Edit or create contact records including uploaded images"""
 
@@ -85,7 +88,7 @@ def edit(rec_id=None):
         return redirect(g.listURL)
         
             
-    contact = DonorsAndRecipients(g.db)
+    contact = Folks(g.db)
     if rec_id == 0:
         rec = contact.new()
         rec.created = date_to_string(local_datetime_now(),'date')
@@ -135,7 +138,7 @@ def edit(rec_id=None):
 @mod.route('/dr/delete/<int:rec_id>/', methods=['POST', 'GET',])
 @mod.route('/dr/delete', methods=['POST', 'GET',])
 @mod.route('/dr/delete/', methods=['POST', 'GET',])
-@table_access_required(DonorsAndRecipients)
+@table_access_required(Folks)
 def delete(rec_id=None):
     """View or create donor/recipient records including uploaded images"""
 
@@ -143,7 +146,7 @@ def delete(rec_id=None):
     g.title = "Delete Donor / Recipient Record"
     # import pdb;pdb.set_trace()
     rec_id = cleanRecordID(rec_id)
-    dr = DonorsAndRecipients(g.db)
+    dr = Folks(g.db)
     rec = dr.get(rec_id)
         
     if rec:
@@ -397,6 +400,8 @@ def valididate_form(rec):
     if not temp_date:
         flash("The 'Created' date is not a valid date")
         valid_form = False
+    else:
+        rec.created = temp_date
         
         
         

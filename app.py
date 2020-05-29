@@ -5,7 +5,7 @@ from shotglass2 import shotglass
 from shotglass2.takeabeltof.database import Database
 from shotglass2.takeabeltof.jinja_filters import register_jinja_filters
 from shotglass2.users.admin import Admin
-from bikematch.models import DonorsAndRecipients, Match
+from bikematch.models import Folks, Match
 
 # Create app
 # setting static_folder to None allows me to handle loading myself
@@ -47,7 +47,7 @@ def initalize_all_tables(db=None):
     shotglass.initalize_user_tables(db)
     
     ### setup any other tables you need here....
-    DonorsAndRecipients(db).init_table()
+    Folks(db).init_table()
     Match(db).init_table()
     
 def get_db(filespec=None):
@@ -121,8 +121,8 @@ def _before():
         ]
     # g.admin items are added to the navigation menu by default
     g.admin = Admin(g.db) # This is where user access rules are stored
-    g.admin.register(DonorsAndRecipients,None,display_name='Contacts',header_row=True,minimum_rank_required=100)
-    g.admin.register(DonorsAndRecipients,url_for('bikematch.display'),display_name='Records',minimum_rank_required=100)
+    g.admin.register(Folks,None,display_name='Contacts',header_row=True,minimum_rank_required=100)
+    g.admin.register(Folks,url_for('bikematch.display'),display_name='Records',minimum_rank_required=100)
     g.admin.register(Match,url_for('matches.display'),display_name='Matches',minimum_rank_required=100)
     
     shotglass.user_setup() # g.admin now holds access rules Users, Prefs and Roles

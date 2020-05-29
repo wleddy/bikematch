@@ -3,14 +3,14 @@ from shotglass2.takeabeltof.utils import cleanRecordID
 from shotglass2.users.views.password import getPasswordHash
         
 
-class DonorsAndRecipients(SqliteTable):
+class Folks(SqliteTable):
     """Bike Donors and Recipients"""
     def __init__(self,db_connection):
         super().__init__(db_connection)
-        self.table_name = 'donors_and_recipients'
+        self.table_name = 'folks'
         self.order_by_col = 'created'
-        self.defaults = {}
-        self._display_name = "Donors & Recipients"
+        self.defaults = {'status':'Open'}
+        self._display_name = "Folks"
     
     def create_table(self):        
         sql = """
@@ -35,16 +35,27 @@ class DonorsAndRecipients(SqliteTable):
         super().create_table(sql)
         
         
+    @property
+    def _column_list(self):
+        """A list of dicts used to add fields to an existing table.
+        """
+
+        column_list = [
+        {'name':'status','definition':'TEXT',},
+        ]
+
+        return column_list
+        
     def select(self,where=None,order_by=None,**kwargs):
         where = where if where else 'match_id is null'
         order_by = order_by if order_by else self.order_by_col
-        sql = """select donors_and_recipients.*,
-        donors_and_recipients.first_name || ' ' || donors_and_recipients.last_name as full_name,
+        sql = """select folks.*,
+        folks.first_name || ' ' || folks.last_name as full_name,
         match.match_date,
         match.match_status,
         match.match_comment
-        from donors_and_recipients
-        left join match on match.id = donors_and_recipients.match_id
+        from folks
+        left join match on match.id = folks.match_id
         where {where}
         order by {order_by}
         """.format(where=where,order_by=order_by)
@@ -84,8 +95,8 @@ class Match(SqliteTable):
         recipient.first_name as recipient_first_name,
         recipient.last_name as recipient_last_name
         from match
-        left join donors_and_recipients as donor on donor.id = match.donor_id 
-        left join donors_and_recipients as recipient on recipient.id = match.recipient_id
+        left join folks as donor on donor.id = match.donor_id 
+        left join folks as recipient on recipient.id = match.recipient_id
         where {where}
         order by {order_by}
         """.format(where=where,order_by=order_by)

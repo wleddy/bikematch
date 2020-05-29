@@ -80,16 +80,26 @@
     <p>{{ input_field(rec.priority,"priority")}}</p>
     <p>{{ label_only('Staff Comment')}}</p>
     <p><textarea style="width:100%;" rows="6" name="staff_comment">{{ rec.staff_comment | default('',True)}}</textarea></p>
-    <p style="padding-right:3pt">{{ label_only("Date Created") }}</p>
     <div class="w3-row">
-        <p class="w3-col w3-quarter">
-            {{ input_field(rec.created,"created",class="DatePickerButton",id="created",label=None)}}
+        <div class="w3-col l3 m3 s9">
+            {% set creation_date = '' %}
+            {% if rec.created %}{% set creation_date = rec.created | short_date_string %}{% endif %}
+            
+            <p>{{ input_field(creation_date,"created",class="DatePickerButton",id="created",label="Date Created")}}</p>
+        </div>
+            <p class="w3-col l1 m1 s2"><br>
+                <a href="javascript:addPicker('created','%m/%d/%y')"  class="DatePickerButton">
+                <img src="{{ url_for('static', filename='anytime/calendar.png' ) }}" alt="[calendar icon]"/>
+                </a>
+            </p>
+        <p class="w3-col w3-half">
+            {{ select_field('status',label="Status", id="status") }}
+                <option value="Open" {% if rec.status == "Open" %}selected{% endif %}>Open</option>
+                <option value="Matched" {% if rec.status == "Matched" %}selected{% endif %}>Matched</option>
+                <option value="Hold" {% if rec.status == "Hold" %}selected{% endif %}>Hold</option>
+            </select>
         </p>
-        <p class="w3-col l2 m2 s2 ">
-            <a href="javascript:addPicker('created','%m/%d/%y')"  class="DatePickerButton">
-            <img src="{{ url_for('static', filename='anytime/calendar.png' ) }}" alt="[calendar icon]"/>
-            </a>
-        </p>
+        
     </div>
     
  </fieldset>

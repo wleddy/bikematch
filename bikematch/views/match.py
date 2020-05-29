@@ -2,7 +2,7 @@ from flask import request, session, g, redirect, url_for, \
      render_template, flash, Blueprint
 from shotglass2.takeabeltof.utils import printException, cleanRecordID
 from shotglass2.users.admin import login_required, table_access_required
-from bikematch.models import DonorsAndRecipients, Match
+from bikematch.models import Folks, Match
 
 PRIMARY_TABLE = Match
 
