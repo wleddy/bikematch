@@ -64,8 +64,14 @@ def edit(rec_id=None):
         return redirect(g.listURL)
         
     folks = Folks(g.db)
-    recipients = folks.select(where=" lower(d_or_r) = 'recipient' and match_id is null")
-    donors = folks.select(where=" lower(d_or_r) = 'donor' and match_id is null")
+    recipients = folks.select(
+        where=" lower(d_or_r) = 'recipient' and match_id is null",
+        order_by = "full_name",
+        )
+    donors = folks.select(
+        where=" lower(d_or_r) = 'donor' and match_id is null",
+        order_by = "full_name",
+        )
     donor = None
     recipient = None
     
