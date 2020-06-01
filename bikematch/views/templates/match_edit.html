@@ -1,0 +1,96 @@
+{% extends "form_layout.html" %}
+
+{% from "_form_helpers.html" import input_field, select_field, radio_field, checkbox_field, label_only %}
+
+{% block head %}
+{{ super() }}
+{% include "anytime_head.html"%}
+<style>
+    .match_info {
+        padding:6pt;
+        margin:6pt;
+        border: 1pt #666 solid;
+box-shadow: 4pt 4pt 2pt grey;    }
+</style>
+{% endblock head %}
+
+{% block fieldset %}
+<fieldset>
+    <p>{{ input_field(rec.id,"id",type="hidden",default=0)}}</p>
+    <div class="w3-row">
+        {% if donor %}
+        <div class="w3-col l5 m5 s12">
+            <p class="match_info">
+                <strong>Donor</strong>
+                <br>{{ donor.full_name}}
+                <br>{{ donor.bike_size}}
+                <br>{{ donor.bike_type}}
+                {% if donor.email %}<br><a href="mailto:{{donor.email}}">{{ donor.email}}</a>{% endif %}
+                {% if donor.phone%}<br><a href="tel:{{ donor.phone }}">{{ donor.phone | default('',True) | phone }}</a>{% endif %}
+            </p>
+        </div>
+        <div class="w3-col l1 m1 w3-hide-small">&nbsp;</div>
+        <div class="w3-col l5 m5 s12">
+            <p class="match_info">
+                <strong>Recipient</strong>
+                <br>{{ recipient.full_name}}
+                <br>{{ recipient.bike_size}}
+                <br>{{ recipient.bike_type}}
+                {% if recipient.email %}<br><a href="mailto:{{recipient.email}}">{{ recipient.email}}</a>{% endif %}
+                {% if recipient.phone%}<br><a href="tel:{{ recipient.phone }}">{{ recipient.phone | default('',True) | phone }}</a>{% endif %}
+                <br>{{ recipient.priority | default('',True)}}
+            </p>
+        </div>
+        {% else %}
+        <div class="w3-col l5 m5 s12">
+            {% set disabled_extra = ' style="color:#777" disabled' %}
+            <p>{{ label_only('Donors')}}</p>
+            {% if donors %}
+            {% set donor_disabled = '' %}
+            {% if rec.donor_id and rec.id %}{% set donor_disabled = disabled_extra %}{% endif %}
+            {{ select_field('donor_id',label=None, id="Donors", req=True, extras=donor_disabled) }}
+            <option value="-1">Select a Donor</option>
+            {% for donor in donors %}
+                <option value="{{ donor.id }}" {% if rec.donor_id | string == donor.id | string %}selected{% endif %} >{{ donor.id }}: {{ donor.full_name }}, {{ donor.bike_size }}, {{ donor.bike_type }}</option>
+            {% endfor %}
+            </select>
+            {% else %}
+            <p>No Donor bikes available.</p>
+            {% endif %}
+        </div>
+        <div class="w3-col l1 m1 w3-hide-small">&nbsp;</div>
+        <div class="w3-col l5 m5 s12">
+            <p>{{ label_only('Recipients')}}</p>
+            {% if recipients %}
+            {% set recipient_disabled = '' %}
+            {% if rec.recipient_id and rec.id %}{% set recipient_disabled = disabled_extra %}{% endif %}
+            {{ select_field('recipient_id',label=None, id="recipient_id", req=True, extras=recipient_disabled ) }}
+            <option value="-1">Select a Recipient</option>
+            {% for recipient in recipients %}
+                <option value="{{ recipient.id }}" {% if rec.recipient_id | string == recipient.id | string %}selected{% endif %}>{{ recipient.id }}: {{ recipient.full_name }}, {{ recipient.bike_size }}, {{ recipient.bike_type }}</option>
+            {% endfor %}
+            </select>
+            {% else %}
+            <p>No Recipients found.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    <p class="w3-row">{{ input_field(rec.match_status,'match_status')}}</p>
+    <p>{{ label_only('Comment')}}</p>
+    <p><textarea style="width:100%;" rows="6" name="match_comment">{{ rec.match_comment | default('',True)}}</textarea></p>
+    <div class="w3-row">
+        <div class="w3-col l3 m3 s9">
+            {% set match_date = '' %}
+            {% if rec.match_date %}{% set creation_date = rec.match_date | short_date_string %}{% endif %}
+            
+            <p>{{ input_field(creation_date,"match_date",class="DatePickerButton",id="match_date",label="Date Created")}}</p>
+        </div>
+            <p class="w3-col l1 m1 s2"><br>
+                <a href="javascript:addPicker('match_date','%m/%d/%y')"  class="DatePickerButton">
+                <img src="{{ url_for('static', filename='anytime/calendar.png' ) }}" alt="[calendar icon]"/>
+                </a>
+            </p>
+    </div>
+ </fieldset>
+{% endblock fieldset %}

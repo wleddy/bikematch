@@ -84,6 +84,18 @@ class Match(SqliteTable):
             'match_image_path' TEXT
              """
         super().create_table(sql)
+        
+        # add a trigger to clear the match_id from Folks
+        sql = """CREATE TRIGGER IF NOT EXISTS 
+        clear_match_before_delete BEFORE DELETE ON {this_table}
+        BEGIN
+        UPDATE folks SET 
+            match_id = NULL,
+            status = 'Open'
+        WHERE match_id = OLD.id;
+        END;
+        """.format(this_table=self.table_name)
+        self.db.execute(sql)
 
 
     def select(self,where=None,order_by=None,**kwargs):
@@ -92,8 +104,10 @@ class Match(SqliteTable):
         sql = """select match.*,
         donor.first_name as donor_first_name,
         donor.last_name as donor_last_name,
+        donor.first_name || ' ' || donor.last_name as donor_name,
         recipient.first_name as recipient_first_name,
-        recipient.last_name as recipient_last_name
+        recipient.last_name as recipient_last_name,
+        recipient.first_name || ' ' || recipient.last_name as recipient_name
         from match
         left join folks as donor on donor.id = match.donor_id 
         left join folks as recipient on recipient.id = match.recipient_id

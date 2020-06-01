@@ -123,7 +123,7 @@ def _before():
     g.admin = Admin(g.db) # This is where user access rules are stored
     g.admin.register(Folks,None,display_name='Contacts',header_row=True,minimum_rank_required=100)
     g.admin.register(Folks,url_for('bikematch.display'),display_name='Records',minimum_rank_required=100)
-    g.admin.register(Match,url_for('matches.display'),display_name='Matches',minimum_rank_required=100)
+    g.admin.register(Match,url_for('match.display'),display_name='Matches',minimum_rank_required=100)
     
     shotglass.user_setup() # g.admin now holds access rules Users, Prefs and Roles
 
