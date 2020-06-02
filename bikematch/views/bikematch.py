@@ -6,7 +6,7 @@ from flask import request, session, g, redirect, url_for, abort, \
 from shotglass2.users.admin import login_required, table_access_required
 from shotglass2.shotglass import get_site_config
 from shotglass2.takeabeltof.utils import render_markdown_for, printException, handle_request_error, send_static_file, \
-    cleanRecordID, looksLikeEmailAddress
+    cleanRecordID, looksLikeEmailAddress, formatted_phone_number
 from shotglass2.takeabeltof.file_upload import FileUpload
 from shotglass2.takeabeltof.date_utils import datetime_as_string, local_datetime_now, date_to_string, getDatetimeFromString
 from shotglass2.takeabeltof.views import TableView
@@ -34,7 +34,28 @@ def home():
     return render_template('index.html',)
 
 
+@mod.route('view/<int:rec_id>', methods=['GET',])
+@mod.route('view/<int:rec_id>/', methods=['GET',])
+@mod.route('view', methods=['GET',])
+@mod.route('view/', methods=['GET',])
+def view_bike(rec_id=None):
+    """Display the information about a bike"""
+    
+    setExits()
+    g.title = "View Bike"
+    
+    rec_id = cleanRecordID(rec_id)
+    
+    if rec_id > 0:
+        rec = Folks(g.db).get(rec_id)
+        if rec and rec.d_or_r.lower() == "donor":
+            
+            return render_template('view_bike.html',rec=rec)
 
+    flash("That does not look like a valid bike record...")
+    return redirect(g.homeURL)
+    
+    
 # this handles table list and record delete
 @mod.route('/dr/<path:path>',methods=['GET','POST',])
 @mod.route('/dr/<path:path>/',methods=['GET','POST',])
@@ -101,6 +122,8 @@ def edit(rec_id=None):
     if request.form:
         contact.update(rec,request.form)
         if valididate_form(rec):
+            # Format the phone number
+            rec.phone = formatted_phone_number(rec.phone)
             contact.save(rec)
             
             file = request.files.get('image_file')
