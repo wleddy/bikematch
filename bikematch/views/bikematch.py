@@ -56,6 +56,37 @@ def view_bike(rec_id=None):
     return redirect(g.homeURL)
     
     
+@mod.route('bike_question/<int:rec_id>', methods=['GET',])
+@mod.route('bike_question/<int:rec_id>/', methods=['GET',])
+@mod.route('bike_question', methods=['GET',])
+@mod.route('bike_question/', methods=['GET',])
+def bike_question(rec_id=None):
+    """Viewer has a question about a bike"""
+
+    setExits()
+    g.title = "Bike Question"
+    
+    rec_id = cleanRecordID(rec_id)
+    
+    if rec_id > 0:
+        rec = Folks(g.db).get(rec_id)
+        if rec and rec.d_or_r.lower() == "donor":
+            rendered_html = "<p>Please type your message below the info section in the &quot;Comment&quot; section</p>"
+            bike_info = """
++++++++++ please leave this section as-is ++++++++++++
+A question regarding Bike ID = {}
+Size: {}
+Type: {}
++++++++++ please leave this section as-is ++++++++++++
+
+""".format(rec.id,rec.bike_size,rec.bike_type)
+            context = {'comment':bike_info}
+            return render_template('bike_question.html',rec=rec,rendered_html=rendered_html,context=context,show_form=True)
+
+    flash("That does not look like a valid bike record...")
+    return redirect(g.homeURL)
+
+
 # this handles table list and record delete
 @mod.route('/dr/<path:path>',methods=['GET','POST',])
 @mod.route('/dr/<path:path>/',methods=['GET','POST',])

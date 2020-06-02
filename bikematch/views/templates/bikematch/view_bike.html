@@ -24,6 +24,7 @@
     <p><strong>Bike Size:</strong> {{rec.bike_size }}</p>
     <p><strong>Bike Type:</strong> {{rec.bike_type }}</p>
     {% if rec.bike_comment %}<p><strong>Comment:</strong> {{rec.bike_comment }}</p>{% endif %}
+    <p>Have a question? <a href="{{ url_for('bikematch.bike_question')}}{{rec.id}}">Click here...</a></p>
     <p class="main_img"><img src="{{ url_for('static',filename=rec.image_path)}}" alt="bike image" /></p>
 </div>
 
