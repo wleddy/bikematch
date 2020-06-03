@@ -33,8 +33,8 @@ def display(path=None):
             {'name':'id','label':'ID','class':'w3-hide-small','search':True},
             {'name':'match_date','search':'date'},
             {'name':'match_status',},
-            {'name':'donor_name','label':'Donor'},
             {'name':'recipient_name','label':'Recipient'},
+            {'name':'donor_name','label':'Donor'},
         ]
     
     # ON DELETE trigger in Match clears the match_id in Folks
@@ -132,6 +132,10 @@ def validForm(rec):
     if test_id < 1:
         valid_form = False
         flash("You must select a Recipient")
+        
+    if not rec.match_status.strip():
+        valid_form = False
+        flash("You must enter something the Status field")
 
     temp_date = getDatetimeFromString(rec.match_date.strip())
     if not temp_date:
@@ -139,6 +143,8 @@ def validForm(rec):
         flash("The 'Match' date is not a valid date")
     else:
         rec.match_date = temp_date
+        
+        
 
     return valid_form
     
