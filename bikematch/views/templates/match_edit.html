@@ -28,7 +28,7 @@
         <div class="w3-col l5 m5 s12">
             <p class="match_info">
                 <strong>Recipient</strong>
-                <br>{{ recipient.full_name}}
+                <br>{{ recipient.full_name}} <a href="{{ url_for('bikematch.edit')}}{{ recipient.id }}/"><em>(edit)</em></a>
                 <br>{{ recipient.bike_size}}
                 <br>{{ recipient.bike_type}}
                 {% if recipient.email %}<br><a href="mailto:{{recipient.email}}">{{ recipient.email}}</a>{% endif %}
@@ -41,7 +41,7 @@
             <p class="match_info">
                 <strong>Donor</strong>
                 {% if donor %}
-                <br>{{ donor.full_name}}
+                <br>{{ donor.full_name}} <a href="{{ url_for('bikematch.view_bike')}}{{ donor.id }}/"><em>(view)</em></a>
                 <br>{{ donor.bike_size}}
                 <br>{{ donor.bike_type}}
                 {% if donor.email %}<br><a href="mailto:{{donor.email}}">{{ donor.email}}</a>{% endif %}
