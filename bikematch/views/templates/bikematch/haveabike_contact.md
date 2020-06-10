@@ -1,8 +1,6 @@
 ## How it works:
 Fill out the form here and tell us about the bike.
 
-We will contact you when we have a match for you. You and the recipient will be provided with each other's contact 
-information so that you can make your own arrangements to hand off the bike.
 
 ### Guidelines
 1. Participation in the Bike Match program constitues your agreement to the terms of the
@@ -10,13 +8,13 @@ information so that you can make your own arrangements to hand off the bike.
 1. Donated bikes should be in "ready to ride" condition. Something that you would ride, at least in a
 pinch.
 
-    **As an alternative:** If you have a bike that you're not really using, but you're not quite ready to give up for
-    good, you may wish to [consider these options...]({{url_for('bikematch.alternatives')}}).
-
-2. The donor and recipient will coordinate to arrange the hand off of the bike.
-3. The bike hand-off will take place between you and the recipient in an outdoor, 
-no-contact exchange in a public place observing social distancing guidelines.
+2. We will contact you to make arrangements to get the bike from you. Our preferred method is to
+meet with you at the Sacramento Bicycle Kitchen in Midtown Sacramento or in another public location
+that is convenient to you.
 2. For sanitary purposes, clean the bike thoroughly before hand-off 
 (handlebars, gear shifters, seat, etc). For the same reason, all bike exchanges are permanent.
+
+We will then try to match the bike with someone in our list of recipients and we will hand the 
+bike off to them.
 
 If you have general questions, please [contact us](/contact/).

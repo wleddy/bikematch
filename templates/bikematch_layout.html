@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>{% block document_title %}{% block title%}{{g.title}}{% endblock %} - {{ site_config.SITE_NAME | default("",True) }}{% endblock document_title%}</title> 
+	<link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}" >
+    <link rel="SHORTCUT ICON" type="image/vnd.microsoft.icon" href="{{ url_for('static', filename='favicon.ico') }}" >
+    <link rel="apple-touch-icon" type="image/png" sizes="57x57" href="{{ url_for('static', filename='apple-touch-icon-57.png') }}"><!-- iPhone -->
+    <link rel="apple-touch-icon" type="image/png" sizes="72x72" href="{{ url_for('static', filename='apple-touch-icon-72.png') }}"><!-- iPad -->
+    <link rel="apple-touch-icon" type="image/png" sizes="114x114" href="{{ url_for('static', filename='apple-touch-icon-114.png') }}"><!-- iPhone4 -->
+    <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="{{ url_for('static', filename='apple-touch-icon-120.png') }}"><!-- iPhone7? -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='apple-touch-icon-114.png') }}"><!-- Opera Speed Dial, at least 144×114 px -->
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+
+	<script src="{{ url_for('static', filename='jquery.1.10.1.js') }}"></script>
+	<script src="{{ url_for('static', filename='common.js') }}"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='w3.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='default_style.css' )}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css' )}}">
+    <style>
+        body{
+            background-image:url('/static/backdrop.jpg');
+            background-color:rgb(247, 240, 230)!important;
+            background-attachment: fixed;
+        }
+        #sg-header, #sg-footer, #sg-page-header {
+            background-color:rgba(247, 240, 230, .9)!important;
+        }
+        #sg-body {
+            background-color: rgba(255,255,255,.85);
+            width:80%;
+            margin:auto;
+        }
+        #record_access {
+            text-align:right;
+            margin-right:30pt;
+            font-size:10pt;
+            padding-bottom:6pt;
+        }
+        @media (max-width:768px){
+            #sg-body {
+                margin:6pt auto;
+                width:100%;
+            }
+        }
+    </style>
+    {% block head%}{% endblock %}
+</head>
+<body>
+    <div id="contain" >    
+        <div id="sg-header">
+        {% block header %}
+            {% include "header.html"%}
+            {% if g.user %}
+            <p id="record_access"><a href="{{ url_for('bikematch.display')}}">Records...</a></p>
+            {% else %}
+            <p id="record_access"><a href="{{ url_for('login.login')}}">Login...</a></p>
+            {% endif %}
+        {% endblock header %}
+        </div>
+        
+        <div id="sg-content" class="w3-main w3-container">
+            <div id="sg-page-header">
+            {% block page_header %}
+            {% endblock page_header %}
+            </div>
+            
+            <div id="sg-flasher">
+                {% block flasher %}{% include "flasher.html" %}{% endblock flasher%}
+            </div>
+            
+            <div id="sg-body">
+                {% block body %}{% endblock %}
+            </div>
+            
+        </div>
+
+    </div>
+
+    <div id="sg-footer">
+        {% block footer %}{% include 'footer.html'%}{% endblock footer%}
+    </div>
+
+    {% block dialog %}
+    <div id="dialog"></div>
+    <div id="modal-form-contain" class="w3-modal" style="overflow:hidden;padding-top:20pt!important;z-index:auto;">
+        <div id="modal-form" class="w3-container w3-modal-content w3-card-4 w3-animate-top" style="max-height:95vh;overflow:scroll;"></div>
+    </div>
+    {% endblock dialog %}
+</body>
+</html>

@@ -1,0 +1,27 @@
+{% extends "bikematch_form_layout.html" %}
+
+{% from "_form_helpers.html" import input_field, select_field, radio_field, checkbox_field, label_only %}
+
+
+{% block fieldset %}
+<fieldset>
+    <p>{{ input_field(rec.id,"id",type="hidden",default=0)}}</p>
+    <div class="w3-row">
+        <p class='w3-col w3-half'>{{ input_field(rec.first_name,"first_name",req=True)}}</p>
+        <p class='w3-col w3-half'>{{ input_field(rec.last_name,"last_name",req=True)}}</p>
+    </div>
+    <p>{{ input_field(rec.email,"email",req=True)}}</p>
+    <p>{{ input_field(rec.phone,"phone",)}}</p>
+    <p>{{ input_field(rec.city,"city",req=True)}}</p>
+    <p>{{ input_field(rec.zip,"zip",label="Zip Code",req=True)}}</p>
+    <p>{{ input_field(rec.neighborhood,"neighborhood",req=True)}}</p>
+    
+    {% include 'dr/bike_size_and_type.html' %}
+    
+    <p>{{ input_field(rec.occupation,"occupation",label="Your Occupation / Employer")}}</p>
+    <p>{{ label_only('Tell us why you\'d like a bike')}}</p>
+    <p><textarea style="width:100%;" rows="6" name="bike_comment">{{ rec.bike_comment | default('',True)}}</textarea></p>
+</div>
+    
+ </fieldset>
+{% endblock fieldset %}

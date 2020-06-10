@@ -8,6 +8,7 @@ from shotglass2.shotglass import get_site_config
 from shotglass2.takeabeltof.utils import render_markdown_for, printException, handle_request_error, send_static_file, \
     cleanRecordID, looksLikeEmailAddress, formatted_phone_number
 from shotglass2.takeabeltof.file_upload import FileUpload
+from shotglass2.takeabeltof.mailer import Mailer, email_admin
 from shotglass2.takeabeltof.date_utils import datetime_as_string, local_datetime_now, date_to_string, getDatetimeFromString
 from shotglass2.takeabeltof.views import TableView
 from bikematch.models import Folks, Match
@@ -222,7 +223,7 @@ def haveabike():
     """handle bike donation contact"""
     setExits()
     g.title = 'I Have a Bike'
-    return redirect('http://bikematch.safelanes.org/sacramento/donate/')
+    # return redirect('http://bikematch.safelanes.org/sacramento/donate/')
     
     return sendcontact(html_template='haveabike_contact.html',
                         subject='I have a Bike',
@@ -236,14 +237,44 @@ def needabike():
     """handle request for a bike"""
     setExits()
     g.title = 'I Need a Bike'
+    g.editURL = url_for(".needabike")
+    g.cancelURL = url_for('.home')
+    contact = Folks(g.db)
+    rec = contact.new() 
     
-    return redirect('http://bikematch.safelanes.org/sacramento/request/')
+    # Validate input
+    if request.form:
+        contact.update(rec,request.form)
+        rec.created = date_to_string(local_datetime_now(),'date')
+        rec.d_or_r = "Recipient"
+        rec.phone = formatted_phone_number(rec.phone)
+        rec.status = 'Open'
+        rec.priority = 'New'
+        if valididate_form(rec):
+            contact.save(rec,commit=True)
+            rec = contact.get(rec.id) #get a fresh copy
+            site_config = get_site_config()
+            
+            # inform sysop of new request
+            mailer = Mailer(None,rec=rec)
+            mailer.text_template = 'dr/email/request_admin_email.txt'
+            mailer.subject = "Bike Request Submitted"
+            mailer.send()
+            # Inform recipient that request was received
+            mailer = Mailer((rec.full_name,rec.email),rec=rec)
+            mailer.text_template = 'dr/email/request_recipient_email.txt'
+            mailer.subject = "Your Bike Match request has been recieved"
+            mailer.bcc = (site_config['MAIL_DEFAULT_SENDER'],site_config['MAIL_DEFAULT_ADDR'])
+            mailer.send()
+            if not mailer.success:
+                mes = "Error: {}".format(mailer.result_text)
+                email_admin(subject="Error sending Need a bike email",message=mes)
+            
+            return redirect(url_for(".home"))
         
-    return sendcontact(html_template='needabike_contact.html',
-                        subject='Need A Bike',
-                        email_template='email/needabike_email.html',
-                        custom_message=render_markdown_for('needabike_contact.md',mod),
-                        )
+    # display Recipient form
+    return render_template('dr/need_a_bike_form.html',rec=rec)
+    
     
 @mod.route('/contact', methods=['POST', 'GET',])
 @mod.route('/contact/', methods=['POST', 'GET',])
