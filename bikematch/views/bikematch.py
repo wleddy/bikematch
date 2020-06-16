@@ -107,6 +107,8 @@ def display(path=None):
             {'name':'neighborhood','class':'w3-hide-small'},
             {'name':'bike_type','class':'w3-hide-small',},
             {'name':'bike_size','class':'w3-hide-small',},
+            {'name':'phone','list':False,},
+            {'name':'email','list':False,},
         ]
         
     view.list_search_widget_extras_template = 'dr_list_search_widget_extras.html'
@@ -127,7 +129,7 @@ def edit(rec_id=None):
     # import pdb;pdb.set_trace()
     
     setExits()
-    g.title = "Edit Donor / Recipient Record"
+    g.title = "Edit Folks Record"
     site_config = get_site_config()
     save_success = False
     try:
