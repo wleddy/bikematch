@@ -33,7 +33,7 @@
 
     <p>{{ input_field(rec.occupation,"occupation",label="Recipient Occupation")}}</p>
     <p>{{ label_only('Comment')}}</p>
-    <p><textarea style="width:100%;" rows="6" name="bike_comment">{{ rec.request_comment | default('',True)}}</textarea></p>
+    <p><textarea style="width:100%;" rows="6" name="request_comment">{{ rec.request_comment | default('',True)}}</textarea></p>
     <p>{{ input_field(rec.priority,"priority")}}</p>
     <p>{{ label_only('Staff Comment')}}</p>
     <p><textarea style="width:100%;" rows="6" name="staff_comment">{{ rec.staff_comment | default('',True)}}</textarea></p>
