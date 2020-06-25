@@ -54,7 +54,7 @@
         {% block header %}
             {% include "header.html"%}
             {% if g.user %}
-            <p id="record_access"><a href="{{ url_for('bikematch.display')}}">Records...</a>
+            <p id="record_access"><a href="{{ url_for('recipient.display')}}">Records...</a>
             &nbsp;&nbsp;<a href="{{ url_for('login.logout')}}">Logout</a></p>
             {% else %}
             <p id="record_access"><a href="{{ url_for('login.login')}}">Login...</a></p>

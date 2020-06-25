@@ -16,7 +16,7 @@
     <p>{{ input_field(rec.zip,"zip",label="Zip Code",req=True)}}</p>
     <p>{{ input_field(rec.neighborhood,"neighborhood",req=True)}}</p>
     
-    {% include 'dr/bike_size_and_type.html' %}
+    {% include '/bike_size_and_type.html' %}
     
     <p>{{ input_field(rec.occupation,"occupation",label="Your Occupation / Employer")}}</p>
     <p>{{ label_only('Tell us why you\'d like a bike')}}</p>

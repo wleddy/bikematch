@@ -28,7 +28,7 @@
         <div class="w3-col l5 m5 s12">
             <p class="match_info">
                 <strong>Recipient</strong>
-                <br>{{ recipient.full_name}} <a href="{{ url_for('bikematch.edit')}}{{ recipient.id }}/" target="_blank" ><em>(edit)</em></a>
+                <br>{{ recipient.full_name}} <a href="{{ url_for('bike.edit')}}{{ recipient.id }}/" target="_blank" ><em>(edit)</em></a>
                 <br>{{ recipient.bike_size}}
                 <br>{{ recipient.bike_type}}
                 {% if recipient.email %}<br><a href="mailto:{{recipient.email}}">{{ recipient.email}}</a>{% endif %}
@@ -41,7 +41,7 @@
             <p class="match_info">
                 <strong>Donor</strong>
                 {% if donor %}
-                <br>{{ donor.full_name}} <a href="{{ url_for('bikematch.view_bike')}}{{ donor.id }}/" target="_blank" ><em>(view)</em></a>
+                <br>{{ donor.full_name}} <a href="{{ url_for('bike.view_bike')}}{{ donor.id }}/" target="_blank" ><em>(view)</em></a>
                 <br>{{ donor.bike_size}}
                 <br>{{ donor.bike_type}}
                 {% if donor.email %}<br><a href="mailto:{{donor.email}}">{{ donor.email}}</a>{% endif %}
@@ -68,11 +68,11 @@
         <div class="w3-col l1 m1 w3-hide-small">&nbsp;</div>
         <div class="w3-col l5 m5 s12">
             <p>{{ label_only('Donors')}}</p>
-            {% if donors %}
+            {% if bikes %}
             {{ select_field('donor_id',label=None, id="Donors", req=True) }}
             <option value="-1">Select a Donor</option>
-            {% for donor in donors %}
-                <option value="{{ donor.id }}" {% if rec.donor_id | string == donor.id | string %}selected{% endif %} >{{ donor.id }}: {{ donor.full_name }}, {{ donor.bike_size }}, {{ donor.bike_type }}</option>
+            {% for bike in bikes %}
+                <option value="{{ bike.id }}" {% if rec.donor_id | string == bike.id | string %}selected{% endif %} >{{ bike.id }}: {{ bike.full_name }}, {{ bike.bike_size }}, {{ bike.bike_type }}</option>
             {% endfor %}
             </select>
             {% else %}

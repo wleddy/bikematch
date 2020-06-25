@@ -1,16 +1,16 @@
 from shotglass2.takeabeltof.database import SqliteTable
 from shotglass2.takeabeltof.utils import cleanRecordID
 from shotglass2.users.views.password import getPasswordHash
-        
-
-class Folks(SqliteTable):
+  
+  
+class Bike(SqliteTable):
     """Bike Donors and Recipients"""
     def __init__(self,db_connection):
         super().__init__(db_connection)
-        self.table_name = 'folks'
+        self.table_name = 'bike'
         self.order_by_col = 'created'
         self.defaults = {'status':'Open'}
-        self._display_name = "Folks"
+
     
     def create_table(self):        
         sql = """
@@ -21,13 +21,88 @@ class Folks(SqliteTable):
             'zip' TEXT,
             'phone' TEXT,
             'neighborhood' TEXT,
-            'd_or_r' TEXT,
             'created' DATETIME,
+            'status' TEXT,
+            'bike_size' TEXT,
+            'bike_type' TEXT,
+            'bike_comment' TEXT,
+            'image_path' TEXT,
+            'staff_comment' TEXT,
+            'match_id' INT
+            """
+        super().create_table(sql)
+        
+        
+    @property
+    def _column_list(self):
+        """A list of dicts used to add fields to an existing table.
+            # {'name':'status','definition':'TEXT',},
+        """
+
+        column_list = [
+        ]
+
+        return column_list
+        
+
+    def select(self,where=None,order_by=None,**kwargs):
+        where = where if where else 'match_id is null'
+        order_by = order_by if order_by else self.order_by_col
+        sql = """select bike.*,
+        bike.first_name || ' ' || bike.last_name as full_name,
+        match.match_date,
+        match.match_status,
+        match.match_comment
+        from bike
+        left join match on match.id = bike.match_id
+        where {where}
+        order by {order_by}
+        """.format(where=where,order_by=order_by)
+
+        return self.query(sql)
+
+class Recipient(SqliteTable):
+    """People Requesting Bikes"""
+    def __init__(self,db_connection):
+        super().__init__(db_connection)
+        self.table_name = 'recipient'
+        self.order_by_col = 'created'
+        self.defaults = {'status':'Open'}
+    
+    def create_table(self):        
+        # sql = """
+        #     'first_name' TEXT,
+        #     'last_name' TEXT,
+        #     'email' TEXT,
+        #     'city' TEXT,
+        #     'zip' TEXT,
+        #     'phone' TEXT,
+        #     'neighborhood' TEXT,
+        #     'd_or_r' TEXT,
+        #     'created' DATETIME,
+        #     'bike_size' TEXT,
+        #     'bike_type' TEXT,
+        #     'occupation' TEXT,
+        #     'bike_comment' TEXT,
+        #     'image_path' TEXT,
+        #     'staff_comment' TEXT,
+        #     'priority' TEXT,
+        #     'match_id' INT
+        #     """
+        sql = """
+            'first_name' TEXT,
+            'last_name' TEXT,
+            'email' TEXT,
+            'city' TEXT,
+            'zip' TEXT,
+            'phone' TEXT,
+            'neighborhood' TEXT,
+            'created' DATETIME,
+            'status' TEXT,
             'bike_size' TEXT,
             'bike_type' TEXT,
             'occupation' TEXT,
-            'bike_comment' TEXT,
-            'image_path' TEXT,
+            'request_comment' TEXT,
             'staff_comment' TEXT,
             'priority' TEXT,
             'match_id' INT
@@ -38,24 +113,25 @@ class Folks(SqliteTable):
     @property
     def _column_list(self):
         """A list of dicts used to add fields to an existing table.
+        # {'name':'status','definition':'TEXT',},
         """
 
         column_list = [
-        {'name':'status','definition':'TEXT',},
         ]
 
         return column_list
         
+        
     def select(self,where=None,order_by=None,**kwargs):
         where = where if where else 'match_id is null'
         order_by = order_by if order_by else self.order_by_col
-        sql = """select folks.*,
-        folks.first_name || ' ' || folks.last_name as full_name,
+        sql = """select recipient.*,
+        recipient.first_name || ' ' || recipient.last_name as full_name,
         match.match_date,
         match.match_status,
         match.match_comment
-        from folks
-        left join match on match.id = folks.match_id
+        from recipient
+        left join match on match.id = recipient.match_id
         where {where}
         order by {order_by}
         """.format(where=where,order_by=order_by)
@@ -85,11 +161,15 @@ class Match(SqliteTable):
              """
         super().create_table(sql)
         
-        # add a trigger to clear the match_id from Folks
+        # add a trigger to clear the match_id from Recipient
         sql = """CREATE TRIGGER IF NOT EXISTS 
         clear_match_before_delete BEFORE DELETE ON {this_table}
         BEGIN
-        UPDATE folks SET 
+        UPDATE recipient SET 
+            match_id = NULL,
+            status = 'Open'
+        WHERE match_id = OLD.id;
+        UPDATE bike SET 
             match_id = NULL,
             status = 'Open'
         WHERE match_id = OLD.id;
@@ -109,8 +189,8 @@ class Match(SqliteTable):
         recipient.last_name as recipient_last_name,
         recipient.first_name || ' ' || recipient.last_name as recipient_name
         from match
-        left join folks as donor on donor.id = match.donor_id 
-        left join folks as recipient on recipient.id = match.recipient_id
+        left join bike as donor on donor.id = match.donor_id 
+        left join recipient as recipient on recipient.id = match.recipient_id
         where {where}
         order by {order_by}
         """.format(where=where,order_by=order_by)

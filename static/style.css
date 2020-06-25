@@ -11,6 +11,7 @@
 .sg-body-text {
     margin:20pt auto;
     width:80%;
+    padding-bottom:10pt;
 }
 @media (max-width:768px){
     .sg-body-text {

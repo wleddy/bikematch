@@ -11,7 +11,7 @@ from shotglass2.takeabeltof.file_upload import FileUpload
 from shotglass2.takeabeltof.mailer import Mailer, email_admin
 from shotglass2.takeabeltof.date_utils import datetime_as_string, local_datetime_now, date_to_string, getDatetimeFromString
 from shotglass2.takeabeltof.views import TableView
-from bikematch.models import Folks, Match
+from bikematch.models import Recipient, Match
 from werkzeug.exceptions import RequestEntityTooLarge
 
     
@@ -20,9 +20,9 @@ mod = Blueprint('bikematch',__name__, template_folder='templates/bikematch', url
 
 def setExits():
     g.homeURL = url_for('bikematch.home')
-    g.listURL = url_for('bikematch.display')
-    g.editURL = url_for('bikematch.edit')
-    g.deleteURL = url_for('bikematch.delete')
+    # g.listURL = url_for('bikematch.display')
+    # g.editURL = url_for('bikematch.edit')
+    # g.deleteURL = url_for('bikematch.delete')
     g.contactURL = url_for('bikematch.contact')
     g.title = 'Home'
 
@@ -34,190 +34,6 @@ def home():
 
     return render_template('index.html',)
 
-
-@mod.route('view/<int:rec_id>', methods=['GET',])
-@mod.route('view/<int:rec_id>/', methods=['GET',])
-@mod.route('view', methods=['GET',])
-@mod.route('view/', methods=['GET',])
-def view_bike(rec_id=None):
-    """Display the information about a bike"""
-    
-    setExits()
-    g.title = "View Bike"
-    
-    rec_id = cleanRecordID(rec_id)
-    
-    if rec_id > 0:
-        rec = Folks(g.db).get(rec_id)
-        if rec and rec.d_or_r.lower() == "donor":
-            
-            return render_template('view_bike.html',rec=rec)
-
-    flash("That does not look like a valid bike record...")
-    return redirect(g.homeURL)
-    
-    
-@mod.route('bike_question/<int:rec_id>', methods=['GET',])
-@mod.route('bike_question/<int:rec_id>/', methods=['GET',])
-@mod.route('bike_question', methods=['GET',])
-@mod.route('bike_question/', methods=['GET',])
-def bike_question(rec_id=None):
-    """Viewer has a question about a bike"""
-
-    setExits()
-    g.title = "Bike Question"
-    
-    rec_id = cleanRecordID(rec_id)
-    
-    if rec_id > 0:
-        rec = Folks(g.db).get(rec_id)
-        if rec and rec.d_or_r.lower() == "donor":
-            rendered_html = "<p>Please type your message below the info section in the &quot;Comment&quot; section</p>"
-            bike_info = """
-+++++++++ please leave this section as-is ++++++++++++
-A question regarding Bike ID = {}
-Size: {}
-Type: {}
-+++++++++ please leave this section as-is ++++++++++++
-
-""".format(rec.id,rec.bike_size,rec.bike_type)
-            context = {'comment':bike_info}
-            return render_template('bike_question.html',rec=rec,rendered_html=rendered_html,context=context,show_form=True)
-
-    flash("That does not look like a valid bike record...")
-    return redirect(g.homeURL)
-
-
-# this handles table list and record delete
-@mod.route('/dr/<path:path>',methods=['GET','POST',])
-@mod.route('/dr/<path:path>/',methods=['GET','POST',])
-@mod.route('/dr/',methods=['GET','POST',])
-@table_access_required(Folks)
-def display(path=None):
-    # import pdb;pdb.set_trace()
-    
-    view = TableView(Folks,g.db)
-    # optionally specify the list fields
-    view.list_fields = [
-            {'name':'id','label':'ID','class':'w3-hide-medium w3-hide-small','search':True},
-            {'name':'created','label':'Added','type':'date', 'search':'date'},
-            {'name':'full_name',},
-            {'name':'d_or_r','label':'Type'},
-            {'name':'priority',},
-            {'name':'neighborhood','class':'w3-hide-small'},
-            {'name':'bike_type','class':'w3-hide-small',},
-            {'name':'bike_size','class':'w3-hide-small',},
-            {'name':'phone','list':False,},
-            {'name':'email','list':False,},
-        ]
-        
-    view.list_search_widget_extras_template = 'dr_list_search_widget_extras.html'
-
-
-    return view.dispatch_request()
-
-    
-        
-@mod.route('/dr/edit/<int:rec_id>', methods=['POST', 'GET',])
-@mod.route('/dr/edit/<int:rec_id>/', methods=['POST', 'GET',])
-@mod.route('/dr/edit', methods=['POST', 'GET',])
-@mod.route('/dr/edit/', methods=['POST', 'GET',])
-@table_access_required(Folks)
-def edit(rec_id=None):
-    """Edit or create contact records including uploaded images"""
-
-    # import pdb;pdb.set_trace()
-    
-    setExits()
-    g.title = "Edit Folks Record"
-    site_config = get_site_config()
-    save_success = False
-    try:
-        rec_id = cleanRecordID(request.form.get('id',rec_id))
-    except RequestEntityTooLarge as e:
-        flash("The image file you submitted was too large. Maximum size is {} MB".format(request.max_content_length))
-        return redirect(g.listURL)
-        
-    if rec_id < 0:
-        flash('Invalid Record ID')
-        return redirect(g.listURL)
-        
-            
-    contact = Folks(g.db)
-    if rec_id == 0:
-        rec = contact.new()
-        rec.created = date_to_string(local_datetime_now(),'date')
-    else:
-        rec = contact.get(rec_id)
-        if not rec:
-            flash("Record not Found")
-            return redirect(g.listURL)
-    
-    if request.form:
-        contact.update(rec,request.form)
-        if valididate_form(rec):
-            # Format the phone number
-            rec.phone = formatted_phone_number(rec.phone)
-            contact.save(rec)
-            
-            file = request.files.get('image_file')
-            if file and file.filename:
-                upload = FileUpload(local_path=mod.name)
-                filename = file.filename
-                if rec.first_name and rec.last_name:
-                    # set the filename to the name of the donor
-                    #get the extension
-                    x = filename.find('.')
-                    if x > 0:
-                        filename = rec.first_name.lower() + "_" + rec.last_name.lower() + filename[x:].lower()
-                        upload.save(file,filename=filename)
-                        if upload.success:
-                            rec.image_path = upload.saved_file_path_string
-                            contact.save(rec,commit=True)
-                            save_success = True
-                        else:
-                            flash(upload.error_text)
-                    else:
-                        # there must be an extenstion
-                        flash('The image file must have an extension at the end of the name.')
-                        
-            else:
-                contact.commit()
-                save_success = True
-        
-    if save_success:
-        return redirect(g.listURL)
-    else:
-        return render_template('dr/dr_edit.html',rec=rec,)
-    
-    
-@mod.route('/dr/delete/<int:rec_id>', methods=['POST', 'GET',])
-@mod.route('/dr/delete/<int:rec_id>/', methods=['POST', 'GET',])
-@mod.route('/dr/delete', methods=['POST', 'GET',])
-@mod.route('/dr/delete/', methods=['POST', 'GET',])
-@table_access_required(Folks)
-def delete(rec_id=None):
-    """View or create donor/recipient records including uploaded images"""
-
-    setExits()
-    g.title = "Delete Donor / Recipient Record"
-    # import pdb;pdb.set_trace()
-    rec_id = cleanRecordID(rec_id)
-    dr = Folks(g.db)
-    rec = dr.get(rec_id)
-        
-    if rec:
-        if rec.image_path:
-            upload = FileUpload()
-            path = upload.get_file_path(rec.image_path)
-            if path.exists() and not path.is_dir():
-                path.unlink() #remove file
-        dr.delete(rec.id,commit=True)
-    else:
-        flash('Invalid Record ID')
-        
-    return redirect(g.listURL)
-        
 
 @mod.route('/ihaveabike', methods=['POST', 'GET',])
 @mod.route('/ihaveabike/', methods=['POST', 'GET',])
@@ -233,50 +49,6 @@ def haveabike():
                         custom_message=render_markdown_for('haveabike_contact.md',mod),
                         )
                         
-@mod.route('/ineedabike', methods=['POST', 'GET',])
-@mod.route('/ineedabike/', methods=['POST', 'GET',])
-def needabike():
-    """handle request for a bike"""
-    setExits()
-    g.title = 'I Need a Bike'
-    g.editURL = url_for(".needabike")
-    g.cancelURL = url_for('.home')
-    contact = Folks(g.db)
-    rec = contact.new() 
-    
-    # Validate input
-    if request.form:
-        contact.update(rec,request.form)
-        rec.created = date_to_string(local_datetime_now(),'date')
-        rec.d_or_r = "Recipient"
-        rec.phone = formatted_phone_number(rec.phone)
-        rec.status = 'Open'
-        rec.priority = 'New'
-        if valididate_form(rec):
-            contact.save(rec,commit=True)
-            rec = contact.get(rec.id) #get a fresh copy
-            site_config = get_site_config()
-            
-            # inform sysop of new request
-            mailer = Mailer(None,rec=rec)
-            mailer.text_template = 'dr/email/request_admin_email.txt'
-            mailer.subject = "Bike Request Submitted"
-            mailer.send()
-            # Inform recipient that request was received
-            mailer = Mailer((rec.full_name,rec.email),rec=rec)
-            mailer.text_template = 'dr/email/request_recipient_email.txt'
-            mailer.subject = "Your Bike Match request has been recieved"
-            mailer.bcc = (site_config['MAIL_DEFAULT_SENDER'],site_config['MAIL_DEFAULT_ADDR'])
-            mailer.send()
-            if not mailer.success:
-                mes = "Error: {}".format(mailer.result_text)
-                email_admin(subject="Error sending Need a bike email",message=mes)
-            
-            return redirect(url_for(".home"))
-        
-    # display Recipient form
-    return render_template('dr/need_a_bike_form.html',rec=rec)
-    
     
 @mod.route('/contact', methods=['POST', 'GET',])
 @mod.route('/contact/', methods=['POST', 'GET',])
@@ -452,45 +224,3 @@ def render_for(filename=None):
 def robots():
     #from shotglass2.shotglass import get_site_config
     return redirect('/static/robots.txt')
-
-
-def valididate_form(rec):
-    valid_form = True
-    
-    if not rec.first_name or not rec.last_name:
-        flash("You must enter your full name")
-        valid_form = False
-    if not rec.email.strip():
-        flash("You must enter your email address")
-        valid_form = False
-    elif not looksLikeEmailAddress(rec.email):
-        flash("That is not a valid email address")
-        valid_form = False
-        
-    if not rec.city.strip():
-        flash("You must enter your city name")
-        valid_form = False
-    if not rec.zip.strip():
-        flash("You must enter your zip code")
-        valid_form = False
-    if not rec.neighborhood.strip():
-        flash("You must enter your neighborhood")
-        valid_form = False
-    if not rec.bike_size.strip():
-        flash("You must specify your height")
-        valid_form = False
-    if not rec.bike_type.strip():
-        flash("You must specify a bike type")
-        valid_form = False
-        
-    temp_date = getDatetimeFromString(rec.created.strip())
-    if not temp_date:
-        flash("The 'Created' date is not a valid date")
-        valid_form = False
-    else:
-        rec.created = temp_date
-        
-        
-        
-        
-    return valid_form

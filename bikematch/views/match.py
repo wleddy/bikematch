@@ -3,11 +3,11 @@ from flask import request, session, g, redirect, url_for, \
 from shotglass2.takeabeltof.utils import printException, cleanRecordID
 from shotglass2.users.admin import login_required, table_access_required
 from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString
-from bikematch.models import Folks, Match
+from bikematch.models import Recipient, Match, Bike
 
 PRIMARY_TABLE = Match
 
-mod = Blueprint('match',__name__, template_folder='templates/', url_prefix='/match',static_folder='static/')
+mod = Blueprint('match',__name__, template_folder='templates/match', url_prefix='/match',static_folder='static/')
 
 
 def setExits():
@@ -38,7 +38,7 @@ def display(path=None):
             {'name':'donor_name','label':'Donor'},
         ]
     
-    # ON DELETE trigger in Match clears the match_id in Folks
+    # ON DELETE trigger in Match clears the match_id in Recipient
     return view.dispatch_request()
     
 
@@ -64,17 +64,19 @@ def edit(rec_id=None):
         flash("That is not a valid ID")
         return redirect(g.listURL)
         
-    folks = Folks(g.db)
-    recipients = folks.select(
-        where=" lower(d_or_r) = 'recipient' and match_id is null",
-        order_by = "full_name",
-        )
-    donors = folks.select(
-        where=" lower(d_or_r) = 'donor' and match_id is null",
-        order_by = "full_name",
-        )
     donor = None
     recipient = None
+    
+    recipient = Recipient(g.db)
+    recipients = recipient.select(
+        where=" match_id is null",
+        order_by = "full_name",
+        )
+    bike = Bike(g.db)
+    bikes = bike.select(
+        where="  match_id is null",
+        order_by = "full_name",
+        )
     
     if rec_id == 0:
         rec = match.new()
@@ -87,20 +89,20 @@ def edit(rec_id=None):
             
     if rec.id:
         #has a match
-        donor = folks.get(rec.donor_id)
-        recipient = folks.get(rec.recipient_id)
+        donor = bike.get(rec.donor_id)
+        recipient = recipient.get(rec.recipient_id)
 
     if request.form:
         match.update(rec,request.form)
         if validForm(rec):
             match.save(rec)
-            # Set the match id in the folks records
+            # Set the match id in the recipient records
             for x in {rec.donor_id,rec.recipient_id}:
-                temp_rec = folks.get(x)
+                temp_rec = recipient.get(x)
                 if temp_rec:
                     temp_rec.match_id = rec.id
                     temp_rec.status = "Matched"
-                    folks.save(temp_rec)
+                    recipient.save(temp_rec)
                 else:
                     g.db.rollback()
                     flash("Internal Error! Invalid Donor or Recipient id. (ID: {})".format(x))
@@ -113,7 +115,7 @@ def edit(rec_id=None):
     # display form
     return render_template('match_edit.html', 
         rec=rec,
-        donors=donors,
+        bikes=bikes,
         recipients=recipients,
         donor=donor,
         recipient=recipient,
