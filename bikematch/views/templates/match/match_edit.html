@@ -54,10 +54,10 @@
         {% else %}
         <div class="w3-col l5 m5 s12">
             <p>{{ label_only('Recipients')}}</p>
-            {% if recipients %}
+            {% if recipient_list %}
             {{ select_field('recipient_id',label=None, id="recipient_id", req=True ) }}
             <option value="-1">Select a Recipient</option>
-            {% for recipient in recipients %}
+            {% for recipient in recipient_list %}
                 <option value="{{ recipient.id }}" {% if rec.recipient_id | string == recipient.id | string %}selected{% endif %}>{{ recipient.id }}: {{ recipient.full_name }}, {{ recipient.bike_size }}, {{ recipient.bike_type }}</option>
             {% endfor %}
             </select>
@@ -68,10 +68,10 @@
         <div class="w3-col l1 m1 w3-hide-small">&nbsp;</div>
         <div class="w3-col l5 m5 s12">
             <p>{{ label_only('Donors')}}</p>
-            {% if bikes %}
+            {% if bike_list %}
             {{ select_field('donor_id',label=None, id="Donors", req=True) }}
             <option value="-1">Select a Donor</option>
-            {% for bike in bikes %}
+            {% for bike in bike_list %}
                 <option value="{{ bike.id }}" {% if rec.donor_id | string == bike.id | string %}selected{% endif %} >{{ bike.id }}: {{ bike.full_name }}, {{ bike.bike_size }}, {{ bike.bike_type }}</option>
             {% endfor %}
             </select>

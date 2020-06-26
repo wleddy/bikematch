@@ -38,7 +38,7 @@ def display(path=None):
             {'name':'donor_name','label':'Donor'},
         ]
     
-    # ON DELETE trigger in Match clears the match_id in Recipient
+    # ON DELETE trigger in Match clears the match_id in Recipient and Bike
     return view.dispatch_request()
     
 
@@ -67,13 +67,13 @@ def edit(rec_id=None):
     donor = None
     recipient = None
     
-    recipient = Recipient(g.db)
-    recipients = recipient.select(
+    recipient_table = Recipient(g.db)
+    recipient_list = recipient_table.select(
         where=" match_id is null",
         order_by = "full_name",
         )
-    bike = Bike(g.db)
-    bikes = bike.select(
+    bike_table = Bike(g.db)
+    bike_list = bike_table.select(
         where="  match_id is null",
         order_by = "full_name",
         )
@@ -89,24 +89,34 @@ def edit(rec_id=None):
             
     if rec.id:
         #has a match
-        donor = bike.get(rec.donor_id)
-        recipient = recipient.get(rec.recipient_id)
+        donor = bike_table.get(rec.donor_id)
+        recipient = recipient_table.get(rec.recipient_id)
 
     if request.form:
         match.update(rec,request.form)
         if validForm(rec):
             match.save(rec)
-            # Set the match id in the recipient records
-            for x in {rec.donor_id,rec.recipient_id}:
-                temp_rec = recipient.get(x)
-                if temp_rec:
-                    temp_rec.match_id = rec.id
-                    temp_rec.status = "Matched"
-                    recipient.save(temp_rec)
-                else:
-                    g.db.rollback()
-                    flash("Internal Error! Invalid Donor or Recipient id. (ID: {})".format(x))
-                    return abort(500)
+            #update recipient record
+            temp_rec = recipient_table.get(rec.recipient_id)
+            if temp_rec:
+                temp_rec.match_id = rec.id
+                temp_rec.status = "Matched"
+                recipient_table.save(temp_rec)
+            else:
+                g.db.rollback()
+                flash("Internal Error! Invalid Recipient id. (ID: {})".format(rec.recipient_id))
+                return abort(500)
+
+            # Update the Bike Record
+            temp_rec = bike_table.get(rec.donor_id)
+            if temp_rec:
+                temp_rec.match_id = rec.id
+                temp_rec.status = "Matched"
+                bike_table.save(temp_rec)
+            else:
+                g.db.rollback()
+                flash("Internal Error! Invalid Bike id. (ID: {})".format(rec.donor_id))
+                return abort(500)
             
             g.db.commit()
 
@@ -115,8 +125,8 @@ def edit(rec_id=None):
     # display form
     return render_template('match_edit.html', 
         rec=rec,
-        bikes=bikes,
-        recipients=recipients,
+        bike_list=bike_list,
+        recipient_list=recipient_list,
         donor=donor,
         recipient=recipient,
         )
