@@ -19,6 +19,7 @@
 {% block fieldset %}
 <fieldset>
     <p>{{ input_field(rec.id,"id",type="hidden",default=0)}}</p>
+    {% if rec.id %}<p><strong>Bike ID:</strong> {{ rec.id }}</p>{% endif %}
     <div class="w3-row">
         <p class='w3-col w3-half'>{{ input_field(rec.first_name,"first_name",req=True)}}</p>
         <p class='w3-col w3-half'>{{ input_field(rec.last_name,"last_name",req=True)}}</p>
