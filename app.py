@@ -122,7 +122,7 @@ def _before():
         ]
     # g.admin items are added to the navigation menu by default
     g.admin = Admin(g.db) # This is where user access rules are stored
-    g.admin.register(Recipient,None,display_name='Records',header_row=True,minimum_rank_required=100)
+    g.admin.register(Recipient,None,display_name='BikeMatch Admin',header_row=True,minimum_rank_required=100)
     g.admin.register(Recipient,url_for('recipient.display'),display_name='Recipients',minimum_rank_required=100)
     g.admin.register(Bike,url_for('bike.display'),display_name='Bikes',minimum_rank_required=100)
     g.admin.register(Match,url_for('match.display'),display_name='Matches',minimum_rank_required=100)
