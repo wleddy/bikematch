@@ -28,7 +28,7 @@
         <div class="w3-col l5 m5 s12">
             <p class="match_info">
                 <strong>Recipient</strong>
-                <br>{{ recipient.full_name}} <a href="{{ url_for('bike.edit')}}{{ recipient.id }}/" target="_blank" ><em>(edit)</em></a>
+                <br>{{ recipient.full_name}} <a href="{{ url_for('recipient.edit')}}{{ recipient.id }}/" target="_blank" ><em>(edit)</em></a>
                 <br>{{ recipient.bike_size}}
                 <br>{{ recipient.bike_type}}
                 {% if recipient.email %}<br><a href="mailto:{{recipient.email}}">{{ recipient.email}}</a>{% endif %}
