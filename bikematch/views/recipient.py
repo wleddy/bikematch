@@ -79,22 +79,22 @@ def edit(rec_id=None):
         return redirect(g.listURL)
         
             
-    contact = Recipient(g.db)
+    recipient = Recipient(g.db)
     if rec_id == 0:
-        rec = contact.new()
+        rec = recipient.new()
         rec.created = date_to_string(local_datetime_now(),'date')
     else:
-        rec = contact.get(rec_id)
+        rec = recipient.get(rec_id)
         if not rec:
             flash("Record not Found")
             return redirect(g.listURL)
     
     if request.form:
-        contact.update(rec,request.form)
+        recipient.update(rec,request.form)
         if valididate_form(rec):
             # Format the phone number
             rec.phone = formatted_phone_number(rec.phone)
-            contact.save(rec)
+            recipient.save(rec)
             
             file = request.files.get('image_file')
             if file and file.filename:
@@ -109,7 +109,7 @@ def edit(rec_id=None):
                         upload.save(file,filename=filename)
                         if upload.success:
                             rec.image_path = upload.saved_file_path_string
-                            contact.save(rec,commit=True)
+                            recipient.save(rec,commit=True)
                             save_success = True
                         else:
                             flash(upload.error_text)
@@ -118,7 +118,7 @@ def edit(rec_id=None):
                         flash('The image file must have an extension at the end of the name.')
                         
             else:
-                contact.commit()
+                recipient.commit()
                 save_success = True
         
     if save_success:
@@ -158,19 +158,19 @@ def needabike():
     g.title = 'I Need a Bike'
     g.editURL = url_for(".needabike")
     g.cancelURL = url_for('bikematch.home')
-    contact = Recipient(g.db)
-    rec = contact.new()
+    recipient = Recipient(g.db)
+    rec = recipient.new()
 
     # Validate input
     if request.form:
-        contact.update(rec,request.form)
+        recipient.update(rec,request.form)
         rec.created = date_to_string(local_datetime_now(),'date')
         rec.phone = formatted_phone_number(rec.phone)
         rec.status = 'Open'
         rec.priority = 'New'
         if valididate_form(rec):
-            contact.save(rec,commit=True)
-            rec = contact.get(rec.id) #get a fresh copy
+            recipient.save(rec,commit=True)
+            rec = recipient.get(rec.id) #get a fresh copy
             site_config = get_site_config()
 
             # inform sysop of new request
@@ -188,7 +188,7 @@ def needabike():
                 mes = "Error: {}".format(mailer.result_text)
                 email_admin(subject="Error sending Need a bike email",message=mes)
 
-            return redirect(url_for("bikematch.home"))
+            return render_template('need_a_bike_success.html')
 
     # display Recipient form
     return render_template('need_a_bike_form.html',rec=rec)

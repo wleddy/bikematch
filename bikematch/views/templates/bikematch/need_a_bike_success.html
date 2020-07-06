@@ -1,0 +1,8 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<h2>Success!</h2>
+<p>We’ve received your request for a bike on Bike Match Sacramento and we’re working on 
+finding you a bike as quickly as possible. We have sent a confirmation email to the address you provided.</p>
+<p><a href="{{ url_for('bikematch.home') }}">Return to home page...</a></p>
+{% endblock body%}
