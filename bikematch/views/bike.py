@@ -41,8 +41,9 @@ def display(path=None):
             {'name':'created','label':'Added','type':'date', 'search':'date'},
             {'name':'full_name',},
             {'name':'status','class':'w3-hide-small'},
-            {'name':'bike_type',},
-            {'name':'bike_size',},
+            {'name':'bike_type','label':'Type'},
+            {'name':'bike_size','label':'Size'},
+            {'name':'bike_comment',},
             {'name':'phone','list':False,},
             {'name':'email','list':False,},
         ]
