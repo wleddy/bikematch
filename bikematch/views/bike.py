@@ -7,6 +7,7 @@ from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFro
 from shotglass2.takeabeltof.file_upload import FileUpload
 from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number
 from bikematch.models import Bike, Recipient
+from werkzeug.exceptions import RequestEntityTooLarge
 
 PRIMARY_TABLE = Bike
 
@@ -63,10 +64,12 @@ def edit(rec_id=None):
     g.title = "Edit Bike Record"
     site_config = get_site_config()
     save_success = False
+        
     try:
         rec_id = cleanRecordID(request.form.get('id',rec_id))
     except RequestEntityTooLarge as e:
-        flash("The image file you submitted was too large. Maximum size is {} MB".format(request.max_content_length))
+        # There does not seem to be a way to do anything with request.form if the content exceeds the limit
+        flash("The image file you submitted was too large. Maximum size is {} MB".format(request.max_content_length/2048))
         return redirect(g.listURL)
         
     if rec_id < 0:
