@@ -9,4 +9,4 @@ Name: {{ rec.full_name }}
 Occupation: {{ rec.occupation }}
 
 Comment: 
-{{ rec.bike_comment }}
+{{ rec.request_comment }}
