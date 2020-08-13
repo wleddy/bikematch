@@ -49,6 +49,20 @@ def display(path=None):
         
     view.list_search_widget_extras_template = 'dr_list_search_widget_extras.html'
 
+    view.export_fields = [
+        {'name':'id'},
+        {'name':'first_name'},
+        {'name':'last_name'},
+        {'name':'phone'},
+        {'name':'email'},
+        {'name':'neighborhood'},
+        {'name':'created', 'type':'date'},
+        {'name':'bike_size'},
+        {'name':'bike_type'},
+        {'name':'priority'},
+        {'name':'occupation'},
+        {'name':'request_comment'},
+    ]
 
     return view.dispatch_request()
 
