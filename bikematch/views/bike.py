@@ -49,6 +49,13 @@ def display(path=None):
         ]
     
     view.list_search_widget_extras_template = 'dr_list_search_widget_extras.html'
+
+    view.export_fields = [
+        {'name':'id'},
+        {'name':'bike_size'},
+        {'name':'bike_type'},
+        {'name':'bike_comment'},
+    ]
     
     return view.dispatch_request()
     
