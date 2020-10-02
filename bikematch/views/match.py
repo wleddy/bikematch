@@ -37,6 +37,16 @@ def display(path=None):
             {'name':'donor_id','label':'Donor ID',},
             {'name':'donor_name','label':'Donor'},
         ]
+        
+    view.export_fields = [
+            {'name':'id','label':'ID'},
+            {'name':'match_date','search':'date'},
+            {'name':'match_status',},
+            {'name':'recipient_name','label':'Recipient'},
+            {'name':'donor_id','label':'Donor ID',},
+            {'name':'donor_name','label':'Donor'},
+        ]
+        
     
     # ON DELETE trigger in Match clears the match_id in Recipient and Bike
     return view.dispatch_request()
