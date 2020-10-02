@@ -34,17 +34,18 @@ def display(path=None):
             {'name':'match_date','search':'date'},
             {'name':'match_status',},
             {'name':'recipient_name','label':'Recipient'},
-            {'name':'donor_id','label':'Donor ID',},
+            {'name':'donor_id','label':'Bike ID',},
             {'name':'donor_name','label':'Donor'},
         ]
         
     view.export_fields = [
             {'name':'id','label':'ID'},
-            {'name':'match_date','search':'date'},
+            {'name':'match_date','type':'date'},
             {'name':'match_status',},
             {'name':'recipient_name','label':'Recipient'},
-            {'name':'donor_id','label':'Donor ID',},
             {'name':'donor_name','label':'Donor'},
+            {'name':'recipient_id','label':'Recpient ID'},
+            {'name':'donor_id','label':'Bike ID'},
         ]
         
     
