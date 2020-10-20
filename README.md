@@ -1,17 +1,13 @@
 # SABA #BikeMatch
 
-***UPDATE***: I've mothballed this effort in favor of [bikematch.safelanes.org](http://bikematch.safelanes.org) at [braitsch/bikematch](https://github.com/braitsch/bikematch).
+***Version 2***
 
-This is primarily a simple set of contact forms to help us match bike donors to bike recipients.
+This is a second attempt at the BikeMatch (and that's how I intend to spelling now...) web site and database.
 
-You can use it just like that and deal with the responses off line as you see fit.
-
-I have also added the ability to record information about the bikes and who gave and got them. 
-Don't yet know if this is going to be useful to anyone, but it's there in a preliminary sort of
-way.
-
-You need to log in to see the Bike and "Folks" menu options to manage the records.
-
+Instead of the one-donor to one-recipient model envisioned by the originators of the BikeMatch scheme
+we are going more for a bike shopping experience for recipients. They will pick a bike they would like to have
+and the date and time that they will be coming to get it. We will meet them at the location we had designated 
+and they come there (or not) and get their bike (or not).
 
 ## Installation 
 
