@@ -1,0 +1,29 @@
+ 
+ {% set selected_status = session.get(data.STATUS_SELECT_OBJ_ID,'all') %}
+ {% set status_list = ['all','available','matched','reserved',]%}
+<div class="w3-row">
+<p>
+    <span class="w3-hide-small sg-list-search-label">Status:</span>
+    <select class="w3-select" id="{{ data.STATUS_SELECT_OBJ_ID }}" name="{{ data.STATUS_SELECT_OBJ_ID}}"
+        style="width:auto;"
+        onchange="bike_status_changed(this)" >
+        {% for option in status_list %}
+        <option value='{{option}}' {% if selected_status == option %}selected{% endif %}>{{ option | title }}</option>
+        {% endfor %}
+    </select>
+</p>
+</div>
+
+<script>
+    
+    function update_bike_display(){
+        //alert("Ready to update display")
+        doDBsearch("{{g.listURL}}");
+    }
+    
+    function bike_status_changed(which){
+        $.post("{{ url_for('bike.set_list_status')}}",{"{{data.STATUS_SELECT_OBJ_ID}}":$(which).val()});
+        
+        setTimeout(update_bike_display, 250);
+    }
+</script>

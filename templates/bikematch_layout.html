@@ -15,6 +15,13 @@
 
 	<script src="{{ url_for('static', filename='jquery.1.10.1.js') }}"></script>
 	<script src="{{ url_for('static', filename='common.js') }}"></script>
+	<script src="{{ url_for('static', filename='layout.js') }}"></script>
+    
+    {% set as_bar = site_config.MENU_AS_BAR | default(False) %}
+    <script>
+        set_menu_type({{ as_bar | lower }});
+    </script>
+    
 
     <link rel="stylesheet" href="{{ url_for('static', filename='w3.css' )}}">
     <link rel="stylesheet" href="{{ url_for('static', filename='default_style.css' )}}">
@@ -53,9 +60,9 @@
         <div id="sg-header">
         {% block header %}
             {% include "header.html"%}
+            
             {% if g.user %}
-            <p id="record_access"><a href="{{ url_for('recipient.display')}}">Records...</a>
-            &nbsp;&nbsp;<a href="{{ url_for('login.logout')}}">Logout</a></p>
+                {% include "top-nav.html"%}
             {% else %}
             <p id="record_access"><a href="{{ url_for('login.login')}}">Login...</a></p>
             {% endif %}

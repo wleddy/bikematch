@@ -95,20 +95,20 @@ def edit(rec_id=None):
             
     recipient = Recipient(g.db)
     if rec_id == 0:
-        rec = recipient.new()
+        rec = reservation.needabikenew()
         rec.created = date_to_string(local_datetime_now(),'date')
     else:
-        rec = recipient.get(rec_id)
+        rec = reservation.needabikeget(rec_id)
         if not rec:
             flash("Record not Found")
             return redirect(g.listURL)
     
     if request.form:
-        recipient.update(rec,request.form)
+        reservation.needabikeupdate(rec,request.form)
         if valididate_form(rec):
             # Format the phone number
             rec.phone = formatted_phone_number(rec.phone)
-            recipient.save(rec)
+            reservation.needabikesave(rec)
             
             file = request.files.get('image_file')
             if file and file.filename:
@@ -123,7 +123,7 @@ def edit(rec_id=None):
                         upload.save(file,filename=filename)
                         if upload.success:
                             rec.image_path = upload.saved_file_path_string
-                            recipient.save(rec,commit=True)
+                            reservation.needabikesave(rec,commit=True)
                             save_success = True
                         else:
                             flash(upload.error_text)
@@ -132,7 +132,7 @@ def edit(rec_id=None):
                         flash('The image file must have an extension at the end of the name.')
                         
             else:
-                recipient.commit()
+                reservation.needabikecommit()
                 save_success = True
         
     if save_success:
@@ -173,18 +173,18 @@ def needabike():
     g.editURL = url_for(".needabike")
     g.cancelURL = url_for('bikematch.home')
     recipient = Recipient(g.db)
-    rec = recipient.new()
+    rec = reservation.needabikenew()
 
     # Validate input
     if request.form:
-        recipient.update(rec,request.form)
+        reservation.needabikeupdate(rec,request.form)
         rec.created = date_to_string(local_datetime_now(),'date')
         rec.phone = formatted_phone_number(rec.phone)
         rec.status = 'Open'
         rec.priority = 'New'
         if valididate_form(rec):
-            recipient.save(rec,commit=True)
-            rec = recipient.get(rec.id) #get a fresh copy
+            reservation.needabikesave(rec,commit=True)
+            rec = reservation.needabikeget(rec.id) #get a fresh copy
             site_config = get_site_config()
 
             # inform sysop of new request

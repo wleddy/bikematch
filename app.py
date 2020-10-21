@@ -5,7 +5,7 @@ from shotglass2 import shotglass
 from shotglass2.takeabeltof.database import Database
 from shotglass2.takeabeltof.jinja_filters import register_jinja_filters
 from shotglass2.users.admin import Admin
-from bikematch.models import Recipient, Match, Bike
+from bikematch.models import Folks, Match, Bike, MatchDays, Reservation, init_all_bikematch_tables
 
 # Create app
 # setting static_folder to None allows me to handle loading myself
@@ -47,9 +47,7 @@ def initalize_all_tables(db=None):
     shotglass.initalize_user_tables(db)
     
     ### setup any other tables you need here....
-    Recipient(db).init_table()
-    Match(db).init_table()
-    Bike(db).init_table()
+    init_all_bikematch_tables(db)
     
 def get_db(filespec=None):
     """Return a connection to the database.
@@ -115,15 +113,15 @@ def _before():
  #        {'title':'Alternative Sources','url':url_for('bikematch.alternatives')},
  #        ]
     g.menu_items = [
-        {'title':'Home','url':None,'drop_down_menu':[
-            {'title':'Bikematch Home','url':url_for('bikematch.home')},
-            {'title':'SABA Home','url':"http://sacbike.org"},
-            ]},        
+        # {'title':'Home','url':None,'drop_down_menu':[
+        #     {'title':'Bikematch Home','url':url_for('bikematch.home')},
+        #     {'title':'SABA Home','url':"http://sacbike.org"},
+        #     ]},
         ]
     # g.admin items are added to the navigation menu by default
     g.admin = Admin(g.db) # This is where user access rules are stored
-    g.admin.register(Recipient,None,display_name='BikeMatch Admin',header_row=True,minimum_rank_required=100)
-    g.admin.register(Recipient,url_for('recipient.display'),display_name='Recipients',minimum_rank_required=100)
+    g.admin.register(Bike,None,display_name='BikeMatch Admin',header_row=True,minimum_rank_required=100)
+    # g.admin.register(Recipient,url_for('recipient.display'),display_name='Recipients',minimum_rank_required=100)
     g.admin.register(Bike,url_for('bike.display'),display_name='Bikes',minimum_rank_required=100)
     g.admin.register(Match,url_for('match.display'),display_name='Matches',minimum_rank_required=100)
     
@@ -165,11 +163,11 @@ shotglass.register_users(app)
 # from shotglass2.www.views import home
 # app.add_url_rule('/contact/',home.contact)
 
-from bikematch.views import bikematch, match, bike, recipient
+from bikematch.views import bikematch, match, bike, reservation
 app.register_blueprint(bikematch.mod)
 app.register_blueprint(match.mod)
 app.register_blueprint(bike.mod)
-app.register_blueprint(recipient.mod)
+app.register_blueprint(reservation.mod)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,33 @@
+    <div class="w3-row">
+        <p class="w3-col w3-half">
+            {{ select_field('bike_size',label="Height of rider", id="bike_size", req=True) }}
+                <option value="" selected >Select Size</option>
+                <option value="5&#39;0&quot;" {% if rec.bike_size == "5'0\"" %}selected{% endif %}>5&#39;0&quot;</option>
+                <option value="5&#39;1&quot;" {% if rec.bike_size == "5'1\"" %}selected{% endif %}>5&#39;1&quot;</option>
+                <option value="5&#39;2&quot;" {% if rec.bike_size == "5'2\"" %}selected{% endif %}>5&#39;2&quot;</option>
+                <option value="5&#39;3&quot;" {% if rec.bike_size == "5'3\"" %}selected{% endif %}>5&#39;3&quot;</option>
+                <option value="5&#39;4&quot;" {% if rec.bike_size == "5'4\"" %}selected{% endif %}>5&#39;4&quot;</option>
+                <option value="5&#39;5&quot;" {% if rec.bike_size == "5'5\"" %}selected{% endif %}>5&#39;5&quot;</option>
+                <option value="5&#39;6&quot;" {% if rec.bike_size == "5'6\"" %}selected{% endif %}>5&#39;6&quot;</option>
+                <option value="5&#39;7&quot;" {% if rec.bike_size == "5'7\"" %}selected{% endif %}>5&#39;7&quot;</option>
+                <option value="5&#39;8&quot;" {% if rec.bike_size == "5'8\"" %}selected{% endif %}>5&#39;8&quot;</option>
+                <option value="5&#39;9&quot;" {% if rec.bike_size == "5'9\"" %}selected{% endif %}>5&#39;9&quot;</option>
+                <option value="5&#39;10&quot;" {% if rec.bike_size == "5'10\"" %}selected{% endif %}>5&#39;10&quot;</option>
+                <option value="5&#39;11&quot;" {% if rec.bike_size == "5'11\"" %}selected{% endif %}>5&#39;11&quot;</option>
+                <option value="6&#39;0&quot;" {% if rec.bike_size == "6'0\"" %}selected{% endif %}>6&#39;0&quot;</option>
+                <option value="6&#39;1&quot;" {% if rec.bike_size == "6'1\"" %}selected{% endif %}>6&#39;1&quot;</option>
+                <option value="6&#39;2&quot;" {% if rec.bike_size == "6'2\"" %}selected{% endif %}>6&#39;2&quot;</option>
+                <option value="6&#39;3&quot;" {% if rec.bike_size == "6'3\"" %}selected{% endif %}>6&#39;3&quot;</option>
+                <option value="6&#39;4&quot;" {% if rec.bike_size == "6'4\"" %}selected{% endif %}>6&#39;4&quot;</option>
+                <option value="6&#39;5&quot;" {% if rec.bike_size == "6'5\"" %}selected{% endif %}>6&#39;5&quot;</option>
+            </select>
+        </p>
+        <p class="w3-col w3-half">
+            {{ select_field('bike_type',label="Bicycle Style", id="bike_type", req=True) }}
+                <option value="" selected >Select a Type</option>
+                <option value="Road Bike" {% if rec.bike_type == "Road Bike" %}selected{% endif %}>Road Bike</option>
+                <option value="Mountain Bike" {% if rec.bike_type == "Mountain Bike" %}selected{% endif %}>Mountain Bike</option>
+                <option value="Hybrid Bike" {% if rec.bike_type == "Hybrid Bike" %}selected{% endif %}>Hybrid Bike</option>
+            </select>
+        </p>
+    </div>

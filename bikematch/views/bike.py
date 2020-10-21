@@ -6,11 +6,13 @@ from shotglass2.users.admin import login_required, table_access_required
 from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString, date_to_string
 from shotglass2.takeabeltof.file_upload import FileUpload
 from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number
-from bikematch.models import Bike, Recipient
+from bikematch.models import Bike, BikeImage
 from werkzeug.exceptions import RequestEntityTooLarge
 
 PRIMARY_TABLE = Bike
-
+STATUS_SELECT_OBJ_ID = 'status_select_obj' #Bike Status select object id
+BIKE_IMAGE_PATH = 'bikematch/bikes/'
+    
 mod = Blueprint('bike',__name__, template_folder='templates/bike', url_prefix='/bike',static_folder='static/')
 
 
@@ -26,6 +28,26 @@ def setExits():
 
 from shotglass2.takeabeltof.views import TableView
 
+class BikeView(TableView):
+    def __init__(self,table,db,**kwargs):
+        super().__init__(table,db,**kwargs)
+    
+        self.STATUS_SELECT_OBJ_ID = STATUS_SELECT_OBJ_ID
+        self.list_search_widget_extras_template = 'bike_list_search_widget_extras.html'
+        self.allow_record_addition = False
+        
+    def select_recs(self,**kwargs):
+        """Make a selection of recs based on the current filters"""
+        # look in session for the saved search...
+        filters = self.get_list_filters()
+        
+        status_filter = session.get(STATUS_SELECT_OBJ_ID,'all').lower()
+        if status_filter != 'all':
+            filters.where += ' and lower(bike_status) = "{}"'.format(status_filter)
+            
+        self.recs = self.table.select(where=filters.where,order_by=filters.order_by,**kwargs)
+        
+ 
 # this handles table list and record delete
 @mod.route('/<path:path>',methods=['GET','POST',])
 @mod.route('/<path:path>/',methods=['GET','POST',])
@@ -34,31 +56,31 @@ from shotglass2.takeabeltof.views import TableView
 def display(path=None):
     # import pdb;pdb.set_trace()
     
-    view = TableView(PRIMARY_TABLE,g.db)
+    view = BikeView(PRIMARY_TABLE,g.db)
 
     view.list_fields = [
             {'name':'id','label':'ID','class':'w3-hide-medium w3-hide-small','search':True},
             {'name':'created','label':'Added','type':'date', 'search':'date'},
-            {'name':'full_name',},
-            {'name':'status','class':'w3-hide-small'},
-            {'name':'bike_type','label':'Type'},
-            {'name':'bike_size','label':'Size'},
-            {'name':'bike_comment',},
-            {'name':'phone','list':False,},
-            {'name':'email','list':False,},
+            {'name':'bike_comment','label':'Description'},
+            {'name':'pedal_length',},
+            {'name':'bike_status',"label":'Status'},
+            {'name':'staff_comment','list':False},
         ]
     
-    view.list_search_widget_extras_template = 'dr_list_search_widget_extras.html'
-
-    view.export_fields = [
-        {'name':'id'},
-        {'name':'bike_size'},
-        {'name':'bike_type'},
-        {'name':'bike_comment'},
-    ]
+    view.export_fields = view.list_fields
     
     return view.dispatch_request()
+
     
+@mod.route('/set_list_status', methods=['POST'])
+@mod.route('/set_list_status/', methods=['POST'])
+def set_list_status():
+    """Record the selected bike status for the bike list page"""
+
+    session[STATUS_SELECT_OBJ_ID] = request.form.get(STATUS_SELECT_OBJ_ID,"all")
+    
+    return "OK"
+
 
 ## Edit the PRIMARY_TABLE
 @mod.route('/edit', methods=['POST', 'GET'])
@@ -85,46 +107,45 @@ def edit(rec_id=None):
         return redirect(g.listURL)
         
             
-    contact = Bike(g.db)
+    bike = Bike(g.db)
     if rec_id == 0:
-        rec = contact.new()
+        rec = bike.new()
         rec.created = date_to_string(local_datetime_now(),'date')
     else:
-        rec = contact.get(rec_id)
+        rec = bike.get(rec_id)
         if not rec:
             flash("Record not Found")
             return redirect(g.listURL)
             
     if request.form:
-        contact.update(rec,request.form)
+        # import pdb;pdb.set_trace()
+        
+        bike.update(rec,request.form)
         if valididate_form(rec):
-            # Format the phone number
-            rec.phone = formatted_phone_number(rec.phone)
-            contact.save(rec)
+            bike.save(rec)
             
             file = request.files.get('image_file')
             if file and file.filename:
-                upload = FileUpload(local_path=mod.name)
+                upload = FileUpload(local_path='{}{}'.format(BIKE_IMAGE_PATH,rec.id))
                 filename = file.filename
-                if rec.first_name and rec.last_name:
-                    # set the filename to the name of the donor
-                    #get the extension
-                    x = filename.find('.')
-                    if x > 0:
-                        filename = rec.first_name.lower() + "_" + rec.last_name.lower() + filename[x:].lower()
-                        upload.save(file,filename=filename)
-                        if upload.success:
-                            rec.image_path = upload.saved_file_path_string
-                            contact.save(rec,commit=True)
-                            save_success = True
-                        else:
-                            flash(upload.error_text)
+                x = filename.find('.')
+                if x > 0:
+                    upload.save(file,filename=filename)
+                    if upload.success:
+                        images = BikeImage(g.db)
+                        image_rec = images.new()
+                        image_rec.image_path = upload.saved_file_path_string
+                        image_rec.bike_id = rec.id
+                        images.save(image_rec,commit=True)
+                        save_success = True
                     else:
-                        # there must be an extenstion
-                        flash('The image file must have an extension at the end of the name.')
+                        flash(upload.error_text)
+                else:
+                    # there must be an extenstion
+                    flash('The image file must have an extension at the end of the name.')
                         
             else:
-                contact.commit()
+                bike.commit()
                 save_success = True
         
     if save_success:
@@ -147,10 +168,13 @@ def delete(rec_id=None):
     rec_id = cleanRecordID(rec_id)
     bike = PRIMARY_TABLE(g.db)
     rec = bike.get(rec_id)
-        
+
     if rec:
         if rec.match_id is not None:
             flash("That Bike is already Matched. You must delete the match first.")
+            return redirect(g.listURL)
+        if rec.reservation_id is not None:
+            flash("That Bike is currently Reserved. You must resolve the reservation first.")
             return redirect(g.listURL)
                 
         if rec.image_path:
@@ -158,7 +182,16 @@ def delete(rec_id=None):
             path = upload.get_file_path(rec.image_path)
             if path.exists() and not path.is_dir():
                 path.unlink() #remove file
+            # Delete the enclosing directory if empty
+            path = path.parent
+            try:
+                path.rmdir()
+            except:
+                # not emtpy, most likely
+                pass
+                
         bike.delete(rec.id,commit=True)
+        # bike_image records are deleted by cascade
     else:
         flash('Invalid Record ID')
         
@@ -237,27 +270,12 @@ def valididate_form(rec):
     # Validate the form
     valid_form = True
 
-    if not rec.first_name or not rec.last_name:
-        flash("You must enter your full name")
+    if not validate_pedal_length(rec.min_pedal_length):
+        flash("You must specify the minimum pedal_length")
         valid_form = False
-    if not rec.email.strip():
-        flash("You must enter your email address")
-        valid_form = False
-    elif not looksLikeEmailAddress(rec.email):
-        flash("That is not a valid email address")
-        valid_form = False
-        
-    if not rec.city.strip():
-        flash("You must enter your city name")
-        valid_form = False
-    if not rec.zip.strip():
-        flash("You must enter your zip code")
-        valid_form = False
-    if not rec.neighborhood.strip():
-        flash("You must enter your neighborhood")
-        valid_form = False
-    if not rec.bike_size.strip():
-        flash("You must specify your height")
+
+    if not validate_pedal_length(rec.max_pedal_length):
+        flash("You must specify the maximum pedal_length")
         valid_form = False
     if not rec.bike_type.strip():
         flash("You must specify a bike type")
@@ -273,3 +291,16 @@ def valididate_form(rec):
 
     return valid_form
     
+def validate_pedal_length(pedal_len):
+    # see if the pedal length is a number
+    if isinstance(pedal_len,(int,float)):
+        return True
+    try:
+        pedal_len = float(pedal_len.strip())
+        if pedal_len:
+            return True
+    except:
+        pass
+        
+    return False
+        

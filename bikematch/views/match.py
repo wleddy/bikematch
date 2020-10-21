@@ -3,7 +3,7 @@ from flask import request, session, g, redirect, url_for, \
 from shotglass2.takeabeltof.utils import printException, cleanRecordID
 from shotglass2.users.admin import login_required, table_access_required
 from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString
-from bikematch.models import Recipient, Match, Bike
+from bikematch.models import Match, Bike
 
 PRIMARY_TABLE = Match
 
@@ -78,60 +78,60 @@ def edit(rec_id=None):
     donor = None
     recipient = None
     
-    recipient_table = Recipient(g.db)
-    recipient_list = recipient_table.select(
-        where=" match_id is null",
-        order_by = "full_name",
-        )
-    bike_table = Bike(g.db)
-    bike_list = bike_table.select(
-        where="  match_id is null",
-        order_by = "full_name",
-        )
-    
-    if rec_id == 0:
-        rec = match.new()
-        rec.match_date = local_datetime_now()
-    else:
-        rec = match.get(rec_id)
-        if not rec:
-            flash("Unable to locate that record")
-            return redirect(g.listURL)
-            
-    if rec.id:
-        #has a match
-        donor = bike_table.get(rec.donor_id)
-        recipient = recipient_table.get(rec.recipient_id)
+    # recipient_table = Recipient(g.db)
+    # recipient_list = recipient_table.select(
+    #     where=" match_id is null",
+    #     order_by = "full_name",
+    #     )
+    # bike_table = Bike(g.db)
+    # bike_list = bike_table.select(
+    #     where="  match_id is null",
+    #     order_by = "full_name",
+    #     )
+    #
+    # if rec_id == 0:
+    #     rec = match.new()
+    #     rec.match_date = local_datetime_now()
+    # else:
+    #     rec = match.get(rec_id)
+    #     if not rec:
+    #         flash("Unable to locate that record")
+    #         return redirect(g.listURL)
+    #
+    # if rec.id:
+    #     #has a match
+    #     donor = bike_table.get(rec.donor_id)
+    #     recipient = recipient_table.get(rec.recipient_id)
 
     if request.form:
-        match.update(rec,request.form)
-        if validForm(rec):
-            match.save(rec)
-            #update recipient record
-            temp_rec = recipient_table.get(rec.recipient_id)
-            if temp_rec:
-                temp_rec.match_id = rec.id
-                temp_rec.status = "Matched"
-                recipient_table.save(temp_rec)
-            else:
-                g.db.rollback()
-                flash("Internal Error! Invalid Recipient id. (ID: {})".format(rec.recipient_id))
-                return abort(500)
+        # match.update(rec,request.form)
+        # if validForm(rec):
+        #     match.save(rec)
+        #     #update recipient record
+        #     temp_rec = recipient_table.get(rec.recipient_id)
+        #     if temp_rec:
+        #         temp_rec.match_id = rec.id
+        #         temp_rec.status = "Matched"
+        #         recipient_table.save(temp_rec)
+        #     else:
+        #         g.db.rollback()
+        #         flash("Internal Error! Invalid Recipient id. (ID: {})".format(rec.recipient_id))
+        #         return abort(500)
+        #
+        #     # Update the Bike Record
+        #     temp_rec = bike_table.get(rec.donor_id)
+        #     if temp_rec:
+        #         temp_rec.match_id = rec.id
+        #         temp_rec.status = "Matched"
+        #         bike_table.save(temp_rec)
+        #     else:
+        #         g.db.rollback()
+        #         flash("Internal Error! Invalid Bike id. (ID: {})".format(rec.donor_id))
+        #         return abort(500)
+        #
+        #     g.db.commit()
 
-            # Update the Bike Record
-            temp_rec = bike_table.get(rec.donor_id)
-            if temp_rec:
-                temp_rec.match_id = rec.id
-                temp_rec.status = "Matched"
-                bike_table.save(temp_rec)
-            else:
-                g.db.rollback()
-                flash("Internal Error! Invalid Bike id. (ID: {})".format(rec.donor_id))
-                return abort(500)
-            
-            g.db.commit()
-
-            return redirect(g.listURL)
+        return redirect(g.listURL)
 
     # display form
     return render_template('match_edit.html', 
