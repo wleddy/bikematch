@@ -6,6 +6,7 @@ sys.path.append('') ##get import to look in the working dir.
 import os
 from shotglass2.takeabeltof.database import Database
 from shotglass2.takeabeltof.file_upload import FileUpload
+from shotglass2.takeabeltof.utils import formatted_phone_number
 
 from bikematch import models as new_models
 import v1_models as old_models
@@ -110,6 +111,10 @@ for rec in recs:
             print("Failed to save {}".format(rec.image_path))
         
     # move donor to folks if needed
+    # keep all the bike kitchen records together (I was not consistent)
+    if "kitchen" in rec.first_name.lower() or "kitchen" in rec.last_name.lower():
+        rec.first_name = "Sacramento"
+        rec.last_name = "Bicycle Kitchen"
     folk = new_folks.select_one(where="first_name = '{}' and last_name = '{}'".format(rec.first_name,rec.last_name))
     if not folk:
         print("adding {} {}".format(rec.first_name,rec.last_name))
@@ -117,7 +122,7 @@ for rec in recs:
         folk.first_name = rec.first_name
         folk.last_name = rec.last_name
         folk.email = rec.email
-        folk.phone = rec.phone
+        folk.phone = formatted_phone_number(rec.phone)
         new_folks.save(folk)
     # attach donor to new bike
     db = donor_bike.new()
@@ -146,7 +151,7 @@ for rec in recs:
         folk.first_name = recipient.first_name
         folk.last_name = recipient.last_name
         folk.email = recipient.email
-        folk.phone = recipient.phone
+        folk.phone = formatted_phone_number(recipient.phone)
         new_folks.save(folk)
     
     # link match to bike and folks
@@ -170,7 +175,7 @@ CREATE TABLE IF NOT EXISTS 'temp_bike' (
             staff_comment TEXT,
             min_pedal_length NUMBER,
             max_pedal_length NUMBER,
-            price FLOAT,
+            estimated_value FLOAT,
             bike_type TEXT,
             created DATETIME)
 """)
@@ -180,7 +185,7 @@ new_con.execute("""insert into temp_bike
              staff_comment ,
              min_pedal_length ,
              max_pedal_length ,
-             price ,
+             estimated_value ,
              bike_type ,
              created 
              

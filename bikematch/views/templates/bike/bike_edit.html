@@ -12,13 +12,16 @@
     <p>{{ input_field(rec.id,"id",type="hidden",default=0)}}</p>
     {% if rec.id %}<p><strong>Bike ID:</strong> {{ rec.id }}</p>{% endif %}
     <div class="w3-row">
-        <p class='w3-col'>{{ input_field(rec.full_name,"first_name",extras="readonly")}}</p>
+        <p class='w3-col'>{{ input_field(rec.full_name,"name",extras="readonly")}}</p>
     </div>
+    <div class="w3-row">
     <p class='w3-col w3-half' >{{ input_field(rec.email,"email",extras="readonly")}}</p>
     <p class='w3-col w3-half' >{{ input_field(rec.phone,'phone',extras="readonly",)}}</p>
+    </div>
+    <div class="w3-row">
     <p>{{ label_only('Description',req=True)}}</p>
     <p><textarea style="width:100%;" rows="6" name="bike_comment" required>{{ rec.bike_comment | default('',True)}}</textarea></p>
-    
+    </div>
     {% include '/bike_size_and_type.html' %}
     
     <p>{{ label_only('Bike Image')}}
@@ -37,12 +40,12 @@
             
             <p>{{ input_field(creation_date,"created",class="DatePickerButton",id="created",label="Date Created",req=True)}}</p>
         </div>
-            <p class="w3-col l1 m1 s2"><br>
-                <a href="javascript:addPicker('created','%m/%d/%y')"  class="DatePickerButton">
-                <img src="{{ url_for('static', filename='anytime/calendar.png' ) }}" alt="[calendar icon]"/>
-                </a>
-            </p>
-        
+        <p class="w3-col l1 m1 s2"><br>
+            <a href="javascript:addPicker('created','%m/%d/%y')"  class="DatePickerButton">
+            <img src="{{ url_for('static', filename='anytime/calendar.png' ) }}" alt="[calendar icon]"/>
+            </a>
+        </p>
+        <p class='w3-col w3-quarter' >{{ input_field(rec.estimated_value,"estimated_value",placeholder="0.00",)}}</p>
     </div>
     
  </fieldset>

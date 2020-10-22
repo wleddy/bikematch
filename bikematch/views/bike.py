@@ -5,6 +5,7 @@ from shotglass2.takeabeltof.utils import printException, cleanRecordID
 from shotglass2.users.admin import login_required, table_access_required
 from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString, date_to_string
 from shotglass2.takeabeltof.file_upload import FileUpload
+from shotglass2.takeabeltof.jinja_filters import two_decimal_string as money
 from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number
 from bikematch.models import Bike, BikeImage
 from werkzeug.exceptions import RequestEntityTooLarge
@@ -116,6 +117,9 @@ def edit(rec_id=None):
         if not rec:
             flash("Record not Found")
             return redirect(g.listURL)
+        ## convert estimated_value field to a string in the money format
+        if rec.estimated_value:
+            rec.estimated_value = money(rec.estimated_value)
             
     if request.form:
         # import pdb;pdb.set_trace()
@@ -288,7 +292,15 @@ def valididate_form(rec):
     else:
         rec.created = temp_date
     
-
+    try:
+        if not rec.estimated_value:
+            rec.estimated_value = 0
+        temp = float(rec.estimated_value)
+        rec.estimated_value = temp
+    except:
+        flash("The estimated_value must be a number")
+        valid_form = False
+        
     return valid_form
     
 def validate_pedal_length(pedal_len):

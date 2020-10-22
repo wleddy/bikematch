@@ -121,7 +121,7 @@ def _before():
     # g.admin items are added to the navigation menu by default
     g.admin = Admin(g.db) # This is where user access rules are stored
     g.admin.register(Bike,None,display_name='BikeMatch Admin',header_row=True,minimum_rank_required=100)
-    # g.admin.register(Recipient,url_for('recipient.display'),display_name='Recipients',minimum_rank_required=100)
+    g.admin.register(Folks,url_for('folks.display'),display_name='Folks',minimum_rank_required=100)
     g.admin.register(Bike,url_for('bike.display'),display_name='Bikes',minimum_rank_required=100)
     g.admin.register(Match,url_for('match.display'),display_name='Matches',minimum_rank_required=100)
     
@@ -163,11 +163,12 @@ shotglass.register_users(app)
 # from shotglass2.www.views import home
 # app.add_url_rule('/contact/',home.contact)
 
-from bikematch.views import bikematch, match, bike, reservation
+from bikematch.views import bikematch, match, bike, reservation, folks
 app.register_blueprint(bikematch.mod)
 app.register_blueprint(match.mod)
 app.register_blueprint(bike.mod)
 app.register_blueprint(reservation.mod)
+app.register_blueprint(folks.mod)
 
 
 if __name__ == '__main__':

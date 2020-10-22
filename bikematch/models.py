@@ -18,7 +18,7 @@ class Bike(SqliteTable):
             staff_comment TEXT,
             min_pedal_length NUMBER,
             max_pedal_length NUMBER,
-            price FLOAT,
+            estimated_value FLOAT,
             bike_type TEXT,
             created DATETIME
             """
@@ -97,7 +97,18 @@ class Folks(SqliteTable):
 
         return column_list
         
-
+    def select(self,where=None,order_by=None,**kwargs):
+        where = where if where else '1'
+        order_by = order_by if order_by else self.order_by_col
+        sql = """select distinct folks.*,
+            first_name || ' ' || last_name as full_name
+            from folks
+            where {where}
+            order by {order_by}
+            """.format(where=where,order_by=order_by)
+            
+        return self.query(sql)
+        
 
 class Match(SqliteTable):
     """Record bike matches"""
@@ -129,17 +140,23 @@ class Match(SqliteTable):
         donor.first_name as donor_first_name,
         donor.last_name as donor_last_name,
         donor.first_name || ' ' || donor.last_name as donor_name,
+        donor.id as donor_id,
         recipient.first_name as recipient_first_name,
         recipient.last_name as recipient_last_name,
-        recipient.first_name || ' ' || recipient.last_name as recipient_name
+        recipient.first_name || ' ' || recipient.last_name as recipient_name,
+        (select image_path from bike_image where bike_id = match.bike_id limit 1) as image_path,
+        bike.bike_comment,
+        bike.estimated_value,
+        bike.created as donation_date
         from match
-        join donor_bike on donor_bike.bike_id = match.bike_id 
+        join donor_bike on donor_bike.bike_id = match.bike_id
         join folks as donor on donor_bike.donor_id = donor.id
         join folks as recipient on recipient.id = match.recipient_id
+        join bike on bike.id = match.bike_id
         where {where}
         order by {order_by}
         """.format(where=where,order_by=order_by)
-        
+
         return self.query(sql)
 
 
