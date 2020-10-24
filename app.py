@@ -48,6 +48,7 @@ def initalize_all_tables(db=None):
     
     ### setup any other tables you need here....
     init_all_bikematch_tables(db)
+        
     
 def get_db(filespec=None):
     """Return a connection to the database.
@@ -107,23 +108,14 @@ def _before():
     #  with keys of 'title' & 'url' used to construct
     #  the items in the main menu
     # g.menu_items = shotglass.get_menu_items()
-    # g.menu_items = [{'title':'Home','url':url_for('bikematch.home')},
- #        {'title':'I Need a Bike','url':url_for('recipient.needabike')},
- #        {'title':'I Have a Bike','url':url_for('bikematch.haveabike')},
- #        {'title':'Alternative Sources','url':url_for('bikematch.alternatives')},
- #        ]
-    g.menu_items = [
-        # {'title':'Home','url':None,'drop_down_menu':[
-        #     {'title':'Bikematch Home','url':url_for('bikematch.home')},
-        #     {'title':'SABA Home','url':"http://sacbike.org"},
-        #     ]},
+    g.menu_items = [{'title':'Gallery','url':url_for('bike.gallery')},
         ]
     # g.admin items are added to the navigation menu by default
     g.admin = Admin(g.db) # This is where user access rules are stored
     g.admin.register(Bike,None,display_name='BikeMatch Admin',header_row=True,minimum_rank_required=100)
     g.admin.register(Folks,url_for('folks.display'),display_name='Folks',minimum_rank_required=100)
     g.admin.register(Bike,url_for('bike.display'),display_name='Bikes',minimum_rank_required=100)
-    g.admin.register(Match,url_for('match.display'),display_name='Matches',minimum_rank_required=100)
+    g.admin.register(Reservation,url_for('reservation.display'),display_name='Reservations',minimum_rank_required=100)
     
     shotglass.user_setup() # g.admin now holds access rules Users, Prefs and Roles
 
