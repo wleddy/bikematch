@@ -8,10 +8,10 @@
     </div>
     <div class="w3-row">
         <p class="w3-col w3-half">
-            {% set bike_styles = ['Cruiser','Hybrid Bike','Mountain Bike','Road Bike','Town Bike','Tricycle','Something else entirely']%}
+            {% import "bike_styles_list.html" as bike_styles %} {# the property bike_styes.bike_styles is a list of styles #}
             {{ select_field('bike_type',label="Bicycle Style", id="bike_type", req=True) }}
                 <option value="" selected >Select a Type</option>
-                {% for style in bike_styles %}
+                {% for style in bike_styles.bike_styles %}
                 <option value="{{style}}" {% if rec.bike_type == style %}selected{% endif %}>{{ style | title }}</option>
                 {% endfor %}
             </select>

@@ -45,7 +45,10 @@
             <img src="{{ url_for('static', filename='anytime/calendar.png' ) }}" alt="[calendar icon]"/>
             </a>
         </p>
-        <p class='w3-col w3-quarter' >{{ input_field(rec.estimated_value,"estimated_value",placeholder="0.00",)}}</p>
+        <p class='w3-col w3-quarter' >
+            {{ input_field(rec.minimum_donation,"minimum_donation",placeholder="0.00",)}}
+        </p>
+        
     </div>
     
  </fieldset>

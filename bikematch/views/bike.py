@@ -8,6 +8,7 @@ from shotglass2.takeabeltof.file_upload import FileUpload
 from shotglass2.takeabeltof.jinja_filters import two_decimal_string as money
 from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number
 from bikematch.models import Bike, BikeImage
+from shotglass2.users.models import Pref
 from werkzeug.exceptions import RequestEntityTooLarge
 
 PRIMARY_TABLE = Bike
@@ -61,7 +62,7 @@ def display(path=None):
 
     view.list_fields = [
             {'name':'id','label':'ID','class':'w3-hide-medium w3-hide-small','search':True},
-            {'name':'created','label':'Added','type':'date', 'search':'date'},
+            {'name':'full_name','label':'Donor',},
             {'name':'bike_comment','label':'Description'},
             {'name':'pedal_length',},
             {'name':'bike_status',"label":'Status'},
@@ -117,9 +118,9 @@ def edit(rec_id=None):
         if not rec:
             flash("Record not Found")
             return redirect(g.listURL)
-        ## convert estimated_value field to a string in the money format
-        if rec.estimated_value:
-            rec.estimated_value = money(rec.estimated_value)
+        ## convert minimum_donation field to a string in the money format
+        if rec.minimum_donation:
+            rec.minimum_donation = money(rec.minimum_donation)
             
     if request.form:
         # import pdb;pdb.set_trace()
@@ -202,6 +203,38 @@ def delete(rec_id=None):
     return redirect(g.listURL)    
     
     
+@mod.route('/gallery', methods=['GET', 'POST'])
+@mod.route('/gallery/', methods=['GET', 'POST'])
+def gallery():
+    """Display a photo gallery of bikes avalialble for matching"""
+
+    setExits()
+    g.title = "Bike Gallery"
+    selected_size = None
+    selected_style = None
+
+    # import pdb;pdb.set_trace()
+
+    where = "lower(bike_status) <> 'matched'"
+    if request.form:
+        selected_style = request.form.get("selected_style")
+        if selected_style:
+            where += " and lower(bike_type) = '{}'".format(selected_style.lower())
+        selected_size = request.form.get("selected_size") # string of two numbers separated by a comma
+        if selected_size:
+            inseam = selected_size.split(',')
+            where += " and min_pedal_length <= {} and max_pedal_length >= {}".format(inseam[0],inseam[1])
+
+    recs = Bike(g.db).select(where=where)
+
+    return render_template("gallery.html",
+        recs=recs,
+        selected_size=selected_size,
+        selected_style=selected_style,
+        bike_sizes=get_bike_size_values(),
+        )
+
+
 @mod.route('view/<int:rec_id>', methods=['GET',])
 @mod.route('view/<int:rec_id>/', methods=['GET',])
 @mod.route('view', methods=['GET',])
@@ -292,13 +325,12 @@ def valididate_form(rec):
     else:
         rec.created = temp_date
     
+    if not rec.minimum_donation:
+        rec.minimum_donation = 0
     try:
-        if not rec.estimated_value:
-            rec.estimated_value = 0
-        temp = float(rec.estimated_value)
-        rec.estimated_value = temp
+        rec.minimum_donation = float(rec.minimum_donation)
     except:
-        flash("The estimated_value must be a number")
+        flash("The minimum donation must be a number")
         valid_form = False
         
     return valid_form
@@ -315,4 +347,37 @@ def validate_pedal_length(pedal_len):
         pass
         
     return False
+        
+        
+def inseam_to_height(inseam):
+    # return a guestimate of the hieght in feet and inches of someone with this inseam.
+    # inseam is in inches
+    # returned as a string representaiton
+    # import pdb;pdb.set_trace()
+    
+    inseam_factor = 2.25 # the default value
+    try:
+        # inseam_factor = float(g.inseam_to_height_factor.value)
+        temp_factor = Pref(g.db).get("Inseam to Height Factor",default=inseam_factor).value
+        inseam_factor = float(temp_factor)
+    except:
+        pass
+        
+    inseam = float(inseam)
+    height_in_inches = inseam * inseam_factor # assumes inseam is about half of height
+    feet = int(height_in_inches/12) 
+    inches = int(height_in_inches%12)
+
+    return "{}'{}\"".format(feet,inches)
+    
+def get_bike_size_values(first_inseam = 16, last_inseam = 36, inseam_step=1):
+    """Returns a list of values to use in the Bike Sizes options list 
+    in the gallery filter select element"""
+
+
+    bike_sizes = [] 
+    for x in range(first_inseam,last_inseam,inseam_step):
+        bike_sizes.append((str(x),str(x+inseam_step),"your height: {} to {} (inseam: {}\" to {}\")".format(inseam_to_height(x),inseam_to_height(x+inseam_step),x,x+inseam_step)))
+        
+    return bike_sizes
         

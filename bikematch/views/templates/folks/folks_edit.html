@@ -19,12 +19,11 @@
 </script>
 <style>
     #match_list,#donation_list {
-        border: 2pt #ccc solid;
         padding:6pt;
         margin:6pt 3pt 6pt 0;
     }
     #match_list,#donation_list {
-        min-height:86pt;
+        min-height:90pt;
     }
     .list_head {
         font-weight:800;
@@ -67,7 +66,7 @@
         <p class='w3-col w3-half' >{{ input_field(rec.phone,'phone',)}}</p>
     </div>
     <div class="w3-row">
-        <div class="w3-col w3-half">
+        <div class="w3-col w3-half w3-card">
             <div id="match_list">
                 <p class="list_head">Bikes Received</p>
                 <div class="bike_list">
@@ -78,7 +77,7 @@
                     {% endif %}
                     <p>Match Date: <strong>{{ bike.match_date | local_date_string }}</strong></p>
                     <p class="match_comment" id="short_match_comment_{{ bike.id }}">{{bike.bike_comment | truncate(80)}}</p>
-                    <p class="bike_price">Amount received: {{ bike.payment_amt | money }} / ({{ bike.estimated_value | money }})</p>
+                    <p class="bike_price">Amount received: {{ bike.payment_amt | money }} / ({{ bike.minimum_donation | money }})</p>
                     <hr>
                 {% endfor %}
                 {% else %}
@@ -87,9 +86,9 @@
                 </div>
             </div>
         </div>
-        <div class="w3-col w3-half">
+        <div class="w3-col w3-half w3-card">
             <div id="donation_list">
-                <p class="list_head">Donations Made</p>
+                <p class="list_head">Bikes Donated</p>
                 <div class="bike_list">
                 {% if donations %}
                 {% for bike in donations %}
@@ -98,7 +97,7 @@
                     {% endif %}
                     <p>Donation Date: <strong>{{ bike.donation_date | local_date_string }}</strong></p>
                     <p class="match_comment" id="short_match_comment_{{ bike.id }}">{{bike.bike_comment | truncate(80)}}</p>
-                    <p class="bike_price">Est. Value: {{ bike.estimated_value | money }}</p>
+                    <p class="bike_price">Est. Value: {{ bike.minimum_donation | money }}</p>
                     <hr>
                 {% endfor %}
                 {% else %}

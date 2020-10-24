@@ -63,8 +63,8 @@ if clear_new and os.path.exists(new_db):
         
 new_con = Database(new_db).connect()
 new_models.init_all_bikematch_tables(new_con)
-# add a temporary field to the new bike table to hold the old bike ID
-new_con.execute("alter table bike add old_id INTEGER")
+# # add a temporary field to the new bike table to hold the old bike ID
+# new_con.execute("alter table bike add old_id INTEGER")
 
 old_con = Database(old_db).connect()
 
@@ -79,14 +79,18 @@ donor_bike = new_models.DonorBike(new_con)
 
 recs = old_models.Bike(old_con).select()
 print("Moving {} bike records.".format(len(recs)))
+# pdb.set_trace()
+cur = new_con.cursor()
 for rec in recs:
     # copy bike
-    new = new_bike.new()
+    #preserve the original ids
+    cur.execute("insert into bike (id) values ({})".format(rec.id,))
+    
+    new = new_bike.get(rec.id)
     new.bike_comment = rec.bike_comment + " (original size: {})".format(rec.bike_size)
     new.staff_comment = rec.staff_comment
     new.bike_type = rec.bike_type
     new.created = rec.created
-    new.old_id = rec.id
     sizes = convert_size(rec.bike_size)
     new.min_pedal_length = sizes["min_pedal_length"]
     new.max_pedal_length = sizes["max_pedal_length"]
@@ -158,7 +162,7 @@ for rec in recs:
     new_match = matches.new()
     new_match.recipient_id = folk.id
     # the id of the old linked bike file was the bike ID
-    bike = new_bikes.select_one(where="old_id = {}".format(rec.donor_id))
+    bike = new_bikes.select_one(where="id = {}".format(rec.donor_id))
     new_match.bike_id = bike.id
     new_match.match_date = rec.match_date
     new_match.match_comment = rec.match_comment
@@ -166,33 +170,33 @@ for rec in recs:
     
     new_con.commit()
     
-#Remove the temp field from bike
-new_con.execute("PRAGMA foreign_keys=OFF")
-new_con.execute("""
-CREATE TABLE IF NOT EXISTS 'temp_bike' (
-            id INTEGER NOT NULL PRIMARY KEY,
-            bike_comment TEXT,
-            staff_comment TEXT,
-            min_pedal_length NUMBER,
-            max_pedal_length NUMBER,
-            estimated_value FLOAT,
-            bike_type TEXT,
-            created DATETIME)
-""")
-new_con.execute("""insert into temp_bike 
-             select id, 
-             bike_comment ,
-             staff_comment ,
-             min_pedal_length ,
-             max_pedal_length ,
-             estimated_value ,
-             bike_type ,
-             created 
-             
-              from bike """)
-              
-new_con.execute("drop table bike")
-new_con.execute("alter table temp_bike rename to bike")
-new_con.execute("PRAGMA foreign_keys=ON")
-new_con.commit()
+# #Remove the temp field from bike
+# new_con.execute("PRAGMA foreign_keys=OFF")
+# new_con.execute("""
+# CREATE TABLE IF NOT EXISTS 'temp_bike' (
+#             id INTEGER NOT NULL PRIMARY KEY,
+#             bike_comment TEXT,
+#             staff_comment TEXT,
+#             min_pedal_length NUMBER,
+#             max_pedal_length NUMBER,
+#             minimum_donation FLOAT,
+#             bike_type TEXT,
+#             created DATETIME)
+# """)
+# new_con.execute("""insert into temp_bike
+#              select id,
+#              bike_comment ,
+#              staff_comment ,
+#              min_pedal_length ,
+#              max_pedal_length ,
+#              minimum_donation ,
+#              bike_type ,
+#              created
+#
+#               from bike """)
+#
+# new_con.execute("drop table bike")
+# new_con.execute("alter table temp_bike rename to bike")
+# new_con.execute("PRAGMA foreign_keys=ON")
+# new_con.commit()
     

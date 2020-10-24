@@ -1,7 +1,7 @@
+from flask import g
 from shotglass2.takeabeltof.database import SqliteTable
 from shotglass2.takeabeltof.utils import cleanRecordID
 from shotglass2.users.views.password import getPasswordHash
-  
   
 class Bike(SqliteTable):
     """Bikes for matching"""
@@ -18,7 +18,7 @@ class Bike(SqliteTable):
             staff_comment TEXT,
             min_pedal_length NUMBER,
             max_pedal_length NUMBER,
-            estimated_value FLOAT,
+            minimum_donation FLOAT,
             bike_type TEXT,
             created DATETIME
             """
@@ -40,8 +40,13 @@ class Bike(SqliteTable):
     def select(self,where=None,order_by=None,**kwargs):
         where = where if where else '1'
         order_by = order_by if order_by else self.order_by_col
+        from bikematch.views.bike import inseam_to_height
+        self.db.create_function("inseam_to_height", 1, inseam_to_height)
+        
         sql = """select distinct bike.*,
         bike.min_pedal_length || '~' || bike.max_pedal_length as pedal_length,
+        inseam_to_height(bike.min_pedal_length) as min_height,
+        inseam_to_height(bike.max_pedal_length) as max_height,
         folks.first_name || ' ' || folks.last_name as full_name,
         folks.email,
         folks.phone,
@@ -146,7 +151,7 @@ class Match(SqliteTable):
         recipient.first_name || ' ' || recipient.last_name as recipient_name,
         (select image_path from bike_image where bike_id = match.bike_id limit 1) as image_path,
         bike.bike_comment,
-        bike.estimated_value,
+        bike.minimum_donation,
         bike.created as donation_date
         from match
         join donor_bike on donor_bike.bike_id = match.bike_id
@@ -235,6 +240,22 @@ class Reservation(SqliteTable):
             """
         super().create_table(sql)
 
+    def select(self,where=None,order_by=None,**kwargs):
+        where = where if where else 1
+        order_by = order_by if order_by else self.order_by_col
+        sql = """select reservation.*,
+        (select image_path from bike_image where bike_id = reservation.bike_id limit 1) as image_path,
+        CASE
+            when match.id is not null then 'Matched'
+            else 'Available'
+        END as bike_status
+        from reservation
+        left join match on match.bike_id = reservation.bike_id
+        where {where}
+        order by {order_by}
+        """.format(where=where,order_by=order_by)
+
+        return self.query(sql)
 
 
 class MatchDays(SqliteTable):

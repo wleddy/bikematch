@@ -1,0 +1,53 @@
+{% extends "form_layout.html" %}
+
+{% from "_form_helpers.html" import input_field, select_field, radio_field, checkbox_field, label_only %}
+
+{% block head %}
+{{super()}}
+{% include "anytime_head.html"%}
+
+{% endblock head%}
+
+{% block fieldset %}
+<fieldset>
+    <p>{{ input_field(rec.id,"id",id="id",type="hidden",default=0)}}</p>
+    <div class="w3-row">
+        <p class='w3-col w3-half'>{{ input_field(rec.first_name,"first_name",req=True,)}}</p>
+        <p class='w3-col w3-half'>{{ input_field(rec.last_name,"last_name",req=True,)}}</p>
+    </div>
+    <div class="w3-row">
+        <p class='w3-col w3-half' >{{ input_field(rec.email,"email",req=True)}}</p>
+        <p class='w3-col w3-half' >{{ input_field(rec.phone,'phone',)}}</p>
+    </div>
+    <div class="w3-row">
+        <div class="w3-col l3 m3 s9">
+            {% set reservation_date = '' %}
+            {% if rec.reservation_date %}{% set creation_date = rec.reservation_date | short_date_string %}{% endif %}
+            
+            <p>{{ input_field(creation_date,"reservation_date",class="DatePickerButton",id="reservation_date",label="Date Created",req=True)}}</p>
+        </div>
+        <p class="w3-col l1 m1 s2"><br>
+            <a href="javascript:addPicker('reservation_date','%m/%d/%y')"  class="DatePickerButton">
+            <img src="{{ url_for('static', filename='anytime/calendar.png' ) }}" alt="[calendar icon]"/>
+            </a>
+        </p>
+    </div>
+    {% if rec.bike_id %}
+    <h4>Bike Reserved</h4>
+    <p>Bike ID: <strong>{{ rec.bike_id }}</strong></p>
+    {% if rec.image_path %}
+    <div class="w3-row">
+        <p w3-col w3-half>
+        <img src="{{ url_for('static',filename=rec.image_path)}}" class="w3-border w3-padding" style="width:100%;max-width:250px" />
+        </p>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="w3-row">
+        <p class='w3-col w3-half' >{{ input_field(rec.bike_id,"bike_id",req=True,)}}</p>
+    </div>
+   {% endif %}
+ 
+    
+ </fieldset>
+{% endblock fieldset %}

@@ -1,60 +1,117 @@
 from flask import request, session, g, redirect, url_for, abort, \
      render_template, flash, Blueprint, Response, safe_join
+from bikematch.models import Reservation, Bike, Folks, Match
+from shotglass2.takeabeltof.utils import printException, cleanRecordID
+from shotglass2.users.admin import login_required, table_access_required
+from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString
+from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number
 
-mod = Blueprint('reservation',__name__, template_folder='templates/reservation', url_prefix='', static_folder="static/")
+PRIMARY_TABLE = Reservation
+    
+mod = Blueprint('reservation',__name__, template_folder='templates/reservation', url_prefix='/reservation', static_folder="static/")
+
 
 def setExits():
     g.listURL = url_for('.display')
     g.editURL = url_for('.edit')
-    g.deleteURL = url_for('.delete')
+    g.deleteURL = url_for('.display') + 'delete/'
     g.title = 'Reservation'
 
 
-@mod.route('/ineedabike', methods=['POST', 'GET',])
-@mod.route('/ineedabike/', methods=['POST', 'GET',])
-def needabike():
-    """handle Reervation creation
-    Display a searchable photo gallery of bikes
-    """
-    return "ineeedabike Not implemented yet"
-    # setExits()
-    # g.title = 'I Need a Bike'
-    # g.editURL = url_for(".needabike")
-    # g.cancelURL = url_for('bikematch.home')
-    # recipient = Recipient(g.db)
-    # rec = recipient.new()
+from shotglass2.takeabeltof.views import TableView
+
+# this handles table list and record delete
+@mod.route('/<path:path>',methods=['GET','POST',])
+@mod.route('/<path:path>/',methods=['GET','POST',])
+@mod.route('/',methods=['GET','POST',])
+@table_access_required(PRIMARY_TABLE)
+def display(path=None):
+    # import pdb;pdb.set_trace()
+    setExits()
+    view = TableView(PRIMARY_TABLE,g.db)
+
+    # view.list_fields = [
+    #         {'name':'id','label':'ID','class':'w3-hide-small','search':True},
+    #         {'name':'full_name','label':'Name'},
+    #         {'name':'email',},
+    #         {'name':'phone',},
+    #     ]
     #
-    # # Validate input
-    # if request.form:
-    #     recipient.update(rec,request.form)
-    #     rec.created = date_to_string(local_datetime_now(),'date')
-    #     rec.phone = formatted_phone_number(rec.phone)
-    #     rec.status = 'Open'
-    #     rec.priority = 'New'
-    #     if valididate_form(rec):
-    #         recipient.save(rec,commit=True)
-    #         rec = recipient.get(rec.id) #get a fresh copy
-    #         site_config = get_site_config()
+    # view.export_fields = None
     #
-    #         # inform sysop of new request
-    #         mailer = Mailer(None,rec=rec)
-    #         mailer.text_template = 'email/request_admin_email.txt'
-    #         mailer.subject = "Bike Request Submitted"
-    #         mailer.send()
-    #         # Inform recipient that request was received
-    #         mailer = Mailer((rec.full_name,rec.email),rec=rec)
-    #         mailer.text_template = 'email/request_recipient_email.txt'
-    #         mailer.subject = "Your Bike Match request has been recieved"
-    #         mailer.bcc = (site_config['MAIL_DEFAULT_SENDER'],site_config['MAIL_DEFAULT_ADDR'])
-    #         mailer.send()
-    #         if not mailer.success:
-    #             mes = "Error: {}".format(mailer.result_text)
-    #             email_admin(subject="Error sending Need a bike email",message=mes)
-    #
-    #         return render_template('need_a_bike_success.html')
-    #
-    # # display Recipient form
-    # return render_template('need_a_bike_form.html',rec=rec)
+
+    return view.dispatch_request()
+    
+
+@mod.route('/reservation/reserve', methods=['GET', 'POST'])
+@mod.route('/reservation/reserve/', methods=['GET', 'POST'])
+def reserve():
+    return "Not done"
+    
+    
+@mod.route('/reservation/edit', methods=['POST', 'GET'])
+@mod.route('/reservation/edit/', methods=['POST', 'GET'])
+@mod.route('/reservation/edit/<int:rec_id>/', methods=['POST','GET'])
+@table_access_required(PRIMARY_TABLE)
+def edit(rec_id=None):
+    setExits()
+    g.title = "Edit {} Record".format(g.title)
+
+    reservation = PRIMARY_TABLE(g.db)
+    rec = None
+
+    if rec_id == None:
+        rec_id = request.form.get('id',request.args.get('id',-1))
+
+    rec_id = cleanRecordID(rec_id)
+    #import pdb;pdb.set_trace
+
+    if rec_id < 0:
+        flash("That is not a valid ID")
+        return redirect(g.listURL)
+
+    if not request.form:
+        """ if no form object, send the form page """
+        if rec_id == 0:
+            rec = reservation.new()
+            rec.reservation_date = local_datetime_now()
+        else:
+            rec = reservation.get(rec_id)
+            if not rec:
+                flash("Unable to locate that record")
+                return redirect(g.listURL)
+    else:
+        #have the request form
+        # import pdb;pdb.set_trace()
+        if rec_id:
+            rec = reservation.get(rec_id)
+        else:
+            # its a new unsaved record
+            rec = reservation.new()
+            
+        reservation.update(rec,request.form)
+
+        if valididate_form(rec):
+            #update the record
+            #import pdb;pdb.set_trace()
+    
+            reservation.update(rec,request.form)
+        
+            try:
+                reservation.save(rec)
+                g.db.commit()
+            except Exception as e:
+                g.db.rollback()
+                flash(printException('Error attempting to save '+g.title+' record.',"error",e))
+
+            return redirect(g.listURL)
+
+        else:
+            # form did not validate
+            pass
+
+    # display form
+    return render_template('reservation_edit.html', rec=rec)
 
 
 def valididate_form(rec):
@@ -71,3 +128,4 @@ def valididate_form(rec):
         valid_form = False
 
     return valid_form
+    
