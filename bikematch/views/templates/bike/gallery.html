@@ -83,7 +83,10 @@
 <div id="gallery" style="margin-top:20pt;">
 {% if recs %}
     {% for rec in recs %}
-    <a href="{{ url_for('reservation.reserve')}}" title="Reserve this bike">
+    <form action="{{ url_for('reservation.reserve')}}" method="post" id="bike_res_{{ rec.id }}" accept-charset="utf-8">
+        <input type="hidden" name="bike_id" value="{{ rec.id}}" id="bike_id" />
+    </form>
+    <a href="#" title="Reserve this bike" onclick="$('#bike_res_{{ rec.id }}').submit()">
     <div class="gallery-image-contain" >
         <div class="w3-card-2 gallery-card" >
           <img src="{{ url_for('static', filename=rec.image_path)}}" alt="{{rec.bike_type}}" >

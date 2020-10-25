@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+{% block title %}{{ g.title }}{% endblock %}
+
+{% from "_layout_helpers.html" import left_column_spacer, form_column_class %}
+{% from "_form_helpers.html" import input_field, select_field, radio_field, checkbox_field, label_only %}
+
+{% block head %}
+{{ super() }}
+
+
+{% endblock head %}
+
+{% block body %}
+
+{% if rec %}
+    {% set email_extras = 'readonly' %}
+    {% set submit_text = 'Reserve This Bike' %}
+{% else %}
+    {% set email_extras = '' %}
+    {% set submit_text = 'Next' %}
+{% endif %}
+
+<div class="w3-container">
+    {{ left_column_spacer() }}
+    <form id="main-form" action="{{ g.editURL }}" method=post class="entry {{ form_column_class() }}" enctype="multipart/form-data">
+        <p>{{ input_field(rec.id,"id",id="id",type="hidden",default=0)}}</p>
+        <p>{{ input_field(bike.id,"bike_id",id="bike_id",type="hidden",default=0)}}</p>
+        <div class="reservation-instructions">
+            {% if not rec %}
+            <p>To start your reservation, please provide your email address.</p>
+            <p>Please note that you may only have one bike reserved at a time.</p>
+            {% else %}
+            <p>
+                Please provide the rest of your contact information. 
+            </p>
+            <p>
+                After you submit this form you will
+                receive an email confirmation with your reservation details.
+            </p>
+            {% endif %}
+        </div>
+        <fieldset>
+            <div class="w3-row">
+                <p class='w3-col' >{{ input_field(rec.email,"email",label="Your email address",req=True,extras=email_extras)}}</p>
+            </div>
+        {% if rec %}
+            <div class="w3-row">
+                <p class='w3-col w3-half'>{{ input_field(rec.first_name,"first_name",req=True,)}}</p>
+                <p class='w3-col w3-half'>{{ input_field(rec.last_name,"last_name",req=True,)}}</p>
+            </div>
+            <div class="w3-row">
+                <p class='w3-col w3-half' >{{ input_field(rec.phone,'phone',)}}</p>
+            </div>
+            {% if bike %}
+            <h4 class="bike-info-head">The Bike You Are Reserving</h4>
+            
+            {% include "bike_data_block.html" %}
+            
+            <div class="bike-data">
+                <p class="bike-section-head">Pick up your bike:</p>
+                <p>
+                    Your bike will be ready for pick up at:<br>
+                    {{ location.location_name }} on <strong>{{ match_day.start | abbr_date_string }}</strong>
+                </p>
+                <input type="hidden" id="match_day_id" name="match_day_id" value="{{ match_day.id }}" />
+                <p>
+                    {{ select_field("reservation_date",label="Choose an open time slot",id="time_slot")}}
+                    <option value="">Select a slot</option>
+                    {% for slot in time_slots %}
+                    <option value="{{slot['slot_date']}}" {% if slot['slot_date'] == rec.reservation_date %}selected{% elif not slot['open'] %}disabled{%endif%}>{{ slot['slot_date'] | local_time_string }}</option>
+                    {% endfor %}
+                    </select>
+                </p>
+            </div>
+           {% endif %}
+         {% endif %} {# if rec #}
+         
+        <p class="form_button_row w3-contain w3-panel" >
+        	<a class="w3-btn w3-ripple w3-save-button-color w3-mobile w3-round-large w3-shadow" onclick="$('#main-form').submit()">{{ submit_text }}</a>&nbsp;&nbsp;
+            <a  class="w3-btn w3-ripple w3-cancel-button-color w3-mobile w3-round-large" href="{% if g.cancelURL %}{{g.cancelURL}}{% else %}{{ g.listURL }}{% endif %}" >Cancel</a>
+        </p> 
+		
+    
+         </fieldset>
+     </form>
+</div>
+{% endblock body %}
+

@@ -142,3 +142,27 @@ hr.past-event{
 .silver-background {
     background-color: rgba(214, 214, 214, 1.0);
 }
+
+/* some styles just for registration */
+
+div.reservation-instructions{
+    margin:10pt;
+    position:relative;
+}
+.reservation-instructions p, .bike-section-head, .bike-info-head{
+    font-size:13pt;
+    font-weight:800;
+    line-height:1;
+    margin:0 0 2pt 0;
+}
+.bike-info-head {
+    font-size:18pt;
+    line-height:1.2;
+}
+.bike-image {
+    width:30%;
+    float:left;
+}
+.bike-data {
+    margin-left:30%;
+}

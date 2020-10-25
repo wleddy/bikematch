@@ -7,7 +7,8 @@ import os
 from shotglass2.takeabeltof.database import Database
 from shotglass2.takeabeltof.file_upload import FileUpload
 from shotglass2.takeabeltof.utils import formatted_phone_number
-
+from shotglass2.takeabeltof.date_utils import local_datetime_now
+from datetime import timedelta
 from bikematch import models as new_models
 import v1_models as old_models
 import pdb
@@ -63,8 +64,6 @@ if clear_new and os.path.exists(new_db):
         
 new_con = Database(new_db).connect()
 new_models.init_all_bikematch_tables(new_con)
-# # add a temporary field to the new bike table to hold the old bike ID
-# new_con.execute("alter table bike add old_id INTEGER")
 
 old_con = Database(old_db).connect()
 
@@ -170,33 +169,31 @@ for rec in recs:
     
     new_con.commit()
     
-# #Remove the temp field from bike
-# new_con.execute("PRAGMA foreign_keys=OFF")
-# new_con.execute("""
-# CREATE TABLE IF NOT EXISTS 'temp_bike' (
-#             id INTEGER NOT NULL PRIMARY KEY,
-#             bike_comment TEXT,
-#             staff_comment TEXT,
-#             min_pedal_length NUMBER,
-#             max_pedal_length NUMBER,
-#             minimum_donation FLOAT,
-#             bike_type TEXT,
-#             created DATETIME)
-# """)
-# new_con.execute("""insert into temp_bike
-#              select id,
-#              bike_comment ,
-#              staff_comment ,
-#              min_pedal_length ,
-#              max_pedal_length ,
-#              minimum_donation ,
-#              bike_type ,
-#              created
-#
-#               from bike """)
-#
-# new_con.execute("drop table bike")
-# new_con.execute("alter table temp_bike rename to bike")
-# new_con.execute("PRAGMA foreign_keys=ON")
-# new_con.commit()
-    
+# Just for grinsm, lets create some match days and the locatoin for SBK
+location = new_models.Location(new_con)
+rec = location.new()
+rec.location_name = "Sacramento Bicycle Kitchen"
+rec.street_address = "1915 I Street"
+rec.city = "Sacramento"
+rec.state = "CA"
+rec.zip = "95814"
+rec.lng = "-121.4800"
+rec.lat = "38.5782"
+location.save(rec)
+location.commit()
+
+sbk_id = rec.id
+
+match_day = new_models.MatchDay(new_con)
+start = local_datetime_now().replace(hour=10,minute=0,second=0)
+for x in range(6):
+    start = start + timedelta(days=7)
+    rec = match_day.new()
+    rec.start = start
+    rec.number_of_slots = 8
+    rec.slot_minutes = 15
+    rec.location_id = sbk_id
+    match_day.save(rec)
+match_day.commit()
+
+

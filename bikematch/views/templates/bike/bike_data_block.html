@@ -1,0 +1,17 @@
+{% if bike.image_path %}
+    <div class="bike-image">
+        <p>
+        <img src="{{ url_for('static',filename=bike.image_path)}}" class=" w3-padding" style="width:100%;max-width:250px" />
+        </p>
+    </div>
+{% endif %}
+    <div class="bike-data">
+        <p class="bike-section-head">{{ bike.bike_type}}</p>
+        {{ bike.bike_comment | render_markdown }}
+        <p><strong>Gears:</strong> {{bike.number_of_gears | default("?",True)}}</p>
+        <p class="bike-section-head">Sizing:</p>
+        <p>
+            This bike should fit someone between {{ bike.min_height }} to {{ bike.max_height }} in height or with an
+            inseam measurement of between {{ bike.min_pedal_length }}&quot; and {{ bike.max_pedal_length }}&quot;.
+        </p>
+    </div>

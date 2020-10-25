@@ -1,8 +1,10 @@
 from flask import g
 from shotglass2.takeabeltof.database import SqliteTable
 from shotglass2.takeabeltof.utils import cleanRecordID
-from shotglass2.users.views.password import getPasswordHash
-  
+from shotglass2.takeabeltof.date_utils import local_datetime_now
+from datetime import timedelta
+
+
 class Bike(SqliteTable):
     """Bikes for matching"""
     def __init__(self,db_connection):
@@ -16,6 +18,7 @@ class Bike(SqliteTable):
         sql = """
             bike_comment TEXT,
             staff_comment TEXT,
+            number_of_gears TEXT,
             min_pedal_length NUMBER,
             max_pedal_length NUMBER,
             minimum_donation FLOAT,
@@ -40,6 +43,7 @@ class Bike(SqliteTable):
     def select(self,where=None,order_by=None,**kwargs):
         where = where if where else '1'
         order_by = order_by if order_by else self.order_by_col
+        
         from bikematch.views.bike import inseam_to_height
         self.db.create_function("inseam_to_height", 1, inseam_to_height)
         
@@ -236,6 +240,7 @@ class Reservation(SqliteTable):
             'email' TEXT,
             'phone' TEXT,
             reservation_date DATETIME,
+            match_day_id INTEGER,
             bike_id INTEGER
             """
         super().create_table(sql)
@@ -244,13 +249,18 @@ class Reservation(SqliteTable):
         where = where if where else 1
         order_by = order_by if order_by else self.order_by_col
         sql = """select reservation.*,
-        (select image_path from bike_image where bike_id = reservation.bike_id limit 1) as image_path,
-        CASE
-            when match.id is not null then 'Matched'
-            else 'Available'
-        END as bike_status
+        reservation.first_name || ' ' || reservation.last_name as full_name,
+        location.location_name,
+        location.street_address,
+        location.city,
+        location.state,
+        location.zip,
+        location.lng,
+        location.lat,
+        match_day.start
         from reservation
-        left join match on match.bike_id = reservation.bike_id
+        left join match_day on match_day.id = reservation.match_day_id
+        left join location on location.id = match_day.location_id
         where {where}
         order by {order_by}
         """.format(where=where,order_by=order_by)
@@ -258,11 +268,11 @@ class Reservation(SqliteTable):
         return self.query(sql)
 
 
-class MatchDays(SqliteTable):
+class MatchDay(SqliteTable):
     """A list of dates, times and locations where we intend to make matches"""
     def __init__(self,db_connection):
         super().__init__(db_connection)
-        self.table_name = 'match_days'
+        self.table_name = 'match_day'
         self.order_by_col = 'start'
         self.defaults = {}
 
@@ -270,12 +280,37 @@ class MatchDays(SqliteTable):
     def create_table(self):        
         sql = """
             start DATETIME,
-            end DATETIME,
+            number_of_slots,
+            slot_minutes,
             location_id INTEGER
             """
         super().create_table(sql)
 
+    def select(self,where=None,order_by=None,**kwargs):
+        where = where if where else 1
+        order_by = order_by if order_by else self.order_by_col
+        sql = """select match_day.*,
+        location.location_name
+        from match_day
+        left join location on location.id = match_day.location_id
+        where {where}
+        order by {order_by}
+        """.format(where=where,order_by=order_by)
 
+        return self.query(sql)
+        
+    def select_future(self):
+        """Select all future handoff events"""
+        
+        # if it's after 6pm the first record must start AFTER tomorrow
+        start_limit = local_datetime_now()
+        if start_limit.hour >=18:
+            start_limit = start_limit + timedelta(days=1)
+            
+        where = "date(start,'localtime') > date('{}','localtime')".format(start_limit)
+        
+        return self.select(where=where)
+        
 
 class Location(SqliteTable):
     """Staffing Location Table"""
@@ -305,10 +340,11 @@ def init_all_bikematch_tables(db):
     Folks(db).init_table()
     Match(db).init_table()
     Bike(db).init_table()
-    MatchDays(db).init_table()
+    MatchDay(db).init_table()
     DonorBike(db).init_table()
     BikeImage(db).init_table()
     MatchImage(db).init_table()
     Reservation(db).init_table()
+    Location(db).init_table()
     
     

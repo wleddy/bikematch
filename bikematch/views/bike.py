@@ -215,7 +215,7 @@ def gallery():
 
     # import pdb;pdb.set_trace()
 
-    where = "lower(bike_status) <> 'matched'"
+    where = "lower(bike_status) = 'available'"
     if request.form:
         selected_style = request.form.get("selected_style")
         if selected_style:
@@ -354,7 +354,7 @@ def inseam_to_height(inseam):
     # inseam is in inches
     # returned as a string representaiton
     # import pdb;pdb.set_trace()
-    
+
     inseam_factor = 2.25 # the default value
     try:
         # inseam_factor = float(g.inseam_to_height_factor.value)
@@ -362,14 +362,20 @@ def inseam_to_height(inseam):
         inseam_factor = float(temp_factor)
     except:
         pass
-        
-    inseam = float(inseam)
+    
+    try:
+        inseam = float(inseam)
+    except:
+        # inseam was probobly None
+        inseam = 12 # This will look like someone about 2 feet tall
+    
     height_in_inches = inseam * inseam_factor # assumes inseam is about half of height
     feet = int(height_in_inches/12) 
     inches = int(height_in_inches%12)
 
     return "{}'{}\"".format(feet,inches)
-    
+
+        
 def get_bike_size_values(first_inseam = 16, last_inseam = 36, inseam_step=1):
     """Returns a list of values to use in the Bike Sizes options list 
     in the gallery filter select element"""

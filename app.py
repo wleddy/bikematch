@@ -5,7 +5,7 @@ from shotglass2 import shotglass
 from shotglass2.takeabeltof.database import Database
 from shotglass2.takeabeltof.jinja_filters import register_jinja_filters
 from shotglass2.users.admin import Admin
-from bikematch.models import Folks, Match, Bike, MatchDays, Reservation, init_all_bikematch_tables
+from bikematch.models import Folks, Match, Bike, MatchDay, Reservation, init_all_bikematch_tables
 
 # Create app
 # setting static_folder to None allows me to handle loading myself
