@@ -5,18 +5,37 @@
 {% block head %}
 {{ super() }}
 {% include "anytime_head.html"%}
+
+<style>
+    .bike-status-header {
+        
+    }
+</style>
 {% endblock head %}
 
 {% block fieldset %}
+{% if rec.bike_status | lower != "available"%}
+<div class="w3-primary-color w3-border w3-center w3-padding w3-large bike-status-header">
+    {% if rec.bike_status | lower == "matched"%}
+    <p>This bike has been {{ rec.bike_status }} to {{ rec.recipient_full_name |default("",True) }}</p>
+    {% elif rec.bike_status | lower == "reserved"%}
+    <p>This bike is {{ rec.bike_status }} for {{ rec.reservation_full_name | default("",True)}}</p>
+    {% endif %}
+</div>
+{% endif %}
 <fieldset>
     <p>{{ input_field(rec.id,"id",type="hidden",default=0)}}</p>
+    <p>{{ input_field(rec.donor_id,"donor_id",type="hidden",default=0)}}</p>
     {% if rec.id %}<p><strong>Bike ID:</strong> {{ rec.id }}</p>{% endif %}
+    {% if rec.id %}{% set donor_extras = "readonly" %}{% else %}{% set donor_extras = ""%}{% endif %}
+    {% if rec.id %}{% set folks_req = False %}{% else %}{% set folks_req = True %}{% endif %}
     <div class="w3-row">
-        <p class='w3-col'>{{ input_field(rec.full_name,"name",extras="readonly")}}</p>
+        <p class='w3-col w3-half'>{{ input_field(rec.donor_first_name,"donor_first_name",req=folks_req,extras=donor_extras)}}</p>
+        <p class='w3-col w3-half'>{{ input_field(rec.donor_last_name,"donor_last_name",req=folks_req,extras=donor_extras)}}</p>
     </div>
     <div class="w3-row">
-    <p class='w3-col w3-half' >{{ input_field(rec.email,"email",extras="readonly")}}</p>
-    <p class='w3-col w3-half' >{{ input_field(rec.phone,'phone',extras="readonly",)}}</p>
+    <p class='w3-col w3-half' >{{ input_field(rec.donor_email,"donor_email",req=folks_req,extras=donor_extras)}}</p>
+    <p class='w3-col w3-half' >{{ input_field(rec.donor_phone,'donor_phone',extras=donor_extras,)}}</p>
     </div>
     <div class="w3-row">
     <p>{{ label_only('Description',req=True)}}</p>
@@ -24,11 +43,14 @@
     </div>
     
     <div class="w3-row">
-        <p class="w3-col w3-half">
+        <p class="w3-col w3-third">
             {{ input_field(rec.min_pedal_length,'min_pedal_length',label="Min Pedal Len.", req=True) }}
         </p>
-        <p class="w3-col w3-half">
+        <p class="w3-col w3-third">
             {{ input_field(rec.max_pedal_length,'max_pedal_length',label="Max Pedal Len.", req=True) }}
+        </p>
+        <p class="w3-col w3-third">
+            {{ input_field(rec.make,'make',label="Make of Bike") }}
         </p>
     </div>
     <div class="w3-row">

@@ -1,10 +1,12 @@
 from flask import request, session, g, redirect, url_for, abort, \
      render_template, flash, Blueprint, Response, safe_join
 from bikematch.models import Reservation, Bike, Folks, Match, MatchDay, Location
+from shotglass2.shotglass import get_site_config
 from shotglass2.takeabeltof.utils import printException, cleanRecordID
-from shotglass2.users.admin import login_required, table_access_required
 from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString, date_to_string
 from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number
+from shotglass2.users.admin import login_required, table_access_required
+
 from datetime import timedelta
 
 PRIMARY_TABLE = Reservation
@@ -35,8 +37,8 @@ def display(path=None):
             {'name':'id','label':'ID','class':'w3-hide-small','search':True},
             {'name':'full_name','label':'Name'},
             {'name':'reservation_date','type':'datetime','search':'date'},
-            {'name':'email','class':'w3-hide-small',},
-            {'name':'phone','class':'w3-hide-small','type':'phone'},
+            {'name':'bike_id','class':'w3-hide-small',},
+            {'name':'bike_status','label':'Status',},
         ]
 
     view.export_fields = None
@@ -110,9 +112,9 @@ def reserve():
         if request.form.get("email"):
             #test if there is already a reservation for this person
             temp_rec = reservation.select(where="lower(email) = '{}'".format(request.form["email"].strip().lower()))
-            # if temp_rec:
-            #     flash("You already have a bike reserved.")
-            #     return redirect(return_target)
+            if temp_rec and not get_site_config()["DEBUG"]:
+                flash("You already have a bike reserved. You may only reserve one at a time.")
+                return redirect(return_target)
                 
             if not looksLikeEmailAddress(request.form.get("email")):
                 flash("That does not look like a valid email address.")

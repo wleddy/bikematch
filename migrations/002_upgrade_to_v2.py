@@ -11,6 +11,7 @@ from shotglass2.takeabeltof.date_utils import local_datetime_now
 from datetime import timedelta
 from bikematch import models as new_models
 import v1_models as old_models
+import re
 import pdb
 
 def convert_size(bike_size):
@@ -78,7 +79,7 @@ donor_bike = new_models.DonorBike(new_con)
 
 recs = old_models.Bike(old_con).select()
 print("Moving {} bike records.".format(len(recs)))
-# pdb.set_trace()
+pdb.set_trace()
 cur = new_con.cursor()
 for rec in recs:
     # copy bike
@@ -90,6 +91,16 @@ for rec in recs:
     new.staff_comment = rec.staff_comment
     new.bike_type = rec.bike_type
     new.created = rec.created
+    gears = re.findall("\s(\d*)\s?spd\.?", rec.bike_comment)
+    if gears:
+        new.number_of_gears = gears[0]
+    else:
+        new.number_of_gears = "?"
+    make = ""
+    f = re.search("([R|r]aleigh)|([S|s]chwinn)|([T|t]rek)|([S|s]pecialized)", rec.bike_comment)
+    if f:
+        make = rec.bike_comment[f.start():f.end()]
+    new.make =  make
     sizes = convert_size(rec.bike_size)
     new.min_pedal_length = sizes["min_pedal_length"]
     new.max_pedal_length = sizes["max_pedal_length"]

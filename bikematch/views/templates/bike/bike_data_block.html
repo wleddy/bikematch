@@ -1,13 +1,17 @@
+<div class="w3-row">
 {% if bike.image_path %}
-    <div class="bike-image">
+    <div class="w3-col w3-third bike-image">
         <p>
         <img src="{{ url_for('static',filename=bike.image_path)}}" class=" w3-padding" style="width:100%;max-width:250px" />
         </p>
     </div>
 {% endif %}
-    <div class="bike-data">
+    <div class="w3-col w3-twothird bike-data">
         <p class="bike-section-head">{{ bike.bike_type}}</p>
         {{ bike.bike_comment | render_markdown }}
+        {% if bike.make %}
+        <p><strong>Make:</strong> {{bike.make | default("?",True)}}</p>
+        {% endif %}
         <p><strong>Gears:</strong> {{bike.number_of_gears | default("?",True)}}</p>
         <p class="bike-section-head">Sizing:</p>
         <p>
@@ -15,3 +19,4 @@
             inseam measurement of between {{ bike.min_pedal_length }}&quot; and {{ bike.max_pedal_length }}&quot;.
         </p>
     </div>
+</div>

@@ -148,6 +148,7 @@ hr.past-event{
 div.reservation-instructions{
     margin:10pt;
     position:relative;
+    clear:both;
 }
 .reservation-instructions p, .bike-section-head, .bike-info-head{
     font-size:13pt;
@@ -160,9 +161,9 @@ div.reservation-instructions{
     line-height:1.2;
 }
 .bike-image {
-    width:30%;
-    float:left;
+ /*   width:30%;
+    float:left;*/
 }
 .bike-data {
-    margin-left:30%;
+   /* margin-left:30%;*/
 }

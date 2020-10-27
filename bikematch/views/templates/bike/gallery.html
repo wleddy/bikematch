@@ -29,15 +29,23 @@
         margin:3pt 0;
         padding-top:2pt;
     }
-    .gallery-card img {
-        width:110pt;
-    }
     .gallery-details {
         margin:2pt 4pt;
     }
-    .estimated-value, .bike-size p{
+    .other-info p{
         font-size:10pt;
         text-align:left !important;
+        margin:0;
+    }
+    /*    Crop the images. */
+    .image-contain {
+        height:115px; 
+        overflow:hidden; /*hide bounds of image */
+        margin:0;   /*reset margin of figure tag*/
+    }
+    .image-contain img {
+        display:block; /*remove inline-block spaces*/
+        width:100%; /*make image streatch*/
         margin:0;
     }
 </style>
@@ -89,17 +97,18 @@
     <a href="#" title="Reserve this bike" onclick="$('#bike_res_{{ rec.id }}').submit()">
     <div class="gallery-image-contain" >
         <div class="w3-card-2 gallery-card" >
-          <img src="{{ url_for('static', filename=rec.image_path)}}" alt="{{rec.bike_type}}" >
+          <div class="image-contain">
+            <img src="{{ url_for('static', filename=rec.image_path)}}" alt="{{rec.bike_type}}" >
+          </div>
           <div class="gallery-details">
             <p><strong>{{ rec.bike_type | title }}</strong></p>
-            <div class="bike-size">
-                <p>Fits: {{ rec.min_height }} to {{ rec.max_height}} </p>
-            </div>
-            <p class="estimated-value">
-                Minimum Donation: ${{ rec.minimum_donation  |money }}
-            </p>
+            <div class="other-info">
+                <p>Make: {{ rec.make | default('?',True) }}</p>
+                <p>Fits: {{ rec.min_height }} to {{ rec.max_height}}</p>
+                <p class="estimated-value">Minimum Donation: ${{ rec.minimum_donation  |money }}</p>
           </div>
         </div>
+    </div>
     </div>
     </a>
     {% endfor %}

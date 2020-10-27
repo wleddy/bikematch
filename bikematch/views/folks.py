@@ -87,8 +87,8 @@ def edit(rec_id=None):
 
             return redirect(g.listURL)
     
-    matches = Match(g.db).select(where="recipient_id = {}".format(rec.id),order_by="match_date DESC")
-    donations = Match(g.db).select(where = "donor_id = {}".format(rec.id),order_by="donation_date DESC")
+    matches = Match(g.db).select(where="recipient_id = {}".format(rec.id),order_by="match_date DESC")    
+    donations = Bike(g.db).select(where = "bike.id in (select bike_id from donor_bike where donor_id = {})".format(rec.id),order_by="created DESC")
 
     # display form
     return render_template('folks_edit.html', 

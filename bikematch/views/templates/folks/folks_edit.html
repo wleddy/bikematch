@@ -95,7 +95,7 @@
                     {% if bike.image_path %}
                     <p class="bike_image"><img src="{{ url_for('static', filename=bike.image_path) }}" alt="bike image" /></p>
                     {% endif %}
-                    <p>Donation Date: <strong>{{ bike.donation_date | local_date_string }}</strong></p>
+                    <p>Donation Date: <strong>{{ bike.created | local_date_string }}</strong></p>
                     <p class="match_comment" id="short_match_comment_{{ bike.id }}">{{bike.bike_comment | truncate(80)}}</p>
                     <p class="bike_price">Est. Value: {{ bike.minimum_donation | money }}</p>
                     <hr>

@@ -21,8 +21,9 @@ class Bike(SqliteTable):
             number_of_gears TEXT,
             min_pedal_length NUMBER,
             max_pedal_length NUMBER,
-            minimum_donation FLOAT,
+            minimum_donation NUMBER,
             bike_type TEXT,
+            make TEXT,
             created DATETIME
             """
         super().create_table(sql)
@@ -48,27 +49,37 @@ class Bike(SqliteTable):
         self.db.create_function("inseam_to_height", 1, inseam_to_height)
         
         sql = """select distinct bike.*,
-        bike.min_pedal_length || '~' || bike.max_pedal_length as pedal_length,
+        bike.min_pedal_length ||'" ~ ' || bike.max_pedal_length || '"' as pedal_length,
         inseam_to_height(bike.min_pedal_length) as min_height,
         inseam_to_height(bike.max_pedal_length) as max_height,
-        folks.first_name || ' ' || folks.last_name as full_name,
-        folks.email,
-        folks.phone,
+        inseam_to_height(bike.min_pedal_length) || '~' || inseam_to_height(bike.max_pedal_length) as height,
+        donor.first_name as donor_first_name,
+        donor.last_name as donor_last_name,
+        donor.first_name || ' ' || donor.last_name as donor_full_name,
+        donor.id as donor_id,
+        donor.email as donor_email,
+        donor.phone as donor_phone,
         bike_image.image_path,
-        folks.id as folks_id,
         CASE
             when match.id is not null then 'Matched'
             when reservation.id is not null then 'Reserved'
             else 'Available'
         END as bike_status,
         match.id as match_id,
+        recipient.first_name || ' ' || recipient.last_name as recipient_full_name,
+        recipient.email as recipient_email,
+        recipient.phone as recipient_phone,
         match.match_date,
         match.match_comment,
-        reservation.id as reservation_id
+        reservation.id as reservation_id,
+        reservation.first_name || ' ' || reservation.last_name as reservation_full_name,
+        reservation.email as reservation_email,
+        reservation.phone as reservation_phone
         from bike
         left join match on match.bike_id = bike.id
         left join donor_bike on donor_bike.bike_id = bike.id
-        left join folks on folks.id = donor_bike.donor_id
+        left join folks as donor on donor.id = donor_bike.donor_id
+        left join folks as recipient on recipient.id = match.recipient_id
         left join reservation on reservation.bike_id = bike.id
         left join bike_image on bike_image.bike_id = bike.id
         where {where}
@@ -109,7 +120,7 @@ class Folks(SqliteTable):
     def select(self,where=None,order_by=None,**kwargs):
         where = where if where else '1'
         order_by = order_by if order_by else self.order_by_col
-        sql = """select distinct folks.*,
+        sql = """select folks.*,
             first_name || ' ' || last_name as full_name
             from folks
             where {where}
@@ -235,11 +246,12 @@ class Reservation(SqliteTable):
 
     def create_table(self):        
         sql = """
-            'first_name' TEXT,
-            'last_name' TEXT,
-            'email' TEXT,
-            'phone' TEXT,
+            first_name TEXT,
+            last_name TEXT,
+            email TEXT,
+            phone TEXT,
             reservation_date DATETIME,
+            donation_amount REAL,
             match_day_id INTEGER,
             bike_id INTEGER
             """
@@ -257,10 +269,18 @@ class Reservation(SqliteTable):
         location.zip,
         location.lng,
         location.lat,
+        CASE
+            when match.id is not null then 'Matched'
+            when reservation.id is not null then 'Reserved'
+            else 'Available'
+        END as bike_status,
+        
         match_day.start
         from reservation
         left join match_day on match_day.id = reservation.match_day_id
+        left join bike on bike.id = reservation.bike_id
         left join location on location.id = match_day.location_id
+        left join match on match.bike_id = reservation.bike_id
         where {where}
         order by {order_by}
         """.format(where=where,order_by=order_by)
