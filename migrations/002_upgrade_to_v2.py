@@ -12,6 +12,7 @@ from datetime import timedelta
 from bikematch import models as new_models
 import v1_models as old_models
 import re
+from PIL import Image
 import pdb
 
 def convert_size(bike_size):
@@ -79,7 +80,7 @@ donor_bike = new_models.DonorBike(new_con)
 
 recs = old_models.Bike(old_con).select()
 print("Moving {} bike records.".format(len(recs)))
-pdb.set_trace()
+# pdb.set_trace()
 cur = new_con.cursor()
 for rec in recs:
     # copy bike
@@ -109,11 +110,22 @@ for rec in recs:
     # attach the image
     if rec.image_path:
         print(rec.image_path)
-        upload = FileUpload(local_path="bikematch/bikes/{}".format(new.id))
+        local_path="bikematch/bikes/{}".format(new.id)
+        resource_path = "resource/static/"
+        upload = FileUpload(local_path=local_path)
         try:
-            with open("resource/static/" + rec.image_path,'rb') as f:
+            with open(resource_path + rec.image_path,'rb') as f:
                 filename = rec.image_path[rec.image_path.rfind('/')+1:len(rec.image_path)]
-                upload.save(f.read(),filename=filename)
+                upload.save(f.read(),filename=filename) # moves the image to a new directory
+                # make it a thumbnail
+                max_size = 1000
+                im = Image.open(resource_path + upload.saved_file_path_string)
+                size = (im.height,im.width)
+                if im.width > max_size or im.height > max_size:
+                    size = (max_size,max_size)
+                    im.thumbnail(size)
+                    im.save(resource_path + upload.saved_file_path_string)
+                    im.close()
             if upload.success:
                 new_image = bike_image.new()
                 new_image.bike_id = new.id
