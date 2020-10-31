@@ -142,6 +142,30 @@ def edit(rec_id=None):
         recipient=recipient,
         )
     
+def match_bike(folks_id,bike_id,payment_amt=0,match_date=None):
+    """Create a new match record and return it"""
+    
+    rec = None
+    folks_id = cleanRecordID(folks_id)
+    bike_id = cleanRecordID(bike_id)
+    if not match_date:
+        match_date = local_datetime_now()
+        
+    try:
+        payment_amt = float(payment_amt)
+    except:
+        payment_amt = 0.0
+        
+    if folks_id and bike_id:
+        d = {'recipient_id':folks_id,'bike_id':bike_id,'payment_amt':payment_amt,'match_date':match_date}
+        match = Match(g.db)
+        rec = match.new()
+        match.update(rec,d)
+        match.save(rec)
+        match.commit()
+        
+    return rec
+    
     
 def validForm(rec):
     # Validate the form

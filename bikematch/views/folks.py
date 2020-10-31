@@ -117,6 +117,23 @@ def email_is_unique(id,email):
     return True
     
     
+def get_or_create(rec):
+    """Get an existing Folks record or create one"""
+    
+    rec_out = None
+    
+    if rec.email:
+        folks = Folks(g.db)
+        rec_out = folks.select_one(where="lower(email) = '{}'".format(rec.email.lower().strip()))
+        if not rec_out:
+            rec_out = folks.new()
+            
+        folks.update(rec_out,rec._asdict())
+        folks.save(rec_out)
+        folks.commit()
+        
+    return rec_out
+    
 def validForm(rec):
     # Validate the form
     valid_form = True

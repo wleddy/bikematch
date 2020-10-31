@@ -1,16 +1,32 @@
-{% extends "form_layout.html" %}
+{% extends "layout.html" %}
+{% block title %}{{ g.title }}{% endblock %}
 
+{% from "_layout_helpers.html" import left_column_spacer, form_column_class %}
 {% from "_form_helpers.html" import input_field, select_field, radio_field, checkbox_field, label_only %}
+
+{% macro cancel_button() %}
+    <a  class="w3-btn w3-ripple w3-cancel-button-color w3-mobile w3-round-large" href="{% if g.cancelURL %}{{g.cancelURL}}{% else %}{{ g.listURL }}{% endif %}" >Return to List</a>
+{% endmacro %}
 
 {% block head %}
 {{super()}}
+
 {% include "anytime_head.html"%}
+{% include "gallery_head.html"%}
 
-{% endblock head%}
+{% endblock head %}
 
-{% block fieldset %}
+{% block body %}
+<div class="w3-container">
+    {{ left_column_spacer() }}
+    <form id="main-form" action="{{ g.editURL }}" method=post class="entry {{ form_column_class() }}" enctype="multipart/form-data">
 <fieldset>
     <p>{{ input_field(rec.id,"id",id="id",type="hidden",default=0)}}</p>
+    <p>{{ input_field(rec.bike_id,"bike_id",id="bike_id",type="hidden",default=0)}}</p>
+    {# set value of 'match_this_bike to True and submit form make a match#}
+    <p>{{ input_field(match_this_bike,"match_this_bike",id="match_this_bike",type="hidden")}}</p>
+    {# set value of 'match_this_bike to True and submit form to un-make a match#}
+    <p>{{ input_field(un_match_this_bike,"un_match_this_bike",id="un_match_this_bike",type="hidden")}}</p>
     <div class="w3-row">
         <p class='w3-col w3-half'>{{ input_field(rec.first_name,"first_name",req=True,)}}</p>
         <p class='w3-col w3-half'>{{ input_field(rec.last_name,"last_name",req=True,)}}</p>
@@ -27,39 +43,85 @@
             <p>{{ input_field(reservation_date,"reservation_date",class="DatePickerButton",id="reservation_date",label="Reservation Date",req=True)}}</p>
         </div>
     </div>
-    {% if bike %}
+    {% if rec.bike_id %}
     <h4 class="bike-info-head">Bike Reserved</h4>
-    <p>Bike ID: <strong>{{ bike.id }}</strong></p>
+    <p>Bike ID: <strong>{{ rec.bike_id }}</strong></p>
         {% include "bike_data_block.html" %}
         
     <div class="w3-row">
         <h4 class="bike-info-head" >Make a Match</h4>
-        {% if rec.donation_amount %}{% set donation_amount = money(rec.donation_amount)%}{% else %}{% set donation_amount = ''%}{% endif %}
+        {% if rec.donation_amount %}{% set donation_amount = rec.donation_amount | money %}{% else %}{% set donation_amount = ''%}{% endif %}
         <p class='w3-col w3-half' >{{ input_field(donation_amount,"donation_amount",placeholder="0.00")}}</p>
-        <p class="form_button_row w3-contain w3-panel" >
-        	<a class="w3-btn w3-ripple w3-save-button-color w3-mobile w3-round-large w3-shadow" onclick="alert('Eventually this will create a match record!');" >Match Bike</a>
-        </p> 
+    </div>
+    <div class="w3-row">
+        {% if not rec.match_id %}
+            <p class="w3-col" >
+                <a class="w3-btn w3-ripple w3-save-button-color w3-mobile w3-round-large w3-shadow" onclick="match_bike()" >Match Bike</a>
+                &nbsp;
+                <a class="w3-btn w3-ripple w3-save-button-color w3-mobile w3-round-large w3-shadow" onclick="$('#gallery-contain').load('{{ url_for('bike.gallery')}}');$('#gallery-header').show();" >Pick a different Bike</a>
+            </p> 
+        {% else %}
+        {# bike is already matched, you can un-match it here #}
+             <p class="w3-col" >
+            	<a class="w3-btn w3-ripple w3-save-button-color w3-mobile w3-round-large w3-shadow" onclick="un_match_bike()" >Un-Match this Bike</a>
+            </p> 
+            
+        {% endif %} {# not matched #}
     </div>
     {% else %}
     <div class="w3-row">
         <p class='w3-col w3-half' >{{ input_field(rec.bike_id,"bike_id",req=True,)}}</p>
     </div>
-   {% endif %}
+   {% endif %} {# if bike #}
+   
  
+<hr>
+<p class="w3-row" >
+	<input type=submit class="w3-btn w3-ripple w3-save-button-color w3-mobile w3-round-large w3-shadow" value="Save Changes" />
+{% if rec.id and rec.id > 0 and (not no_delete or is_admin) and not g.cancelURL %}
+    &nbsp;
+	<a id="form_delete_link"  class="w3-btn w3-ripple w3-delete-button-color w3-mobile w3-round-large" href = "{{g.deleteURL}}{{rec.id}}/" onclick="return confirmRecordDelete();">Delete this Reservation...</a>
+{% endif %}
+    &nbsp;{{ cancel_button() }}
+</p> 
     
  </fieldset>
  
- <script>
-    
-     var date_format = "%c/%e/%y %l:%i%p"; // "3/4/19 06:00AM"
-     var pickers = ["#reservation_date"]
-     for( i = 0;i<pickers.length;i++){
-         /* 
-             you must remove the pickers before dismissing the dialog
-             else they will not be reattached the next time the dialog opens
-         */
-         $(pickers[i]).AnyTime_noPicker().AnyTime_picker({ format: date_format } );                
-     }
-     
- </script>
-{% endblock fieldset %}
+
+    </form>
+    <p class="clear">&nbsp;</p>
+   <div id="gallery-header" style="display:none;">
+       <hr>
+       <p class="bike-info-head">Choose a Bike</p>
+   </div>
+    <div id="gallery-contain"></div>
+</div>
+
+<script>
+
+    var date_format = "%c/%e/%y %l:%i%p"; // "3/4/19 06:00AM"
+    var pickers = ["#reservation_date"]
+    for( i = 0;i<pickers.length;i++){
+     /* 
+         you must remove the pickers before dismissing the dialog
+         else they will not be reattached the next time the dialog opens
+     */
+     $(pickers[i]).AnyTime_noPicker().AnyTime_picker({ format: date_format } );                
+    }
+
+    function match_bike(){
+        $('#match_this_bike').val('true'); // set the hidden input
+        $('#main-form').submit();
+    }
+    function un_match_bike(){
+        if (confirm("Are you sure you want to un-match this bike?")){
+            $('#un_match_this_bike').val('true'); // set the hidden input
+            $('#main-form').submit();
+        }
+    }
+</script>
+{% endblock body %}
+
+
+
+

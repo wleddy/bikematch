@@ -169,10 +169,10 @@ class Match(SqliteTable):
         bike.minimum_donation,
         bike.created as donation_date
         from match
-        join donor_bike on donor_bike.bike_id = match.bike_id
-        join folks as donor on donor_bike.donor_id = donor.id
-        join folks as recipient on recipient.id = match.recipient_id
-        join bike on bike.id = match.bike_id
+        left join donor_bike on donor_bike.bike_id = match.bike_id
+        left join folks as donor on donor_bike.donor_id = donor.id
+        left join folks as recipient on recipient.id = match.recipient_id
+        left join bike on bike.id = match.bike_id
         where {where}
         order by {order_by}
         """.format(where=where,order_by=order_by)
@@ -274,7 +274,7 @@ class Reservation(SqliteTable):
             when reservation.id is not null then 'Reserved'
             else 'Available'
         END as bike_status,
-        
+        match.id as match_id,
         match_day.start
         from reservation
         left join match_day on match_day.id = reservation.match_day_id

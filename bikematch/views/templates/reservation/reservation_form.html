@@ -12,63 +12,50 @@
 
 {% block body %}
 
-{% if rec %}
-    {% set email_extras = 'readonly' %}
-    {% set submit_text = 'Reserve This Bike' %}
-{% else %}
-    {% set email_extras = '' %}
-    {% set submit_text = 'Next' %}
-{% endif %}
-
 <div class="w3-container">
     {{ left_column_spacer() }}
     <form id="main-form" action="{{ g.editURL }}" method=post class="entry {{ form_column_class() }}" enctype="multipart/form-data">
-        <p>{{ input_field(rec.id,"id",id="id",type="hidden",default=0)}}</p>
-        <p>{{ input_field(bike.id,"bike_id",id="bike_id",type="hidden",default=0)}}</p>
-        <input type="hidden" id="match_day_id" name="match_day_id" value="{{ match_day.id }}" />
+        <p>{{ input_field(data.rec.id,"id",id="id",type="hidden",default=0)}}</p>
+        <p>{{ input_field(data.bike.id,"bike_id",id="bike_id",type="hidden",default=0)}}</p>
+        <p>{{ input_field(data.validate_me,"validate_me",type="hidden",default='')}}</p>
+        <input type="hidden" id="match_day_id" name="match_day_id" value="{{ data.match_day.id }}" />
         <h4 class="bike-info-head">The Bike You Are Reserving</h4>
         
         {% include "bike_data_block.html" %}
-        {% if not rec %}
-            
-        <div class="reservation-instructions">
-            <p>To start your reservation, please provide your email address.</p>
-            <p>Please note that you may only have one bike reserved at a time.</p>
-        {% else %}
+
         <div class="reservation-instructions">
             <p>
-                Please provide the rest of your contact information. 
+                Please provide your contact information. 
             </p>
             <p>
                 After you submit this form you will
                 receive an email confirmation with your reservation details.
             </p>
-            {% endif %}
         </div>
         <fieldset>
             <div class="w3-row">
-                <p class='w3-col' >{{ input_field(rec.email,"email",label="Your email address",req=True,extras=email_extras)}}</p>
+                <p class='w3-col' >{{ input_field(data.rec.email,"email",label="Your email address",req=True,)}}</p>
             </div>
-        {% if rec %}
+        {% if data.rec %}
             <div class="w3-row">
-                <p class='w3-col w3-half'>{{ input_field(rec.first_name,"first_name",req=True,)}}</p>
-                <p class='w3-col w3-half'>{{ input_field(rec.last_name,"last_name",req=True,)}}</p>
+                <p class='w3-col w3-half'>{{ input_field(data.rec.first_name,"first_name",req=True,)}}</p>
+                <p class='w3-col w3-half'>{{ input_field(data.rec.last_name,"last_name",req=True,)}}</p>
             </div>
             <div class="w3-row">
-                <p class='w3-col w3-half' >{{ input_field(rec.phone,'phone',)}}</p>
+                <p class='w3-col w3-half' >{{ input_field(data.rec.phone,'phone',)}}</p>
             </div>
             <p class="bike-section-head">Where to Pick Up Your Bike:</p>
             <p>
                 Your bike will be ready for pick up at: 
-                {{ location.location_name }} on <strong>{{ match_day.start | abbr_date_string }}</strong>
+                {{ data.location.location_name }} on <strong>{{ data.match_day.start | abbr_date_string }}</strong>
             </p>
             <div class="w3-row">
                 <p class="w3-col w3-third bike-section-head">Select an open time slot:</p>
                 <p class="w3-col w3-quarter">
                     {{ select_field("reservation_date",label=None,id="time_slot")}}
                     <option value="">Select a slot</option>
-                    {% for slot in time_slots %}
-                    <option value="{{slot['slot_date']}}" {% if slot['slot_date'] == rec.reservation_date %}selected{% elif not slot['open'] %}disabled{%endif%}>{{ slot['slot_date'] | local_time_string }}</option>
+                    {% for slot in data.time_slots %}
+                    <option value="{{slot['slot_date']}}" {% if slot['slot_date'] == data.rec.reservation_date %}selected{% elif not slot['open'] %}disabled{%endif%}>{{ slot['slot_date'] | local_time_string }}</option>
                     {% endfor %}
                     </select>
                 </p>
@@ -76,8 +63,8 @@
          {% endif %} {# if rec #}
          
         <p class="form_button_row w3-contain w3-panel" >
-        	<a class="w3-btn w3-ripple w3-save-button-color w3-mobile w3-round-large w3-shadow" onclick="$('#main-form').submit()">{{ submit_text }}</a>&nbsp;&nbsp;
-            <a  class="w3-btn w3-ripple w3-cancel-button-color w3-mobile w3-round-large" href="{% if g.cancelURL %}{{g.cancelURL}}{% else %}{{ g.listURL }}{% endif %}" >Cancel</a>
+        	<a class="w3-btn w3-ripple w3-save-button-color w3-mobile w3-round-large w3-shadow" onclick="$('#main-form').submit()">Reserve This Bike</a>&nbsp;&nbsp;
+            <a  class="w3-btn w3-ripple w3-cancel-button-color w3-mobile w3-round-large" href="{% if g.cancelURL %}{{g.cancelURL}}{% else %}{{ url_for('bikematch.home') }}{% endif %}" >Cancel</a>
         </p> 
 		
     

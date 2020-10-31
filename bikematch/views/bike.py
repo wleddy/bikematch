@@ -30,6 +30,46 @@ def setExits():
 
 from shotglass2.takeabeltof.views import TableView
 
+class BikeGallery():
+    def __init__(self):
+        self.recs = None
+        self.selected_size = None
+        self.selected_style = None
+        self._ajax_request = request.headers.get('X-Requested-With') ==  'XMLHttpRequest'
+        
+    def select(self):
+        where = "lower(bike_status) = 'available'"
+        
+        self.selected_style = request.form.get("selected_style",session.get('res_selected_style'))
+        session['res_selected_style'] = self.selected_style
+        if self.selected_style:
+            where += " and lower(bike_type) = '{}'".format(self.selected_style.lower())
+            
+        # selected_size is a string of two numbers separated by a comma
+        self.selected_size = request.form.get("selected_size",session.get('res_selected_size')) 
+        session['res_selected_size'] = self.selected_size
+        if self.selected_size:
+            # import pdb;pdb.set_trace()
+            inseam = self.selected_size.split(',')
+            where += " and (min_pedal_length BETWEEN {min} and {max} or max_pedal_length BETWEEN {min} and {max})".format(min=inseam[0],max=inseam[1])
+
+        self.recs = Bike(g.db).select(where=where,order_by="bike_type,min_pedal_length")
+        
+    def render(self):
+        self.select()
+        template = "gallery.html"
+        if self._ajax_request:
+            template = "gallery_grid.html"
+                
+        return render_template(template,
+            bikes=self.recs,
+            selected_size=self.selected_size,
+            selected_style=self.selected_style,
+            bike_sizes=get_bike_size_values(),
+            )
+        
+
+
 class BikeView(TableView):
     def __init__(self,table,db,**kwargs):
         super().__init__(table,db,**kwargs)
@@ -230,35 +270,11 @@ def delete(rec_id=None):
 def gallery():
     """Display a photo gallery of bikes avalialble for matching"""
 
+    # import pdb;pdb.set_trace()
     setExits()
     g.title = "Bike Gallery"
-    selected_size = None
-    selected_style = None
-
     
-    where = "lower(bike_status) = 'available'"
-    
-    where = "1"
-        
-    selected_style = request.form.get("selected_style",session.get('res_selected_style'))
-    session['res_selected_style'] = selected_style
-    if selected_style:
-        where += " and lower(bike_type) = '{}'".format(selected_style.lower())
-    selected_size = request.form.get("selected_size",session.get('res_selected_size')) # string of two numbers separated by a comma
-    session['res_selected_size'] = selected_size
-    if selected_size:
-        # import pdb;pdb.set_trace()
-        inseam = selected_size.split(',')
-        where += " and (min_pedal_length BETWEEN {min} and {max} or max_pedal_length BETWEEN {min} and {max})".format(min=inseam[0],max=inseam[1])
-
-    recs = Bike(g.db).select(where=where,order_by="bike_type,min_pedal_length")
-
-    return render_template("gallery.html",
-        recs=recs,
-        selected_size=selected_size,
-        selected_style=selected_style,
-        bike_sizes=get_bike_size_values(),
-        )
+    return BikeGallery().render()
 
 
 @mod.route('view/<int:rec_id>', methods=['GET',])

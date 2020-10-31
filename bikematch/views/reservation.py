@@ -23,6 +23,142 @@ def setExits():
 
 from shotglass2.takeabeltof.views import TableView
 
+class ReservationEdit():
+    """Record and or process a bike reservation"""
+    
+    def __init__(self,primary_table,db,rec_id=None):
+        self.db = db
+        self.primary_table = primary_table(self.db)
+        self.recs = None
+        self.success = True
+        self.result_text = ''
+        self.stay_on_form = False
+        self.form_template = None
+        self.rec_id = rec_id
+        self._validate_rec_id() # self.rec_id may have a value now
+        self.select_or_create() # could be an empty record, existing record or None
+        
+        
+    def select_or_create(self):
+        # Select an existing record or make a new one
+        if self.rec_id == 0:
+            self.rec = self.primary_table.new()
+            self.rec.reservation_date = local_datetime_now()
+        else:
+            self.rec = self.primary_table.get(self.rec_id)
+            if not self.rec:
+                self.result_text = "Unable to locate that record"
+                flash(self.result_text)
+                self.success = False
+                    
+        self.set_bike()
+        
+    def set_bike(self):
+        self.bike = None
+        if self.rec:
+            self.bike = Bike(self.db).get(cleanRecordID(self.rec.bike_id))
+            
+            
+    def update(self,save_after_update=True):
+        if request.form:
+            self.primary_table.update(self.rec,request.form)
+            self.set_bike()
+            if self._validate_form():
+                if save_after_update:
+                    self.save()
+            else:
+                self.success = False
+                self.result_text = "Form Validation Failed"
+        else:
+            self.success = False
+            self.result_text = "No input form provided"
+        
+        
+    def save(self):
+        # ensure the reservation_date is in iso format
+        if "reservation_date" in request.form:
+            self.rec.reservation_date = getDatetimeFromString(request.form["reservation_date"])
+
+        try:
+            self.primary_table.save(self.rec)
+            self.primary_table.commit()
+        
+        except Exception as e:
+            self.db.rollback()
+            self.result_text = printException('Error attempting to save {} record.'.format(self.primary_table.display_name),"error",e)
+            flash(self.result_text)
+            self.success = False
+            
+        # if match or un-match this reservation then make the match and redisplay the form
+        from bikematch.views import match, folks
+        if self.success and (request.form.get('match_this_bike') or request.form.get('un_match_this_bike')):
+            # import pdb;pdb.set_trace()
+            if request.form.get('match_this_bike'):
+                # add or get a folks record for this recipient
+                folks_rec = folks.get_or_create(self.rec)
+                if folks_rec:
+                    match_rec = match.match_bike(folks_rec.id,self.rec.bike_id,self.rec.donation_amount)
+                    if match_rec:
+                        self.rec.match_id = match_rec.id
+                    else:
+                        self.result_text = "Unable to Match record for {}".format(self.rec.email)
+                        self.success = False
+                        
+                else:
+                    self.result_text = "Unable to find or create a 'Folks' record for {}".format(self.rec.email)
+                    self.success = False
+
+            if request.form.get('un_match_this_bike'):
+                # delete a match record
+                self.stay_on_form = True #redisplay the form page
+                if self.rec.match_id:
+                    Match(self.db).delete(self.rec.match_id,commit=True)
+                    self.rec.match_id = None 
+
+        
+    def render(self):
+        if not self.form_template:
+            self.form_template = 'reservation_edit.html'
+            
+        return render_template(self.form_template, 
+            data = self,
+            rec=self.rec,
+            bike=self.bike,
+            )
+        
+    def _validate_form(self):
+        valid_form = True
+
+        if "reservation_date" in request.form and not self.rec.reservation_date:
+            flash("You must pick a reservation time")
+            valid_form = False
+
+        if not self.rec.email or not self.rec.email.strip():
+            flash("You must enter your email address")
+            valid_form = False
+        elif not looksLikeEmailAddress(self.rec.email):
+            flash("That is not a valid email address")
+            valid_form = False
+        
+        if not self.rec.first_name or not self.rec.last_name:
+            flash("You must enter your full name")
+            valid_form = False
+    
+        return valid_form
+        
+        
+    def _validate_rec_id(self):
+        if not self.rec_id:
+            self.rec_id = request.form.get('id',request.args.get('id',0))
+
+        self.rec_id = cleanRecordID(self.rec_id)
+
+        if self.rec_id < 0:
+            self.result_text = "That is not a valid ID"
+            self.success = False
+            raise ValueError(self.result_text)
+
+
 # this handles table list and record delete
 @mod.route('/<path:path>',methods=['GET','POST',])
 @mod.route('/<path:path>/',methods=['GET','POST',])
@@ -52,22 +188,48 @@ def display(path=None):
 @mod.route('/reserve/', methods=['POST', 'GET'])
 def reserve():
     """Visitor wants to reserve a bike for pickup"""
-    
+    setExits()
     g.title = "Reserve a Bike"
     return_target = url_for("bike.gallery")
-    rec = None
-    bike = None
-    match_day = None
-    reservation = Reservation(g.db)
     
     # import pdb;pdb.set_trace()
+    res = ReservationEdit(PRIMARY_TABLE,g.db)
+    
+    res_id = request.form.get('res_id')
+    if res_id:
+        # this is really an admin switching bikes for this res
+        res.rec_id = cleanRecordID(res_id)
+        res.select_or_create() #get the reservation record
+        res.update()
+        return res.render()
         
+    else:
+        # use the end user reservation form form
+        res.form_template = "reservation_form.html"
+        res.validate_me = 1
+    
+        # Add the extra features for the form context
+        res.bike = Bike(g.db).get(cleanRecordID(request.form.get('bike_id')))
+        if not set_extra_context(res):
+            return redirect(return_target)
+    
+    if request.form.get('validate_me'):
+        res.update() # update record and save
+        if not res.success:
+            return res.render() # re-display the form
+    else:
+        return res.render() #this is the first time sending the form
+        
+    flash("You reservation has been saved. Check for an email confirmation")
+    return redirect(url_for('bikematch.home'))
+    
+def set_extra_context(res):
     #Get the next handoff date
     # Reservations close at 6 on the day before the next handoff
     match_day = MatchDay(g.db).select_future()
     if not match_day:
         flash("Sorry, We have no BikeMatch events scheduled at this time.")
-        return redirect(return_target)
+        return False
     else:
         #limit to only the next event
         match_day = match_day[0]
@@ -77,7 +239,7 @@ def reserve():
         # construct the list of time slots
         time_slots = []
         # find times already reserved
-        res_for_day = reservation.query("select reservation_date from reservation where match_day_id = {}".format(match_day.id))
+        res_for_day = Reservation(g.db).query("select reservation_date from reservation where match_day_id = {}".format(match_day.id))
         if res_for_day:
             filled_slots = [getDatetimeFromString(x.reservation_date) for x in res_for_day]
         else:
@@ -98,47 +260,13 @@ def reserve():
         
     if not has_open_slot:
         flash("Sorry, there are no open times available for the next event")
-        return redirect(return_target)
-    
-    if not request.form:
-        # All access is by POST (GET is there to stop it going to "display".
-        return redirect(return_target)
-    else:
-        bike = Bike(g.db).get(cleanRecordID(request.form.get('bike_id')))
-        if not bike:
-            flash("Invalid bike id submitted")
-            return redirect(return_target)
-
-        if request.form.get("email"):
-            #test if there is already a reservation for this person
-            temp_rec = reservation.select(where="lower(email) = '{}'".format(request.form["email"].strip().lower()))
-            if temp_rec and not get_site_config()["DEBUG"]:
-                flash("You already have a bike reserved. You may only reserve one at a time.")
-                return redirect(return_target)
-                
-            if not looksLikeEmailAddress(request.form.get("email")):
-                flash("That does not look like a valid email address.")
-            else:
-                rec = reservation.new()
-                reservation.update(rec,request.form)
-                if 'first_name' in request.form:
-                    if valid_form(rec):
-                        reservation.save(rec)
-                        reservation.commit()
-                        flash("You reservation has been saved. Check for an email confirmation")
-                        # Send email confirmation
-                        # Send a text confirmation too!
-                        return redirect(url_for('bikematch.home'))
-    
-    # Display the reservation form
-    return render_template("reservation_form.html",
-        rec=rec,
-        bike=bike,
-        match_day=match_day,
-        time_slots=time_slots,
-        location=location,
-        )
-    
+        return False
+        
+    res.location = location
+    res.match_day=match_day
+    res.time_slots=time_slots
+    return True
+        
     
 @mod.route('/edit', methods=['POST', 'GET'])
 @mod.route('/edit/', methods=['POST', 'GET'])
@@ -147,70 +275,18 @@ def reserve():
 def edit(rec_id=None):
     setExits()
     g.title = "Edit {} Record".format(g.title)
-
-    reservation = PRIMARY_TABLE(g.db)
-    rec = None
-    bike = None
     
-    if rec_id == None:
-        rec_id = request.form.get('id',request.args.get('id',-1))
-
-    rec_id = cleanRecordID(rec_id)
-    #import pdb;pdb.set_trace
-
-    if rec_id < 0:
-        flash("That is not a valid ID")
-        return redirect(g.listURL)
-
-    if not request.form:
-        """ if no form object, send the form page """
-        if rec_id == 0:
-            rec = reservation.new()
-            rec.reservation_date = local_datetime_now()
-        else:
-            rec = reservation.get(rec_id)
-            if not rec:
-                flash("Unable to locate that record")
-                return redirect(g.listURL)
-    else:
-        #have the request form
-        # import pdb;pdb.set_trace()
-        if rec_id:
-            rec = reservation.get(rec_id)
-        else:
-            # its a new unsaved record
-            rec = reservation.new()
+    # import pdb;pdb.set_trace()
+    res = ReservationEdit(PRIMARY_TABLE,g.db,rec_id)
+    # if not request.form:
+    #     return res.render()
             
-        reservation.update(rec,request.form)
-
-        if valid_form(rec):
-            #update the record
-            #import pdb;pdb.set_trace()
-    
-            reservation.update(rec,request.form)
-            # ensure the reservation_date is in iso format
-            if "reservation_date" in request.form:
-                rec.reservation_date = getDatetimeFromString(request.form["reservation_date"])
+    res.update() # update record and save
+    if res.stay_on_form or not res.success:
+        return res.render() # re-display the form
         
-            try:
-                reservation.save(rec)
-                g.db.commit()
-            except Exception as e:
-                g.db.rollback()
-                flash(printException('Error attempting to save '+g.title+' record.',"error",e))
-
-            return redirect(g.listURL)
-
-        else:
-            # form did not validate
-            pass
-
-    # display form
-    bike = Bike(g.db).get(rec.bike_id)
-    return render_template('reservation_edit.html', 
-        rec=rec,
-        bike=bike,
-        )
+    return redirect(g.listURL)
+    
 
 
 def valid_form(rec):

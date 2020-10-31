@@ -143,6 +143,9 @@ hr.past-event{
     background-color: rgba(214, 214, 214, 1.0);
 }
 
+fieldset {
+    border:none;
+}
 /* some styles just for registration */
 
 div.reservation-instructions{

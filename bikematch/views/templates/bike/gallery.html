@@ -3,52 +3,8 @@
 {% from "_form_helpers.html" import input_field, select_field, radio_field, checkbox_field, label_only %}
 
 {% block head %}
-<script>
-    function select_changed(){
-        var selected_style = $("#bike_style_select").val()
-        var selected_size = $("#bike_size_select").val()
-        $.post("{{ url_for('bike.gallery')}}",{"selected_style":selected_style,"selected_size":selected_size},replace_all);
-    }
-    
-    function replace_all(data){
-        var newDoc = document.open("text/html", "replace");
-        newDoc.write(data);
-        newDoc.close();
-    }
-    
-</script>
-<style>
-    .gallery-image-contain{
-        width:120pt;
-        float:left;
-        margin:4pt;
-        cursor:pointer;
-    }
-    .gallery-card {
-        text-align:center;
-        margin:3pt 0;
-        padding-top:2pt;
-    }
-    .gallery-details {
-        margin:2pt 4pt;
-    }
-    .other-info p{
-        font-size:10pt;
-        text-align:left !important;
-        margin:0;
-    }
-    /*    Crop the images. */
-    .image-contain {
-        height:115px; 
-        overflow:hidden; /*hide bounds of image */
-        margin:0;   /*reset margin of figure tag*/
-    }
-    .image-contain img {
-        display:block; /*remove inline-block spaces*/
-        width:100%; /*make image streatch*/
-        margin:0;
-    }
-</style>
+{{ super() }}
+{% include 'gallery_head.html' %}
 {% endblock head %}
 
 {% block body %}
@@ -63,58 +19,9 @@
 <p>
     If you don't find a bike you'd like, check back in a week or so. We get more bikes all the time.
 </p>
-<div class="w3-row w3-card" style="padding:6pt;">
-    <p><strong>Filter Bikes</strong></p>
-    {% import "bike_styles_list.html" as bike_styles %} {# the property bike_styes.bike_styles is a list of styles #}
-    
-    <p class="w3-col w3-half">
-    <span class="sg-list-search-label">Bike Sizes:&nbsp;&nbsp;</span>
-        <select class="w3-select" id="bike_size_select" name="bike_size_select"
-            onchange="select_changed()" >
-            <option value="" >Any</option>
-             {% for option in bike_sizes %}
-             <option value='{{option[0]}},{{option[1]}}' {% if selected_size and option[0] in selected_size and option[1] in selected_size %}selected{% endif %}>{{option[2]}}</option>
-             {% endfor %}
-        </select>
-    </p>
-    <p class="w3-col w3-half">
-        <span class="sg-list-search-label">Bike Style:&nbsp;&nbsp;</span>
-        <select class="w3-select" id="bike_style_select" name="bike_style_select"
-            onchange="select_changed()" >
-            <option value="" >Any</option>
-            {% for option in bike_styles.bike_styles %}
-            <option value='{{option}}' {% if selected_style == option %}selected{% endif %}>{{ option | title }}</option>
-            {% endfor %}
-        </select>
-    </p>
+
+<div id="gallery-contain">
+    {% include 'gallery_grid.html' %}
 </div>
-<div id="gallery" style="margin-top:20pt;">
-{% if recs %}
-    {% for rec in recs %}
-    <form action="{{ url_for('reservation.reserve')}}" method="post" id="bike_res_{{ rec.id }}" accept-charset="utf-8">
-        <input type="hidden" name="bike_id" value="{{ rec.id}}" id="bike_id" />
-    </form>
-    <a href="#" title="Reserve this bike" onclick="$('#bike_res_{{ rec.id }}').submit()">
-    <div class="gallery-image-contain" >
-        <div class="w3-card-2 gallery-card" >
-          <div class="image-contain">
-            <img src="{{ url_for('static', filename=rec.image_path)}}" alt="{{rec.bike_type}}" >
-          </div>
-          <div class="gallery-details">
-            <p><strong>{{ rec.bike_type | title }}</strong></p>
-            <div class="other-info">
-                <p>Make: {{ rec.make | default('?',True) }}</p>
-                <p>Fits: {{ rec.min_height }} to {{ rec.max_height}}</p>
-                <p class="estimated-value">Minimum Donation: ${{ rec.minimum_donation  |money }}</p>
-          </div>
-        </div>
-    </div>
-    </div>
-    </a>
-    {% endfor %}
-    {% else %}
-    <p>Sorry, There are no bikes that match your Type and Size.</p>
-    <p>Check back in a week or so. We get more bikes all the time.</p>
-    {% endif %}
-</div>
+
 {% endblock body %}

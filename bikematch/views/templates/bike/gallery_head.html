@@ -1,0 +1,49 @@
+<script>
+    function select_changed(){
+        var selected_style = $("#bike_style_select").val()
+        var selected_size = $("#bike_size_select").val()
+        $('#gallery-contain').load("{{ url_for('bike.gallery')}}",{"selected_style":selected_style,"selected_size":selected_size});
+    }
+    
+    function reserve_bike(form_selector_text){
+        // update the reservation id input associated with this form if needed
+        //.  and then post it
+        res_id = $('#id').val();
+        if (res_id != undefined){
+            $('#' + form_selector_text + ' .input-wrapper').append('<input type="hidden" name="res_id" value="' + res_id + '" />');
+        }
+        $('#' + form_selector_text).submit();
+    }
+</script>
+<style>
+    .gallery-image-contain{
+        width:120pt;
+        float:left;
+        margin:4pt;
+        cursor:pointer;
+    }
+    .gallery-card {
+        text-align:center;
+        margin:3pt 0;
+        padding-top:2pt;
+    }
+    .gallery-details {
+        margin:2pt 4pt;
+    }
+    .other-info p{
+        font-size:10pt;
+        text-align:left !important;
+        margin:0;
+    }
+    /*    Crop the images. */
+    .image-contain {
+        height:115px; 
+        overflow:hidden; /*hide bounds of image */
+        margin:0;   /*reset margin of figure tag*/
+    }
+    .image-contain img {
+        display:block; /*remove inline-block spaces*/
+        width:100%; /*make image streatch*/
+        margin:0;
+    }
+</style>
