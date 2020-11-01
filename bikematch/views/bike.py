@@ -199,7 +199,7 @@ def edit(rec_id=None):
                 filename = file.filename
                 x = filename.find('.')
                 if x > 0:
-                    upload.save(file,filename=filename)
+                    upload.save(file,filename=filename,max_size=1000)
                     if upload.success:
                         images = BikeImage(g.db)
                         image_rec = images.new()
