@@ -7,9 +7,10 @@ from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFro
 from shotglass2.takeabeltof.file_upload import FileUpload
 from shotglass2.takeabeltof.jinja_filters import two_decimal_string as money
 from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number
-from bikematch.models import Bike, BikeImage, Folks, DonorBike
+from bikematch.models import Bike, BikeImage, Folks, DonorBike, Reservation
 from shotglass2.users.models import Pref
 from werkzeug.exceptions import RequestEntityTooLarge
+from datetime import timedelta
 
 PRIMARY_TABLE = Bike
 STATUS_SELECT_OBJ_ID = 'status_select_obj' #Bike Status select object id
@@ -274,6 +275,9 @@ def gallery():
     setExits()
     g.title = "Bike Gallery"
     
+    # Remove any expired reservations
+    clear_expired_reservations()
+    
     return BikeGallery().render()
 
 
@@ -317,11 +321,10 @@ def question(rec_id=None):
             bike_info = """
 +++++++++ please leave this section as-is ++++++++++++
 A question regarding Bike ID = {}
-Size: {}
 Type: {}
 +++++++++ please leave this section as-is ++++++++++++
 
-""".format(rec.id,rec.bike_size,rec.bike_type)
+""".format(rec.id,rec.bike_type)
             context = {'comment':bike_info}
             return render_template('bike_question.html',rec=rec,rendered_html=rendered_html,context=context,show_form=True)
 
@@ -335,7 +338,6 @@ def haveabike():
     """handle bike donation contact"""
     setExits()
     g.title = 'I Have a Bike'
-    # return redirect('http://bikematch.safelanes.org/sacramento/donate/')
 
     return sendcontact(html_template='haveabike_contact.html',
                         subject='I have a Bike',
@@ -435,3 +437,12 @@ def get_bike_size_values(first_inseam = 16, last_inseam = 35, inseam_step=1):
         
     return bike_sizes
         
+        
+def clear_expired_reservations():
+    """Delete any reservations where the reservation_date is more than one day past"""
+
+    delete_after = local_datetime_now() - timedelta(days=1)
+    reservations = Reservation(g.db)
+    sql = """delete from {table_name} where date(reservation_date,'localtime') <= date('{delete_after}', 'localtime')""".format(table_name=reservations.table_name,delete_after=delete_after)
+    reservations.query(sql)
+    reservations.commit()

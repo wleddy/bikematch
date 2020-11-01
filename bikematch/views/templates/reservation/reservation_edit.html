@@ -52,6 +52,7 @@
         <h4 class="bike-info-head" >Make a Match</h4>
         {% if rec.donation_amount %}{% set donation_amount = rec.donation_amount | money %}{% else %}{% set donation_amount = ''%}{% endif %}
         <p class='w3-col w3-half' >{{ input_field(donation_amount,"donation_amount",placeholder="0.00")}}</p>
+         {% if rec.minimum_donation %}<p class='w3-col w3-half' ><strong>(Minimum Donation: {{ rec.minimum_donation | money }})</strong></p>{% endif %}
     </div>
     <div class="w3-row">
         {% if not rec.match_id %}
@@ -77,12 +78,11 @@
  
 <hr>
 <p class="w3-row" >
-	<input type=submit class="w3-btn w3-ripple w3-save-button-color w3-mobile w3-round-large w3-shadow" value="Save Changes" />
+	<input type=submit class="w3-btn w3-ripple w3-save-button-color w3-mobile w3-round-large w3-shadow" value="Return to List" />
 {% if rec.id and rec.id > 0 and (not no_delete or is_admin) and not g.cancelURL %}
     &nbsp;
 	<a id="form_delete_link"  class="w3-btn w3-ripple w3-delete-button-color w3-mobile w3-round-large" href = "{{g.deleteURL}}{{rec.id}}/" onclick="return confirmRecordDelete();">Delete this Reservation...</a>
 {% endif %}
-    &nbsp;{{ cancel_button() }}
 </p> 
     
  </fieldset>

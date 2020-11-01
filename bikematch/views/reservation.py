@@ -29,27 +29,25 @@ class ReservationEdit():
     def __init__(self,primary_table,db,rec_id=None):
         self.db = db
         self.primary_table = primary_table(self.db)
-        self.recs = None
         self.success = True
         self.result_text = ''
         self.stay_on_form = False
         self.form_template = None
         self.rec_id = rec_id
         self._validate_rec_id() # self.rec_id may have a value now
-        self.select_or_create() # could be an empty record, existing record or None
+        self.get() # could be an empty (new) record, existing record or None
         
         
-    def select_or_create(self):
+    def get(self):
         # Select an existing record or make a new one
-        if self.rec_id == 0:
+        if not self.rec_id:
             self.rec = self.primary_table.new()
-            self.rec.reservation_date = local_datetime_now()
         else:
             self.rec = self.primary_table.get(self.rec_id)
-            if not self.rec:
-                self.result_text = "Unable to locate that record"
-                flash(self.result_text)
-                self.success = False
+        if not self.rec:
+            self.result_text = "Unable to locate that record"
+            flash(self.result_text)
+            self.success = False
                     
         self.set_bike()
         
@@ -81,7 +79,6 @@ class ReservationEdit():
 
         try:
             self.primary_table.save(self.rec)
-            self.primary_table.commit()
         
         except Exception as e:
             self.db.rollback()
@@ -94,6 +91,16 @@ class ReservationEdit():
         if self.success and (request.form.get('match_this_bike') or request.form.get('un_match_this_bike')):
             # import pdb;pdb.set_trace()
             if request.form.get('match_this_bike'):
+                if "donation_amount" in request.form:
+                    try:
+                        if float(request.form.get('donation_amount')) < float(self.rec.minimum_donation):
+                            raise ValueError
+                    except:
+                        self.result_text = "The minimum donation amount for this bike is ${}".format(self.rec.minimum_donation)
+                        self.success = False
+                        flash(self.result_text)
+                        return
+                
                 # add or get a folks record for this recipient
                 folks_rec = folks.get_or_create(self.rec)
                 if folks_rec:
@@ -114,6 +121,8 @@ class ReservationEdit():
                 if self.rec.match_id:
                     Match(self.db).delete(self.rec.match_id,commit=True)
                     self.rec.match_id = None 
+                    
+        self.primary_table.commit()
 
         
     def render(self):
@@ -129,9 +138,6 @@ class ReservationEdit():
     def _validate_form(self):
         valid_form = True
 
-        if "reservation_date" in request.form and not self.rec.reservation_date:
-            flash("You must pick a reservation time")
-            valid_form = False
 
         if not self.rec.email or not self.rec.email.strip():
             flash("You must enter your email address")
@@ -144,6 +150,10 @@ class ReservationEdit():
             flash("You must enter your full name")
             valid_form = False
     
+        if "reservation_date" in request.form and not self.rec.reservation_date:
+            flash("You must pick a reservation time")
+            valid_form = False
+                                
         return valid_form
         
         
@@ -193,14 +203,17 @@ def reserve():
     return_target = url_for("bike.gallery")
     
     # import pdb;pdb.set_trace()
+        
     res = ReservationEdit(PRIMARY_TABLE,g.db)
     
     res_id = request.form.get('res_id')
     if res_id:
         # this is really an admin switching bikes for this res
+        # import pdb;pdb.set_trace()
         res.rec_id = cleanRecordID(res_id)
-        res.select_or_create() #get the reservation record
+        res.get() #get the reservation record
         res.update()
+        res.get() # need to get a fresh select do the values from the related tables are updated
         return res.render()
         
     else:
@@ -286,25 +299,4 @@ def edit(rec_id=None):
         return res.render() # re-display the form
         
     return redirect(g.listURL)
-    
-
-
-def valid_form(rec):
-    valid_form = True
-
-    if not rec.first_name or not rec.last_name:
-        flash("You must enter your full name")
-        valid_form = False
-    if not rec.email.strip():
-        flash("You must enter your email address")
-        valid_form = False
-    elif not looksLikeEmailAddress(rec.email):
-        flash("That is not a valid email address")
-        valid_form = False
-        
-    if "reservation_date" in request.form and not rec.reservation_date:
-        flash("You must pick a reservation time")
-        valid_form = False
-
-    return valid_form
     

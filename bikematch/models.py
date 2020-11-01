@@ -21,6 +21,7 @@ class Bike(SqliteTable):
             number_of_gears TEXT,
             min_pedal_length NUMBER,
             max_pedal_length NUMBER,
+            estimated_value,
             minimum_donation NUMBER,
             bike_type TEXT,
             make TEXT,
@@ -275,7 +276,8 @@ class Reservation(SqliteTable):
             else 'Available'
         END as bike_status,
         match.id as match_id,
-        match_day.start
+        match_day.start,
+        bike.minimum_donation
         from reservation
         left join match_day on match_day.id = reservation.match_day_id
         left join bike on bike.id = reservation.bike_id
