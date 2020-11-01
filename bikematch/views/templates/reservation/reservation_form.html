@@ -34,7 +34,7 @@
         </div>
         <fieldset>
             <div class="w3-row">
-                <p class='w3-col' >{{ input_field(data.rec.email,"email",label="Your email address",req=True,)}}</p>
+                <p class='w3-col' >{{ input_field(data.rec.email,"email",label="Your email address",req=True,extras='onblur="test_email(this)"')}}</p>
             </div>
         {% if data.rec %}
             <div class="w3-row">
@@ -71,5 +71,20 @@
          </fieldset>
      </form>
 </div>
+
+<script>
+    function test_email(which){
+        // test if the email address is already used to reserve a bike
+         $.post("{{ url_for('reservation.email_check')}}",{"email_address":which.value},email_check_result)
+    }
+    function email_check_result(data){
+        if (data == "ok"){
+            // do nothing
+        } else if (data == "duplicate") {
+            alert("You already have a bike reserved. You can only have one reservation at a time.\rIf you want to reserve more than one, say for your children, please use the 'contact us' link and we will be able to help you.")
+            window.location = '{{ url_for('bikematch.home')}}'
+        }
+    }
+</script>
 {% endblock body %}
 

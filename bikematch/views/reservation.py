@@ -300,3 +300,17 @@ def edit(rec_id=None):
         
     return redirect(g.listURL)
     
+    
+@mod.route('/email_check', methods=['POST'])
+@mod.route('/email_check/', methods=['POST'])
+def email_check():
+    """Called by javascript to test if this email address is currently being used to reserve a bike"""
+    
+    if request.form:
+        email_address = request.form.get("email_address",'')
+        rec = PRIMARY_TABLE(g.db).select_one(where="lower(email) == '{}'".format(email_address.strip().lower()))
+        if rec:
+            return "duplicate"
+        
+    return "ok"
+    
