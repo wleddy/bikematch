@@ -14,7 +14,7 @@
 
 <div class="w3-container">
     {{ left_column_spacer() }}
-    <form id="main-form" action="{{ g.editURL }}" method=post class="entry {{ form_column_class() }}" enctype="multipart/form-data">
+    <form id="main-form" action="{{ url_for('reservation.reserve') }}" method=post class="entry {{ form_column_class() }}" enctype="multipart/form-data">
         <p>{{ input_field(data.rec.id,"id",id="id",type="hidden",default=0)}}</p>
         <p>{{ input_field(data.bike.id,"bike_id",id="bike_id",type="hidden",default=0)}}</p>
         <p>{{ input_field(data.validate_me,"validate_me",type="hidden",default='')}}</p>
