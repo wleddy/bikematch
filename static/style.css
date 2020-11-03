@@ -153,7 +153,13 @@ div.reservation-instructions{
     position:relative;
     clear:both;
 }
-.reservation-instructions p, .bike-section-head, .bike-info-head{
+.reservation-instructions p {
+    font-size:13pt;
+}
+div.reservation-instructions p:first-child {
+    font-weight:bold;
+}
+.bike-section-head, .bike-info-head{
     font-size:13pt;
     font-weight:800;
     line-height:1;

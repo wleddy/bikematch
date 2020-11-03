@@ -30,15 +30,15 @@
 </script>
 <style>
     .time-slot-button {}
-        .time-slot-selected, .time-slot-selected:hover {
-            background-color:green!important;
-            color:white!important;
-        }
-        .time-slot-disabled, .time-slot-disabled:hover {
-            background-color:#666!important;
-            color:#ccc!important;
-            cursor:default;
-        } 
+    .time-slot-selected, .time-slot-selected:hover {
+        background-color:green!important;
+        color:white!important;
+    }
+    .time-slot-disabled, .time-slot-disabled:hover {
+        background-color:#666!important;
+        color:#ccc!important;
+        cursor:default;
+    } 
 </style>
 
 
@@ -78,18 +78,11 @@
             <div class="w3-row">
                 <p class='w3-col w3-half' >{{ input_field(data.rec.phone,'phone',)}}</p>
             </div>
-            <p class="w3-row">
-                <span class="bike-section-head">Where to Pick Up Your Bike:</span> 
-                {{ data.location.location_name }}
-            </p>
             <p class="w3-row" >
-                <span class="bike-section-head">When to Pick Up Your Bike:</span> 
-                {{ data.match_day.start | abbr_date_string }}
+                Your Pickup Date
+               <span class="bike-section-head"> {{ data.match_day.start | abbr_date_string }}:</span> 
             </p>
-            <p class="w3-row">
-                <strong></strong>
-            </p>
-            <p class="w3-row w3-third bike-section-head">Select an open time slot:</p>
+            <p class="w3-row bike-section-head">Select an open time slot: </p>
             <div class="w3-row">
                 <input type="hidden" name="reservation_date" value="{{ data.rec.reservation_date | default('',True) }}" id="reservation_date" />
                  {% for slot in data.time_slots %}
@@ -99,6 +92,13 @@
                      {% endfor %}
                  </p>
            </div>
+            <p class="w3-row">
+                Where to Pick Up Your Bike:
+                <span class="bike-section-head">{{ data.location.location_name }}</span> 
+            </p>
+            <p class="w3-row">
+                <strong></strong>
+            </p>
          {% endif %} {# if rec #}
          
         <p class="form_button_row w3-contain w3-panel" >
