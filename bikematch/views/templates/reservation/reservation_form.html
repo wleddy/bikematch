@@ -6,6 +6,40 @@
 
 {% block head %}
 {{ super() }}
+<script>
+    function test_email(which){
+        // test if the email address is already used to reserve a bike
+         $.post("{{ url_for('reservation.email_check')}}",{"email_address":which.value},email_check_result)
+    }
+    function email_check_result(data){
+        if (data == "ok"){
+            // do nothing
+        } else if (data == "duplicate") {
+            alert("You already have a bike reserved. You can only have one reservation at a time.\rIf you want to reserve more than one, say for your children, please use the 'contact us' link and we will be able to help you.")
+            window.location = '{{ url_for('bikematch.home')}}'
+        }
+    }
+    
+    function set_reservation_date(selected_time){
+        $(".time-slot-button").removeClass("time-slot-selected");
+        $(selected_time).addClass('time-slot-selected');
+        res = $("#reservation_date")
+        t = $(selected_time).attr('rel');
+        $("#reservation_date").val(t);
+    }
+</script>
+<style>
+    .time-slot-button {}
+        .time-slot-selected, .time-slot-selected:hover {
+            background-color:green!important;
+            color:white!important;
+        }
+        .time-slot-disabled, .time-slot-disabled:hover {
+            background-color:#666!important;
+            color:#ccc!important;
+            cursor:default;
+        } 
+</style>
 
 
 {% endblock head %}
@@ -17,7 +51,7 @@
     <form id="main-form" action="{{ url_for('reservation.reserve') }}" method=post class="entry {{ form_column_class() }}" enctype="multipart/form-data">
         <p>{{ input_field(data.rec.id,"id",id="id",type="hidden",default=0)}}</p>
         <p>{{ input_field(data.bike.id,"bike_id",id="bike_id",type="hidden",default=0)}}</p>
-        <p>{{ input_field(data.validate_me,"validate_me",type="hidden",default='')}}</p>
+        <input type="hidden" name="validate_me" value="{{ data.validate_me | default(''.True)}}" id="validate_me" />
         <input type="hidden" id="match_day_id" name="match_day_id" value="{{ data.match_day.id }}" />
         <h4 class="bike-info-head">The Bike You Are Reserving</h4>
         
@@ -44,22 +78,27 @@
             <div class="w3-row">
                 <p class='w3-col w3-half' >{{ input_field(data.rec.phone,'phone',)}}</p>
             </div>
-            <p class="bike-section-head">Where to Pick Up Your Bike:</p>
-            <p>
-                Your bike will be ready for pick up at: 
-                {{ data.location.location_name }} on <strong>{{ data.match_day.start | abbr_date_string }}</strong>
+            <p class="w3-row">
+                <span class="bike-section-head">Where to Pick Up Your Bike:</span> 
+                {{ data.location.location_name }}
             </p>
+            <p class="w3-row" >
+                <span class="bike-section-head">When to Pick Up Your Bike:</span> 
+                {{ data.match_day.start | abbr_date_string }}
+            </p>
+            <p class="w3-row">
+                <strong></strong>
+            </p>
+            <p class="w3-row w3-third bike-section-head">Select an open time slot:</p>
             <div class="w3-row">
-                <p class="w3-col w3-third bike-section-head">Select an open time slot:</p>
-                <p class="w3-col w3-quarter">
-                    {{ select_field("reservation_date",label=None,id="time_slot")}}
-                    <option value="">Select a slot</option>
-                    {% for slot in data.time_slots %}
-                    <option value="{{slot['slot_date']}}" {% if slot['slot_date'] == data.rec.reservation_date %}selected{% elif not slot['open'] %}disabled{%endif%}>{{ slot['slot_date'] | local_time_string }}</option>
-                    {% endfor %}
-                    </select>
-                </p>
-            </div>
+                <input type="hidden" name="reservation_date" value="{{ data.rec.reservation_date | default('',True) }}" id="reservation_date" />
+                 {% for slot in data.time_slots %}
+                <p rel="{{slot['slot_date']}}" class="w3-button w3-round-large w3-shadow w3-border time-slot-button {% if slot['slot_date'] == data.rec.reservation_date %}time-slot-selected{% elif not slot['open'] %}time-slot-disabled{%endif%}"
+                {% if slot['open'] %} onclick="set_reservation_date(this)" {%endif%}>
+                    {{ slot['slot_date'] | local_time_string }}</p>
+                     {% endfor %}
+                 </p>
+           </div>
          {% endif %} {# if rec #}
          
         <p class="form_button_row w3-contain w3-panel" >
@@ -72,19 +111,5 @@
      </form>
 </div>
 
-<script>
-    function test_email(which){
-        // test if the email address is already used to reserve a bike
-         $.post("{{ url_for('reservation.email_check')}}",{"email_address":which.value},email_check_result)
-    }
-    function email_check_result(data){
-        if (data == "ok"){
-            // do nothing
-        } else if (data == "duplicate") {
-            alert("You already have a bike reserved. You can only have one reservation at a time.\rIf you want to reserve more than one, say for your children, please use the 'contact us' link and we will be able to help you.")
-            window.location = '{{ url_for('bikematch.home')}}'
-        }
-    }
-</script>
 {% endblock body %}
 

@@ -5,14 +5,15 @@
         $('#gallery-contain').load("{{ url_for('bike.gallery')}}",{"selected_style":selected_style,"selected_size":selected_size});
     }
     
-    function reserve_bike(form_selector_text){
-        // update the reservation id input associated with this form if needed
-        //.  and then post it
-        res_id = $('#id').val();
-        if (res_id != undefined){
-            $('#' + form_selector_text + ' .input-wrapper').append('<input type="hidden" name="res_id" value="' + res_id + '" />');
-        }
-        $('#' + form_selector_text).submit();
+    function reserve_bike(bike_id){
+        // update the bikeid input 
+        //.  and then post the form
+        $('input#bike_id').val(bike_id);
+        var bikey = $('#bike_id').val();
+        $('#main-form').submit();
+    }
+    function replace_location(data){
+        location.replace(location.href);
     }
 </script>
 <style>

@@ -58,6 +58,7 @@ class ReservationEdit():
             
             
     def update(self,save_after_update=True):
+        # import pdb;pdb.set_trace()
         if request.form:
             self.primary_table.update(self.rec,request.form)
             self.set_bike()
@@ -79,12 +80,14 @@ class ReservationEdit():
 
         try:
             self.primary_table.save(self.rec)
-        
+            self.rec_id = self.rec.id
+            
         except Exception as e:
             self.db.rollback()
             self.result_text = printException('Error attempting to save {} record.'.format(self.primary_table.display_name),"error",e)
             flash(self.result_text)
             self.success = False
+            return
             
         # if match or un-match this reservation then make the match and redisplay the form
         from bikematch.views import match, folks
@@ -93,7 +96,7 @@ class ReservationEdit():
             if request.form.get('match_this_bike'):
                 if "donation_amount" in request.form:
                     try:
-                        if float(request.form.get('donation_amount')) < float(self.rec.minimum_donation):
+                        if self.rec.minimum_donation and float(request.form.get('donation_amount')) < float(self.rec.minimum_donation):
                             raise ValueError
                     except:
                         self.result_text = "The minimum donation amount for this bike is ${}".format(self.rec.minimum_donation)
@@ -131,8 +134,7 @@ class ReservationEdit():
             
         return render_template(self.form_template, 
             data = self,
-            rec=self.rec,
-            bike=self.bike,
+            bike = self.bike,
             )
         
     def _validate_form(self):
@@ -150,7 +152,7 @@ class ReservationEdit():
             flash("You must enter your full name")
             valid_form = False
     
-        if "reservation_date" in request.form and not self.rec.reservation_date:
+        if not self.rec.reservation_date:
             flash("You must pick a reservation time")
             valid_form = False
                                 
@@ -188,7 +190,7 @@ def display(path=None):
         ]
 
     view.export_fields = None
-    view.allow_record_addition = False
+    # view.allow_record_addition = False
 
 
     return view.dispatch_request()
@@ -202,29 +204,18 @@ def reserve():
     g.title = "Reserve a Bike"
     return_target = url_for("bike.gallery")
     
-    # import pdb;pdb.set_trace()
+    import pdb;pdb.set_trace()
         
     res = ReservationEdit(PRIMARY_TABLE,g.db)
     
-    res_id = request.form.get('res_id')
-    if res_id:
-        # this is really an admin switching bikes for this res
-        # import pdb;pdb.set_trace()
-        res.rec_id = cleanRecordID(res_id)
-        res.get() #get the reservation record
-        res.update()
-        res.get() # need to get a fresh select do the values from the related tables are updated
-        return res.render()
-        
-    else:
-        # use the end user reservation form form
-        res.form_template = "reservation_form.html"
-        res.validate_me = 1
+    # use the end user reservation form form
+    res.form_template = "reservation_form.html"
+    res.validate_me = 1
     
-        # Add the extra features for the form context
-        res.bike = Bike(g.db).get(cleanRecordID(request.form.get('bike_id')))
-        if not set_extra_context(res):
-            return redirect(return_target)
+    # Add the extra properties for the res context
+    res.bike = Bike(g.db).get(cleanRecordID(request.form.get('bike_id')))
+    if not res.bike or not set_extra_context(res):
+        return redirect(return_target)
     
     if request.form.get('validate_me'):
         res.update() # update record and save
@@ -281,6 +272,8 @@ def set_extra_context(res):
     return True
         
     
+@mod.route('/swap_bike', methods=['POST'])
+@mod.route('/swap_bike/', methods=['POST'])
 @mod.route('/edit', methods=['POST', 'GET'])
 @mod.route('/edit/', methods=['POST', 'GET'])
 @mod.route('/edit/<int:rec_id>/', methods=['POST','GET'])
@@ -291,10 +284,15 @@ def edit(rec_id=None):
     
     # import pdb;pdb.set_trace()
     res = ReservationEdit(PRIMARY_TABLE,g.db,rec_id)
-    # if not request.form:
-    #     return res.render()
-            
-    res.update() # update record and save
+    # if res.rec and not res.rec.id:
+    if "swap_bike" in request.path:
+        # just changing the bike
+        res.stay_on_form = True
+        res.update()
+        res.get() # need to get a fresh select so the values from the related tables are updated
+    else:
+        res.update() # update record and save
+        
     if res.stay_on_form or not res.success:
         return res.render() # re-display the form
         

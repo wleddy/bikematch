@@ -19,6 +19,9 @@
 <p>
     If you don't find a bike you'd like, check back in a week or so. We get more bikes all the time.
 </p>
+<form action="{{ url_for('reservation.reserve')}}" id="main-form" method="post" accept-charset="utf-8">
+    <input type="hidden" name="bike_id" value="" id="bike_id" />
+</form>
 
 <div id="gallery-contain">
     {% include 'gallery_grid.html' %}

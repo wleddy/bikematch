@@ -26,28 +26,23 @@
 <div id="gallery" style="margin-top:20pt;">
 {% if bikes %}
     {% for bike in bikes %}
-    <form action="{{ url_for('reservation.reserve')}}" method="post" id="bike_res_{{ bike.id }}" accept-charset="utf-8">
-       <div class="input-wrapper"> 
-           <input type="hidden" name="bike_id" value="{{ bike.id}}" />
-       </div>
-    </form>
-    <a href="#" title="Reserve this bike" onclick="reserve_bike('bike_res_{{ bike.id }}')">
-    <div class="gallery-image-contain" >
-        <div class="w3-card-2 gallery-card" >
-          <div class="image-contain">
-            <img src="{{ url_for('static', filename=bike.image_path)}}" alt="{{bike.bike_type}}" >
-          </div>
-          <div class="gallery-details">
-            <p><strong>{{ bike.bike_type | title }}</strong></p>
-            <div class="other-info">
-                <p>Make: {{ bike.make | default('?',True) }}</p>
-                <p>Fits: {{ bike.min_height }} to {{ bike.max_height}}</p>
-                <p class="estimated-value">Minimum Donation: ${{ bike.minimum_donation  |money }}</p>
-          </div>
+    <div title="Reserve this bike" class ="bike-on-offer" value="{{ bike.id}}" onclick="reserve_bike({{ bike.id }})">
+        <div class="gallery-image-contain" >
+            <div class="w3-card-2 gallery-card" >
+                <div class="image-contain">
+                    <img src="{{ url_for('static', filename=bike.image_path)}}" alt="{{bike.bike_type}}" >
+                </div>
+                <div class="gallery-details">
+                    <p><strong>{{ bike.bike_type | title }}</strong></p>
+                    <div class="other-info">
+                        <p>Make: {{ bike.make | default('?',True) }}</p>
+                        <p>Fits: {{ bike.min_height }} to {{ bike.max_height}}</p>
+                        <p class="estimated-value">Minimum Donation: ${{ bike.minimum_donation  |money }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    </div>
-    </a>
     {% endfor %}
     {% else %}
     <p>Sorry, There are no bikes that match your Type and Size.</p>
