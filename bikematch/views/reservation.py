@@ -204,7 +204,7 @@ def reserve():
     g.title = "Reserve a Bike"
     return_target = url_for("bike.gallery")
     
-    import pdb;pdb.set_trace()
+    # import pdb;pdb.set_trace()
         
     res = ReservationEdit(PRIMARY_TABLE,g.db)
     
