@@ -5,7 +5,7 @@ from shotglass2 import shotglass
 from shotglass2.takeabeltof.database import Database
 from shotglass2.takeabeltof.jinja_filters import register_jinja_filters
 from shotglass2.users.admin import Admin
-from bikematch.models import Folks, Match, Bike, MatchDay, Reservation, init_all_bikematch_tables
+from bikematch.models import Folks, Match, Bike, MatchDay, Reservation, Location, init_all_bikematch_tables
 
 # Create app
 # setting static_folder to None allows me to handle loading myself
@@ -116,7 +116,9 @@ def _before():
     g.admin.register(Folks,url_for('folks.display'),display_name='Folks',minimum_rank_required=100)
     g.admin.register(Bike,url_for('bike.display'),display_name='Bikes',minimum_rank_required=100)
     g.admin.register(Reservation,url_for('reservation.display'),display_name='Reservations',minimum_rank_required=100)
-    
+    g.admin.register(MatchDay,url_for('match_day.display'),display_name='Match Days',minimum_rank_required=100)
+    g.admin.register(Location,url_for('location.display'),display_name='Locations',minimum_rank_required=100)
+   
     shotglass.user_setup() # g.admin now holds access rules Users, Prefs and Roles
 
 @app.teardown_request
@@ -155,12 +157,14 @@ shotglass.register_users(app)
 # from shotglass2.www.views import home
 # app.add_url_rule('/contact/',home.contact)
 
-from bikematch.views import bikematch, match, bike, reservation, folks
+from bikematch.views import bikematch, match, bike, reservation, folks, match_day, location
 app.register_blueprint(bikematch.mod)
 app.register_blueprint(match.mod)
 app.register_blueprint(bike.mod)
 app.register_blueprint(reservation.mod)
 app.register_blueprint(folks.mod)
+app.register_blueprint(match_day.mod)
+app.register_blueprint(location.mod)
 
 
 if __name__ == '__main__':
