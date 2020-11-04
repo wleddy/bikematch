@@ -33,7 +33,7 @@ def display(path=None):
 
     view.list_fields = [
             {'name':'id','label':'ID','class':'w3-hide-small','search':True},
-            {'name':'start','label':'Date','type':'date','search':'date'},
+            {'name':'start','label':'Event Begins','type':'datetime','search':'date'},
         ]
 #
 #     view.export_fields = None
@@ -55,10 +55,10 @@ def edit(rec_id=None):
     
     view = EditView(PRIMARY_TABLE,g.db,rec_id=rec_id)
     view.edit_fields = [
-        {'name':'start','label':'Date','type':'datetime','req':True},
-        {'name':'number_of_slots',},
-        {'name':'slot_minutes',},
-        {'name':'location_id','req':True},            
+        {'name':'start','label':'Event Begins','type':'datetime','req':True,'default':'{}'.format(local_datetime_now()),},
+        {'name':'number_of_slots','label':'Number of time slots for the day','default':8,},
+        {'name':'slot_minutes','label':'Length of each time slot in minutes','default':15,},
+        {'name':'location_id','req':True,'default':1},            
     ]
     view.update() # update record and save
     
