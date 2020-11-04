@@ -162,9 +162,13 @@ class Match(SqliteTable):
         donor.last_name as donor_last_name,
         donor.first_name || ' ' || donor.last_name as donor_name,
         donor.id as donor_id,
+        donor.email as donor_email,
+        donor.phone as donor_phone,
         recipient.first_name as recipient_first_name,
         recipient.last_name as recipient_last_name,
         recipient.first_name || ' ' || recipient.last_name as recipient_name,
+        recipient.email as recipient_email,
+        recipient.phone as recipient_phone,
         (select image_path from bike_image where bike_id = match.bike_id limit 1) as image_path,
         bike.bike_comment,
         bike.minimum_donation,
@@ -302,8 +306,8 @@ class MatchDay(SqliteTable):
     def create_table(self):        
         sql = """
             start DATETIME,
-            number_of_slots,
-            slot_minutes,
+            number_of_slots INTEGER,
+            slot_minutes INTEGER,
             location_id INTEGER
             """
         super().create_table(sql)

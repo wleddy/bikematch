@@ -17,7 +17,7 @@ def setExits():
     g.title = 'Matches'
 
 
-from shotglass2.takeabeltof.views import TableView
+from shotglass2.takeabeltof.views import TableView, EditView
 
 # this handles table list and record delete
 @mod.route('/<path:path>',methods=['GET','POST',])
@@ -30,26 +30,28 @@ def display(path=None):
     view = TableView(PRIMARY_TABLE,g.db)
 
     view.list_fields = [
-            {'name':'id','label':'ID','class':'w3-hide-small','search':True},
+            {'name':'id','label':'ID','class':'w3-hide-small','search':False},
             {'name':'match_date','search':'date'},
-            {'name':'match_status',},
             {'name':'recipient_name','label':'Recipient'},
-            {'name':'donor_id','label':'Bike ID',},
             {'name':'donor_name','label':'Donor'},
         ]
         
     view.export_fields = [
-            {'name':'id','label':'ID'},
-            {'name':'match_date','type':'date'},
-            {'name':'match_status',},
-            {'name':'recipient_name','label':'Recipient'},
-            {'name':'donor_name','label':'Donor'},
-            {'name':'recipient_id','label':'Recpient ID'},
+            {'name':'id','label':'Match ID',},
+            {'name':'match_date','type':'date',},
+            {'name':'recipient_id','label':'Recpient ID',},
+            {'name':'recipient_name','label':'Recipient Name',},
+            {'name':'recipient_email','label':'Recipient Email',},
+            {'name':'recipient_phone','label':'Recipient Phone',},
+            {'name':'payment_amt','default':0,},
             {'name':'donor_id','label':'Bike ID'},
+            {'name':'donor_name','label':'Donor Name'},
+            {'name':'donor_email','label':'Donor Email',},
+            {'name':'donor_phone','label':'Donor Phone',},
         ]
         
+    view.allow_record_addition = False
     
-    # ON DELETE trigger in Match clears the match_id in Recipient and Bike
     return view.dispatch_request()
     
 
@@ -61,86 +63,26 @@ def display(path=None):
 def edit(rec_id=None):
     setExits()
     g.title = "Edit {} Record".format(g.title)
-
-    match = PRIMARY_TABLE(g.db)
-    rec = None
     
-    if rec_id == None:
-        rec_id = request.form.get('id',request.args.get('id',-1))
-        
-    rec_id = cleanRecordID(rec_id)
+    view = EditView(PRIMARY_TABLE,g.db,rec_id)
+    
+    view.edit_fields = [
+    {'name':'recipient_name','label':'Recipient','extras':'disabled',},
+    {'name':'donor_name','label':'Donor','extras':'disabled',},
+    {'name':'match_date','type':'date',},
+    {'name':'payment_amt','default':0,},
+    {'name':'match_comment','type':'textarea',},
+    ]
+    
     # import pdb;pdb.set_trace()
-
-    if rec_id < 0:
-        flash("That is not a valid ID")
-        return redirect(g.listURL)
-        
-    donor = None
-    recipient = None
+    view.update()
     
-    # recipient_table = Recipient(g.db)
-    # recipient_list = recipient_table.select(
-    #     where=" match_id is null",
-    #     order_by = "full_name",
-    #     )
-    # bike_table = Bike(g.db)
-    # bike_list = bike_table.select(
-    #     where="  match_id is null",
-    #     order_by = "full_name",
-    #     )
-    #
-    # if rec_id == 0:
-    #     rec = match.new()
-    #     rec.match_date = local_datetime_now()
-    # else:
-    #     rec = match.get(rec_id)
-    #     if not rec:
-    #         flash("Unable to locate that record")
-    #         return redirect(g.listURL)
-    #
-    # if rec.id:
-    #     #has a match
-    #     donor = bike_table.get(rec.donor_id)
-    #     recipient = recipient_table.get(rec.recipient_id)
+    if view.stay_on_form or not view.success:
+        return view.render()
+        
+    return redirect(g.listURL)
 
-    if request.form:
-        # match.update(rec,request.form)
-        # if validForm(rec):
-        #     match.save(rec)
-        #     #update recipient record
-        #     temp_rec = recipient_table.get(rec.recipient_id)
-        #     if temp_rec:
-        #         temp_rec.match_id = rec.id
-        #         temp_rec.status = "Matched"
-        #         recipient_table.save(temp_rec)
-        #     else:
-        #         g.db.rollback()
-        #         flash("Internal Error! Invalid Recipient id. (ID: {})".format(rec.recipient_id))
-        #         return abort(500)
-        #
-        #     # Update the Bike Record
-        #     temp_rec = bike_table.get(rec.donor_id)
-        #     if temp_rec:
-        #         temp_rec.match_id = rec.id
-        #         temp_rec.status = "Matched"
-        #         bike_table.save(temp_rec)
-        #     else:
-        #         g.db.rollback()
-        #         flash("Internal Error! Invalid Bike id. (ID: {})".format(rec.donor_id))
-        #         return abort(500)
-        #
-        #     g.db.commit()
 
-        return redirect(g.listURL)
-
-    # display form
-    return render_template('match_edit.html', 
-        rec=rec,
-        bike_list=bike_list,
-        recipient_list=recipient_list,
-        donor=donor,
-        recipient=recipient,
-        )
     
 def match_bike(folks_id,bike_id,payment_amt=0,match_date=None):
     """Create a new match record and return it"""
@@ -166,33 +108,4 @@ def match_bike(folks_id,bike_id,payment_amt=0,match_date=None):
         
     return rec
     
-    
-def validForm(rec):
-    # Validate the form
-    valid_form = True
-    
-    test_id = cleanRecordID(rec.donor_id)
-    if test_id < 1:
-        valid_form = False
-        flash("You must select a Donor")
-    
-    test_id = cleanRecordID(rec.recipient_id)
-    if test_id < 1:
-        valid_form = False
-        flash("You must select a Recipient")
-        
-    if not rec.match_status.strip():
-        valid_form = False
-        flash("You must enter something the Status field")
-
-    temp_date = getDatetimeFromString(rec.match_date.strip())
-    if not temp_date:
-        valid_form = False
-        flash("The 'Match' date is not a valid date")
-    else:
-        rec.match_date = temp_date
-        
-        
-
-    return valid_form
     
