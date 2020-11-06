@@ -30,7 +30,11 @@
         <div class="gallery-image-contain" >
             <div class="w3-card-2 gallery-card" >
                 <div class="image-contain">
-                    <img src="{{ url_for('static', filename=bike.image_path)}}" alt="{{bike.bike_type}}" >
+                    {% if bike.image_path %}
+                    <img src="{{ url_for('static', filename=bike.image_path ) }}" alt="{{bike.bike_type}}" >
+                    {% else %}
+                    <img src="{{ url_for('static', filename='no_image.png' ) }}" alt="No Image Available" >
+                    {% endif %}
                 </div>
                 <div class="gallery-details">
                     <p><strong>{{ bike.bike_type | title }}</strong></p>

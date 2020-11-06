@@ -6,6 +6,7 @@ from shotglass2.takeabeltof.utils import printException, cleanRecordID
 from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString, date_to_string
 from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number
 from shotglass2.users.admin import login_required, table_access_required
+from shotglass2.takeabeltof.views import TableView, EditView
 
 from datetime import timedelta
 
@@ -21,21 +22,24 @@ def setExits():
     g.title = 'Reservation'
 
 
-from shotglass2.takeabeltof.views import TableView
 
-class ReservationEdit():
+class ReservationEdit(EditView):
     """Record and or process a bike reservation"""
     
     def __init__(self,primary_table,db,rec_id=None):
-        self.db = db
-        self.primary_table = primary_table(self.db)
-        self.success = True
-        self.result_text = ''
-        self.stay_on_form = False
-        self.form_template = None
-        self.rec_id = rec_id
-        self._validate_rec_id() # self.rec_id may have a value now
-        self.get() # could be an empty (new) record, existing record or None
+        super().__init__(primary_table,db,rec_id)
+        # use the end user reservation form form
+        res.form_template = "reservation_form.html"
+        
+    #     self.db = db
+    #     self.primary_table = primary_table(self.db)
+        # self.success = True
+        # self.result_text = ''
+        # self.stay_on_form = False
+        # self.form_template = None
+        # self.rec_id = rec_id
+        # self._validate_rec_id() # self.rec_id may have a value now
+        # self.get() # could be an empty (new) record, existing record or None
         
         
     def get(self):
@@ -48,8 +52,14 @@ class ReservationEdit():
             self.result_text = "Unable to locate that record"
             flash(self.result_text)
             self.success = False
-                    
+        
+        self.after_get_hook()
+        
+    def after_get_hook(self):
+        """ do anything you want here"""
         self.set_bike()
+        
+        
         
     def set_bike(self):
         self.bike = None
@@ -57,38 +67,39 @@ class ReservationEdit():
             self.bike = Bike(self.db).get(cleanRecordID(self.rec.bike_id))
             
             
-    def update(self,save_after_update=True):
-        # import pdb;pdb.set_trace()
-        if request.form:
-            self.primary_table.update(self.rec,request.form)
-            self.set_bike()
-            if self._validate_form():
-                if save_after_update:
-                    self.save()
-            else:
-                self.success = False
-                self.result_text = "Form Validation Failed"
-        else:
-            self.success = False
-            self.result_text = "No input form provided"
+    # def update(self,save_after_update=True):
+    #     # import pdb;pdb.set_trace()
+    #     if request.form:
+    #         self.primary_table.update(self.rec,request.form)
+    #         self.set_bike()
+    #         if self._validate_form():
+    #             if save_after_update:
+    #                 self.save()
+    #         else:
+    #             self.success = False
+    #             self.result_text = "Form Validation Failed"
+    #     else:
+    #         self.success = False
+    #         self.result_text = "No input form provided"
         
         
-    def save(self):
-        # ensure the reservation_date is in iso format
-        if "reservation_date" in request.form:
-            self.rec.reservation_date = getDatetimeFromString(request.form["reservation_date"])
-
-        try:
-            self.primary_table.save(self.rec)
-            self.rec_id = self.rec.id
+    # def save(self):
+    #     # ensure the reservation_date is in iso format
+    #     if "reservation_date" in request.form:
+    #         self.rec.reservation_date = getDatetimeFromString(request.form["reservation_date"])
+    #
+    #     try:
+    #         self.primary_table.save(self.rec)
+    #         self.rec_id = self.rec.id
+    #
+    #     except Exception as e:
+    #         self.db.rollback()
+    #         self.result_text = printException('Error attempting to save {} record.'.format(self.primary_table.display_name),"error",e)
+    #         flash(self.result_text)
+    #         self.success = False
+    #         return
             
-        except Exception as e:
-            self.db.rollback()
-            self.result_text = printException('Error attempting to save {} record.'.format(self.primary_table.display_name),"error",e)
-            flash(self.result_text)
-            self.success = False
-            return
-            
+    def before_commit_hook(self):
         # if match or un-match this reservation then make the match and redisplay the form
         from bikematch.views import match, folks
         if self.success and (request.form.get('match_this_bike') or request.form.get('un_match_this_bike')):
@@ -125,17 +136,17 @@ class ReservationEdit():
                     Match(self.db).delete(self.rec.match_id,commit=True)
                     self.rec.match_id = None 
                     
-        self.primary_table.commit()
+        # self.primary_table.commit()
 
         
-    def render(self):
-        if not self.form_template:
-            self.form_template = 'reservation_edit.html'
-            
-        return render_template(self.form_template, 
-            data = self,
-            bike = self.bike,
-            )
+    # def render(self):
+    #     if not self.form_template:
+    #         self.form_template = 'reservation_edit.html'
+    #
+    #     return render_template(self.form_template,
+    #         data = self,
+    #         bike = self.bike,
+    #         )
         
     def _validate_form(self):
         valid_form = True
@@ -159,16 +170,16 @@ class ReservationEdit():
         return valid_form
         
         
-    def _validate_rec_id(self):
-        if not self.rec_id:
-            self.rec_id = request.form.get('id',request.args.get('id',0))
-
-        self.rec_id = cleanRecordID(self.rec_id)
-
-        if self.rec_id < 0:
-            self.result_text = "That is not a valid ID"
-            self.success = False
-            raise ValueError(self.result_text)
+    # def _validate_rec_id(self):
+    #     if not self.rec_id:
+    #         self.rec_id = request.form.get('id',request.args.get('id',0))
+    #
+    #     self.rec_id = cleanRecordID(self.rec_id)
+    #
+    #     if self.rec_id < 0:
+    #         self.result_text = "That is not a valid ID"
+    #         self.success = False
+    #         raise ValueError(self.result_text)
 
 
 # this handles table list and record delete
@@ -208,8 +219,8 @@ def reserve():
         
     res = ReservationEdit(PRIMARY_TABLE,g.db)
     
-    # use the end user reservation form form
-    res.form_template = "reservation_form.html"
+    # # use the end user reservation form form
+    # res.form_template = "reservation_form.html"
     res.validate_me = 1
     
     # Add the extra properties for the res context
@@ -312,3 +323,10 @@ def email_check():
         
     return "ok"
     
+    
+def send_confirmation(rec):
+    """Send an email and possibly a text to user to confirm and provide 
+    additional details about their appointment
+    """
+    
+    pass

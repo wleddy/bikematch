@@ -1,3 +1,5 @@
+{# if called using EditView, context is in data #}
+{% if data and data.bike %}{% set bike = data.bike %}{% endif %}
 <div class="w3-row">
 {% if bike.image_path %}
     <div class="w3-col w3-third bike-image">
