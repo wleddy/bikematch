@@ -21,8 +21,7 @@ class Bike(SqliteTable):
             number_of_gears TEXT,
             min_pedal_length NUMBER,
             max_pedal_length NUMBER,
-            estimated_value,
-            minimum_donation NUMBER,
+            minimum_price NUMBER,
             bike_type TEXT,
             make TEXT,
             created DATETIME
@@ -171,7 +170,7 @@ class Match(SqliteTable):
         recipient.phone as recipient_phone,
         (select image_path from bike_image where bike_id = match.bike_id limit 1) as image_path,
         bike.bike_comment,
-        bike.minimum_donation,
+        bike.minimum_price,
         bike.created as donation_date
         from match
         left join donor_bike on donor_bike.bike_id = match.bike_id
@@ -281,7 +280,7 @@ class Reservation(SqliteTable):
         END as bike_status,
         match.id as match_id,
         match_day.start,
-        bike.minimum_donation
+        bike.minimum_price
         from reservation
         left join match_day on match_day.id = reservation.match_day_id
         left join bike on bike.id = reservation.bike_id

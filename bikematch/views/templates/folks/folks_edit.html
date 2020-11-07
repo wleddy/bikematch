@@ -77,7 +77,7 @@
                     {% endif %}
                     <p>Match Date: <strong>{{ bike.match_date | local_date_string }}</strong></p>
                     <p class="match_comment" id="short_match_comment_{{ bike.id }}">{{bike.bike_comment | truncate(80)}}</p>
-                    <p class="bike_price">Amount received: {{ bike.payment_amt | money }} / ({{ bike.minimum_donation | money }})</p>
+                    <p class="bike_price">Amount received: {{ bike.payment_amt | money }} / ({{ bike.minimum_price | money }})</p>
                     <hr>
                 {% endfor %}
                 {% else %}
@@ -97,7 +97,7 @@
                     {% endif %}
                     <p>Donation Date: <strong>{{ bike.created | local_date_string }}</strong></p>
                     <p class="match_comment" id="short_match_comment_{{ bike.id }}">{{bike.bike_comment | truncate(80)}}</p>
-                    <p class="bike_price">Est. Value: {{ bike.minimum_donation | money }}</p>
+                    <p class="bike_price">Est. Value: {{ bike.minimum_price | money }}</p>
                     <hr>
                 {% endfor %}
                 {% else %}

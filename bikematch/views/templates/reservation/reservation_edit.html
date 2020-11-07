@@ -107,7 +107,7 @@
         <h4 class="bike-info-head" >Make a Match</h4>
         {% if data.rec.donation_amount %}{% set donation_amount = data.rec.donation_amount | money %}{% else %}{% set donation_amount = ''%}{% endif %}
         <p class='w3-col w3-half' >{{ input_field(donation_amount,"donation_amount",placeholder="0.00")}}</p>
-         {% if data.rec.minimum_donation %}<p class='w3-col w3-half' ><strong>(Minimum Donation: {{ data.rec.minimum_donation | money }})</strong></p>{% endif %}
+         {% if data.rec.minimum_price %}<p class='w3-col w3-half' ><strong>(Minimum Donation: {{ data.rec.minimum_price | money }})</strong></p>{% endif %}
     </div>
     <div class="w3-row">
         {% if not data.rec.match_id %}

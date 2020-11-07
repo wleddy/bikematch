@@ -160,9 +160,9 @@ def edit(rec_id=None):
         if not rec:
             flash("Record not Found")
             return redirect(g.listURL)
-        ## convert minimum_donation field to a string in the money format
-        if rec.minimum_donation:
-            rec.minimum_donation = money(rec.minimum_donation)
+        ## convert minimum_price field to a string in the money format
+        if rec.minimum_price:
+            rec.minimum_price = money(rec.minimum_price)
             
     if request.form:
         # import pdb;pdb.set_trace()
@@ -371,10 +371,10 @@ def valididate_form(rec):
     else:
         rec.created = temp_date
     
-    if not rec.minimum_donation:
-        rec.minimum_donation = 0
+    if not rec.minimum_price:
+        rec.minimum_price = 0
     try:
-        rec.minimum_donation = float(rec.minimum_donation)
+        rec.minimum_price = float(rec.minimum_price)
     except:
         flash("The minimum donation must be a number")
         valid_form = False

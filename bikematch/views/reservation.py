@@ -45,10 +45,10 @@ class ReservationEdit(EditView):
             if request.form.get('match_this_bike'):
                 if "donation_amount" in request.form:
                     try:
-                        if self.rec.minimum_donation and float(request.form.get('donation_amount')) < float(self.rec.minimum_donation):
+                        if self.rec.minimum_price and float(request.form.get('donation_amount')) < float(self.rec.minimum_price):
                             raise ValueError
                     except:
-                        self.result_text = "The minimum donation amount for this bike is ${}".format(self.rec.minimum_donation)
+                        self.result_text = "The minimum donation amount for this bike is ${}".format(self.rec.minimum_price)
                         self.success = False
                         flash(self.result_text)
                         return
