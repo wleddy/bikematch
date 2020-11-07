@@ -2,10 +2,10 @@ from flask import request, session, g, redirect, url_for, abort, \
      render_template, flash, Blueprint, Response, safe_join
 from bikematch.models import Reservation, Bike, Folks, Match, MatchDay, Location
 from shotglass2.shotglass import get_site_config
-from shotglass2.takeabeltof.utils import printException, cleanRecordID
-from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString, date_to_string
-from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number
 from shotglass2.users.admin import login_required, table_access_required
+from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString, date_to_string
+from shotglass2.takeabeltof.mailer import Mailer, email_admin
+from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number, printException, cleanRecordID
 from shotglass2.takeabeltof.views import TableView, EditView
 
 from datetime import timedelta
@@ -149,6 +149,8 @@ def reserve():
     else:
         return res.render() #this is the first time sending the form
         
+    res.get() # need to get a fresh select so the values from the related tables are updated
+    send_confirmation(res)
     flash("You reservation has been saved. Check for an email confirmation")
     return redirect(url_for('bikematch.home'))
     
@@ -230,7 +232,6 @@ def edit(rec_id=None):
 @mod.route('/email_check/', methods=['POST'])
 def email_check():
     """Called by javascript to test if this email address is currently being used to reserve a bike"""
-    
     if request.form:
         email_address = request.form.get("email_address",'')
         rec = PRIMARY_TABLE(g.db).select_one(where="lower(email) == '{}'".format(email_address.strip().lower()))
@@ -240,9 +241,37 @@ def email_check():
     return "ok"
     
     
-def send_confirmation(rec):
+@mod.route('/cancel_via_email', methods=['get'])
+@mod.route('/cancel_via_email/', methods=['get'])
+@mod.route('/cancel_via_email/<int:rec_id>', methods=['get'])
+@mod.route('/cancel_via_email/<int:rec_id>/', methods=['get'])
+def cancel_via_email(rec_id=None):
+    """User wants to cancel reservation"""
+    setExits()
+    g.title = "Reservation Cancelled"
+    if rec_id:
+        email_admin("BikeMatch Cancelation","User has requested cancellation via email of reservation id: {}".format(rec_id))
+        
+    return render_template('reservation_cancellation.html')
+
+def send_confirmation(data):
     """Send an email and possibly a text to user to confirm and provide 
     additional details about their appointment
     """
-    
-    pass
+    # import pdb;pdb.set_trace()
+    if data.rec:
+        if data.rec.email:
+            #send an email
+            message = Mailer(
+                [("{} {}".format(data.rec.first_name,data.rec.last_name),data.rec.email)],
+                subject = 'BikeMatch Confirmation',
+                body_is_html = True,
+                html_template = 'email/reservation_confirmation.html',
+                data=data,
+                )
+            message.send()
+        
+        if data.rec.phone:
+            #send a text
+            pass
+

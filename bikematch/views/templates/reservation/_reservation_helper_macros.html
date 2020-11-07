@@ -1,0 +1,19 @@
+{# IMPORTANT - Don't include any leading spaces in html lines because this sometimes gets passed #}
+{#             through the markdown filter and the leading space signifies a <code> block per Markdown syntax. #}
+{#             In such a case, the content will be escaped rather than normal html #}
+
+{% macro directions_snippet(data) %}
+{% set lat = None %}
+{% set lng = None %}
+{% if data and data.rec.lat and data.rec.lng %}
+    {% set lat = data.rec.lat %}
+    {% set lng = data.rec.lng %}
+{% endif %}
+{% if lat and lng %}
+<p><em>Directions:</em><br>
+&nbsp;&nbsp;<a href="https://www.google.com/maps/dir/?api=1&destination={{ lat}},{{ lng }}" target="_blank">Google Maps</a>
+<br>
+&nbsp;&nbsp;<a href="http://maps.apple.com/?daddr={{lat}},{{lng }}" target="_blank">Apple Maps</a>
+</p>
+{% endif %}
+{% endmacro %}

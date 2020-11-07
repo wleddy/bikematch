@@ -1,0 +1,29 @@
+<h1>Bike Match Confirmation</h1>
+
+<p>Congratulations {{ data.rec.first_name }}!</p>
+
+<p>
+    You have reserved a bike from the BikeMatch Program. Please be sure to be
+    on time for your pick up appointment at the place and time indicated below.
+</p>
+<p>
+    If for some reason you are unable to make it to your appointment, please
+    <a href="{{ config.HOST_PROTOCOL }}://{{ config.HOST_NAME }}{{ url_for('reservation.cancel_via_email')}}{{ data.rec.id }}">cancel your reservation</a>
+     at least 24 hours before. You can always reserve this bike or another at another time.
+</p>
+<h2>Place:</h2>
+<p>
+    <strong>{{ data.rec.location_name }}</strong><br>
+    {{ data.rec.street_address }}<br>
+    {{ data.rec.city }},{{ data.rec.state | upper }} {{ data.rec.zip }}
+</p>
+
+{% from '_reservation_helper_macros.html' import directions_snippet %}
+
+{{ directions_snippet(data) }}
+
+<h2>When:</h2>
+<h3>{{ data.rec.reservation_date | abbr_date_string }} at {{ data.rec.reservation_date | local_time_string }}</h3>
+
+<h2 style="font-weight:bold;color:red;">Important!</h2>
+<h3>Face coverings are required! No maskey, No bikey. <em>Thanks!</em></h3>
