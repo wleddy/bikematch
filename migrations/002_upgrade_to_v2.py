@@ -195,17 +195,17 @@ for rec in recs:
 # Just for grinsm, lets create some match days and the locatoin for SBK
 location = new_models.Location(new_con)
 rec = location.new()
-rec.location_name = "Sacramento Bicycle Kitchen"
-rec.street_address = "1915 I Street"
+rec.location_name = "Sacramento Area Bicycle Advocates"
+rec.street_address = "909 12th Street"
 rec.city = "Sacramento"
 rec.state = "CA"
 rec.zip = "95814"
-rec.lng = "-121.4800"
-rec.lat = "38.5782"
+rec.lng = "-121.4901"
+rec.lat = "38.5802"
 location.save(rec)
 location.commit()
 
-sbk_id = rec.id
+loc_id = rec.id
 
 match_day = new_models.MatchDay(new_con)
 start = local_datetime_now().replace(hour=10,minute=0,second=0)
@@ -215,7 +215,7 @@ for x in range(6):
     rec.start = start
     rec.number_of_slots = 8
     rec.slot_minutes = 15
-    rec.location_id = sbk_id
+    rec.location_id = loc_id
     match_day.save(rec)
 match_day.commit()
 
