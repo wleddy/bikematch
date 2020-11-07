@@ -2,12 +2,15 @@
 {% if data and data.bike %}{% set bike = data.bike %}{% endif %}
 <div class="w3-row">
 {% if bike.image_path %}
+{% set image_path = bike.image_path %}
+{% else %}
+{% set image_path = "no_image.png"%}
+{% endif %}
     <div class="w3-col w3-third bike-image">
         <p>
-        <img src="{{ url_for('static',filename=bike.image_path)}}" class=" w3-padding" style="width:100%;max-width:250px" />
+        <img src="{{ url_for('static',filename=image_path)}}" class=" w3-padding" style="width:100%;max-width:250px" />
         </p>
     </div>
-{% endif %}
     <div class="w3-col w3-twothird bike-data">
         <p class="bike-section-head">{{ bike.bike_type}}</p>
         {{ bike.bike_comment | render_markdown }}
