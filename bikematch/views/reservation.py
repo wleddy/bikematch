@@ -25,40 +25,10 @@ def setExits():
 
 class ReservationEdit(EditView):
     """Record and or process a bike reservation"""
-    
-    def __init__(self,primary_table,db,rec_id=None):
-        super().__init__(primary_table,db,rec_id)
-        # use the end user reservation form form
-        res.form_template = "reservation_form.html"
-        
-    #     self.db = db
-    #     self.primary_table = primary_table(self.db)
-        # self.success = True
-        # self.result_text = ''
-        # self.stay_on_form = False
-        # self.form_template = None
-        # self.rec_id = rec_id
-        # self._validate_rec_id() # self.rec_id may have a value now
-        # self.get() # could be an empty (new) record, existing record or None
-        
-        
-    def get(self):
-        # Select an existing record or make a new one
-        if not self.rec_id:
-            self.rec = self.primary_table.new()
-        else:
-            self.rec = self.primary_table.get(self.rec_id)
-        if not self.rec:
-            self.result_text = "Unable to locate that record"
-            flash(self.result_text)
-            self.success = False
-        
-        self.after_get_hook()
         
     def after_get_hook(self):
         """ do anything you want here"""
         self.set_bike()
-        
         
         
     def set_bike(self):
@@ -66,39 +36,7 @@ class ReservationEdit(EditView):
         if self.rec:
             self.bike = Bike(self.db).get(cleanRecordID(self.rec.bike_id))
             
-            
-    # def update(self,save_after_update=True):
-    #     # import pdb;pdb.set_trace()
-    #     if request.form:
-    #         self.primary_table.update(self.rec,request.form)
-    #         self.set_bike()
-    #         if self._validate_form():
-    #             if save_after_update:
-    #                 self.save()
-    #         else:
-    #             self.success = False
-    #             self.result_text = "Form Validation Failed"
-    #     else:
-    #         self.success = False
-    #         self.result_text = "No input form provided"
-        
-        
-    # def save(self):
-    #     # ensure the reservation_date is in iso format
-    #     if "reservation_date" in request.form:
-    #         self.rec.reservation_date = getDatetimeFromString(request.form["reservation_date"])
-    #
-    #     try:
-    #         self.primary_table.save(self.rec)
-    #         self.rec_id = self.rec.id
-    #
-    #     except Exception as e:
-    #         self.db.rollback()
-    #         self.result_text = printException('Error attempting to save {} record.'.format(self.primary_table.display_name),"error",e)
-    #         flash(self.result_text)
-    #         self.success = False
-    #         return
-            
+                        
     def before_commit_hook(self):
         # if match or un-match this reservation then make the match and redisplay the form
         from bikematch.views import match, folks
@@ -114,7 +52,7 @@ class ReservationEdit(EditView):
                         self.success = False
                         flash(self.result_text)
                         return
-                
+
                 # add or get a folks record for this recipient
                 folks_rec = folks.get_or_create(self.rec)
                 if folks_rec:
@@ -124,7 +62,7 @@ class ReservationEdit(EditView):
                     else:
                         self.result_text = "Unable to Match record for {}".format(self.rec.email)
                         self.success = False
-                        
+
                 else:
                     self.result_text = "Unable to find or create a 'Folks' record for {}".format(self.rec.email)
                     self.success = False
@@ -134,23 +72,10 @@ class ReservationEdit(EditView):
                 self.stay_on_form = True #redisplay the form page
                 if self.rec.match_id:
                     Match(self.db).delete(self.rec.match_id,commit=True)
-                    self.rec.match_id = None 
-                    
-        # self.primary_table.commit()
-
-        
-    # def render(self):
-    #     if not self.form_template:
-    #         self.form_template = 'reservation_edit.html'
-    #
-    #     return render_template(self.form_template,
-    #         data = self,
-    #         bike = self.bike,
-    #         )
-        
-    def _validate_form(self):
+                    self.rec.match_id = None
+                     
+    def validate_form(self):
         valid_form = True
-
 
         if not self.rec.email or not self.rec.email.strip():
             flash("You must enter your email address")
@@ -170,17 +95,6 @@ class ReservationEdit(EditView):
         return valid_form
         
         
-    # def _validate_rec_id(self):
-    #     if not self.rec_id:
-    #         self.rec_id = request.form.get('id',request.args.get('id',0))
-    #
-    #     self.rec_id = cleanRecordID(self.rec_id)
-    #
-    #     if self.rec_id < 0:
-    #         self.result_text = "That is not a valid ID"
-    #         self.success = False
-    #         raise ValueError(self.result_text)
-
 
 # this handles table list and record delete
 @mod.route('/<path:path>',methods=['GET','POST',])
@@ -219,8 +133,8 @@ def reserve():
         
     res = ReservationEdit(PRIMARY_TABLE,g.db)
     
-    # # use the end user reservation form form
-    # res.form_template = "reservation_form.html"
+    # use the end user reservation form form
+    res.form_template = "reservation_form.html"
     res.validate_me = 1
     
     # Add the extra properties for the res context
@@ -295,6 +209,8 @@ def edit(rec_id=None):
     
     # import pdb;pdb.set_trace()
     res = ReservationEdit(PRIMARY_TABLE,g.db,rec_id)
+    res.form_template = "reservation_edit.html"
+    
     # if res.rec and not res.rec.id:
     if "swap_bike" in request.path:
         # just changing the bike
