@@ -1,11 +1,12 @@
 from flask import request, session, g, redirect, url_for, abort, \
-     render_template, flash, Blueprint, Response, safe_join
+     render_template, render_template_string, flash, Blueprint, Response, safe_join
 from bikematch.models import Reservation, Bike, Folks, Match, MatchDay, Location
 from shotglass2.shotglass import get_site_config
 from shotglass2.users.admin import login_required, table_access_required
 from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString, date_to_string
 from shotglass2.takeabeltof.mailer import Mailer, email_admin
-from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number, printException, cleanRecordID
+from shotglass2.takeabeltof.texting import TextMessage
+from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number, printException, cleanRecordID, validate_phone_number
 from shotglass2.takeabeltof.views import TableView, EditView
 
 from datetime import timedelta
@@ -43,12 +44,12 @@ class ReservationEdit(EditView):
         if self.success and (request.form.get('match_this_bike') or request.form.get('un_match_this_bike')):
             # import pdb;pdb.set_trace()
             if request.form.get('match_this_bike'):
-                if "donation_amount" in request.form:
+                if "payment" in request.form:
                     try:
-                        if self.rec.minimum_price and float(request.form.get('donation_amount')) < float(self.rec.minimum_price):
+                        if self.rec.price and float(request.form.get('payment')) < float(self.rec.price):
                             raise ValueError
                     except:
-                        self.result_text = "The minimum donation amount for this bike is ${}".format(self.rec.minimum_price)
+                        self.result_text = "The minimum donation amount for this bike is ${}".format(self.rec.price)
                         self.success = False
                         flash(self.result_text)
                         return
@@ -56,7 +57,7 @@ class ReservationEdit(EditView):
                 # add or get a folks record for this recipient
                 folks_rec = folks.get_or_create(self.rec)
                 if folks_rec:
-                    match_rec = match.match_bike(folks_rec.id,self.rec.bike_id,self.rec.donation_amount)
+                    match_rec = match.match_bike(folks_rec.id,self.rec.bike_id,self.rec.payment)
                     if match_rec:
                         self.rec.match_id = match_rec.id
                     else:
@@ -88,6 +89,10 @@ class ReservationEdit(EditView):
             flash("You must enter your full name")
             valid_form = False
     
+        if  self.rec.phone and not validate_phone_number(self.rec.phone):
+            flash("That does not look like a valid phone number")
+            valid_form = False
+            
         if not self.rec.reservation_date:
             flash("You must pick a reservation time")
             valid_form = False
@@ -170,7 +175,7 @@ def set_extra_context(res):
         # construct the list of time slots
         time_slots = []
         # find times already reserved
-        res_for_day = Reservation(g.db).query("select reservation_date from reservation where match_day_id = {}".format(match_day.id))
+        res_for_day = Reservation(g.db).query("select reservation_date from reservation where match_day_id = {} order by reservation_date".format(match_day.id))
         if res_for_day:
             filled_slots = [getDatetimeFromString(x.reservation_date) for x in res_for_day]
         else:
@@ -178,6 +183,7 @@ def set_extra_context(res):
             
         start = getDatetimeFromString(match_day.start) - timedelta(minutes=match_day.slot_minutes)
         has_open_slot = False
+        empty_slots = 0
         for t in range(match_day.number_of_slots):
             start = start + timedelta(minutes=match_day.slot_minutes)
             d = {'slot_date':date_to_string(start,'iso_date_tz'),"open":True}
@@ -185,9 +191,14 @@ def set_extra_context(res):
             if start in filled_slots:
                 d['open']=False
             else:
+                empty_slots += 1
                 has_open_slot = True
-        
-            time_slots.append(d)
+                
+            if empty_slots < 4:
+                # avoid appointments stretched out too far
+                time_slots.append(d)
+            else:
+                break
         
     if not has_open_slot:
         flash("Sorry, there are no open times available for the next event")
@@ -258,7 +269,7 @@ def send_confirmation(data):
     """Send an email and possibly a text to user to confirm and provide 
     additional details about their appointment
     """
-    # import pdb;pdb.set_trace()
+
     if data.rec:
         if data.rec.email:
             #send an email
@@ -271,7 +282,12 @@ def send_confirmation(data):
                 )
             message.send()
         
+        # import pdb;pdb.set_trace()
+            
         if data.rec.phone:
             #send a text
-            pass
-
+            mes = render_template("text/reservation_confirmation.txt",data=data)
+            text = TextMessage(data.rec.phone,mes)
+            text.send()
+            if not text.success:
+                email_admin('Texting Error Occurred',text.result_text)
