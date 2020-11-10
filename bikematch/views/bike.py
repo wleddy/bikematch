@@ -160,14 +160,19 @@ def edit(rec_id=None):
         if not rec:
             flash("Record not Found")
             return redirect(g.listURL)
-        ## convert minimum_price field to a string in the money format
-        if rec.minimum_price:
-            rec.minimum_price = money(rec.minimum_price)
+        ## convert price field to a string in the money format
+        if rec.price:
+            rec.price = money(rec.price)
             
     if request.form:
         # import pdb;pdb.set_trace()
-        
+        rec.price_is_fixed = 0 # reset in update if box is checked
         bike.update(rec,request.form)
+        try:
+            rec.price_is_fixed = int(rec.price_is_fixed)
+        except:
+            rec.price_is_fixed= 0
+            
         if valididate_form(rec):
             bike.save(rec)
             # if no donor_id, add donor to the folks table or just update the donor_id
@@ -371,10 +376,10 @@ def valididate_form(rec):
     else:
         rec.created = temp_date
     
-    if not rec.minimum_price:
-        rec.minimum_price = 0
+    if not rec.price:
+        rec.price = 0
     try:
-        rec.minimum_price = float(rec.minimum_price)
+        rec.price = float(rec.price)
     except:
         flash("The minimum donation must be a number")
         valid_form = False

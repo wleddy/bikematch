@@ -88,7 +88,10 @@
             </a>
         </p>
         <p class='w3-col w3-quarter' >
-            {{ input_field(rec.minimum_price,"minimum_price",placeholder="0.00",)}}
+            {{ input_field(rec.price,"price",placeholder="0.00",)}}
+        </p>
+        <p class='w3-col w3-quarter' >
+            {{ checkbox_field(rec.price_is_fixed,"price_is_fixed",extras='onclick="if(this.value != 1){this.value = 1;}else{this.value = 0;}"')}}
         </p>
         
     </div>

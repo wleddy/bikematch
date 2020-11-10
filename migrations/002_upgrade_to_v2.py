@@ -86,12 +86,15 @@ for rec in recs:
     # copy bike
     #preserve the original ids
     cur.execute("insert into bike (id) values ({})".format(rec.id,))
-    
-    new = new_bike.get(rec.id)
+    # pdb.set_trace()
+    new = new_bike.new()
+    new_bike.update(new,rec._asdict())
+    # new = new_bike.get(rec.id)
+    new.id = rec.id
     new.bike_comment = rec.bike_comment + " (original size: {})".format(rec.bike_size)
-    new.staff_comment = rec.staff_comment
-    new.bike_type = rec.bike_type
-    new.created = rec.created
+    # new.staff_comment = rec.staff_comment
+    # new.bike_type = rec.bike_type
+    # new.created = rec.created
     gears = re.findall("\s(\d*)\s?spd\.?", rec.bike_comment)
     if gears:
         new.number_of_gears = gears[0]

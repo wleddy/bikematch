@@ -96,9 +96,19 @@
                 Where to Pick Up Your Bike:
                 <span class="bike-section-head">{{ data.location.location_name }}</span> 
             </p>
-            <p class="w3-row">
-                <strong></strong>
-            </p>
+            {% if data.bike.price and data.bike.price > 0 %}
+            <div class="w3-row">
+                {% if data.bike.price_is_fixed %}
+                <p class='w3-col ' >This bike has a Price of <strong>${{ data.bike.price | money }}</strong> that is due at pick up.</p>
+                {% else %}           
+                <p class='w3-col ' >
+                    This bike has a suggested donation amount of <strong>${{ data.bike.price | money }}</strong>.
+                    The donation amount is only a suggestion. You may pay less or nothing at all if you are unable to do so.
+                </p>
+                {% endif %}
+                <p>We accept Cash (exact price, please), Check, Credit or Debit card.</p>
+            </div>
+            {% endif %}
          {% endif %} {# if rec #}
          
         <p class="form_button_row w3-contain w3-panel" >

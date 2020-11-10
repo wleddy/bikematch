@@ -41,7 +41,7 @@
                     <div class="other-info">
                         <p>Make: {{ bike.make | default('?',True) }}</p>
                         <p>Fits: {{ bike.min_height }} to {{ bike.max_height}}</p>
-                        <p class="minimum-price">Minimum Donation: ${{ bike.minimum_price  |money }}</p>
+                        <p class="minimum-price">Minimum Donation: ${{ bike.price  |money }}</p>
                     </div>
                 </div>
             </div>

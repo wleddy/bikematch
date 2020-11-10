@@ -105,9 +105,15 @@
         
     <div class="w3-row main-form-buttons">
         <h4 class="bike-info-head" >Make a Match</h4>
-        {% if data.rec.donation_amount %}{% set donation_amount = data.rec.donation_amount | money %}{% else %}{% set donation_amount = ''%}{% endif %}
-        <p class='w3-col w3-half' >{{ input_field(donation_amount,"donation_amount",placeholder="0.00")}}</p>
-         {% if data.rec.minimum_price %}<p class='w3-col w3-half' ><strong>(Minimum Donation: {{ data.rec.minimum_price | money }})</strong></p>{% endif %}
+        {% if data.rec.payment %}{% set payment = data.rec.payment | money %}{% else %}{% set payment = ''%}{% endif %}
+        <p class='w3-col w3-half' >{{ input_field(payment,"payment",placeholder="0.00")}}</p>
+         {% if data.rec.price %}
+             {% if data.rec.price_is_fixed %}
+             <p class='w3-col w3-half' ><strong>(Fixed Price: ${{ data.rec.price | money }})</strong></p>
+             {% else %}
+             <p class='w3-col w3-half' ><strong>(Suggested Donation: ${{ data.rec.price | money }})</strong></p>
+             {% endif %}
+         {% endif %}
     </div>
     <div class="w3-row">
         {% if not data.rec.match_id %}

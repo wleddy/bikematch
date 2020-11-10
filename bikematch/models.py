@@ -11,7 +11,7 @@ class Bike(SqliteTable):
         super().__init__(db_connection)
         self.table_name = 'bike'
         self.order_by_col = 'created'
-        self.defaults = {'status':'Open'}
+        self.defaults = {'price':0,'price_is_fixed':0,'created':'now',}
 
     
     def create_table(self):        
@@ -21,10 +21,11 @@ class Bike(SqliteTable):
             number_of_gears TEXT,
             min_pedal_length NUMBER,
             max_pedal_length NUMBER,
-            minimum_price NUMBER,
+            price NUMBER,
+            price_is_fixed INTEGER,
             bike_type TEXT,
             make TEXT,
-            created DATETIME
+            created DATE
             """
         super().create_table(sql)
         
@@ -136,7 +137,7 @@ class Match(SqliteTable):
         super().__init__(db_connection)
         self.table_name = 'match'
         self.order_by_col = 'match_date'
-        self.defaults = {}
+        self.defaults = {'payment_amt':0.0,'match_date':'now'}
         self._display_name = "Match"
         
     def create_table(self):
@@ -145,9 +146,10 @@ class Match(SqliteTable):
         sql = """
             bike_id INT ,
             recipient_id INT ,
-            match_date DATETIME,
+            match_date DATE,
             payment_amt FLOAT,
             match_comment TEXT,
+            due_date DATE,
             FOREIGN KEY (bike_id) REFERENCES bike(id) ON DELETE CASCADE,
             FOREIGN KEY (recipient_id) REFERENCES folks(id) ON DELETE CASCADE 
             """
@@ -170,7 +172,7 @@ class Match(SqliteTable):
         recipient.phone as recipient_phone,
         (select image_path from bike_image where bike_id = match.bike_id limit 1) as image_path,
         bike.bike_comment,
-        bike.minimum_price,
+        bike.price,
         bike.created as donation_date
         from match
         left join donor_bike on donor_bike.bike_id = match.bike_id
@@ -255,7 +257,7 @@ class Reservation(SqliteTable):
             email TEXT,
             phone TEXT,
             reservation_date DATETIME,
-            donation_amount REAL,
+            payment NUMBER,
             match_day_id INTEGER,
             bike_id INTEGER
             """
@@ -280,7 +282,9 @@ class Reservation(SqliteTable):
         END as bike_status,
         match.id as match_id,
         match_day.start,
-        bike.minimum_price
+        bike.price,
+        bike.price_is_fixed
+        
         from reservation
         left join match_day on match_day.id = reservation.match_day_id
         left join bike on bike.id = reservation.bike_id
