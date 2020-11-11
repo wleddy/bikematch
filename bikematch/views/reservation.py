@@ -77,6 +77,9 @@ class ReservationEdit(EditView):
                      
     def validate_form(self):
         valid_form = True
+        
+        if not self.rec:
+            return True
 
         if not self.rec.email or not self.rec.email.strip():
             flash("You must enter your email address")
@@ -93,10 +96,14 @@ class ReservationEdit(EditView):
             flash("That does not look like a valid phone number")
             valid_form = False
             
+        if not self.rec.reservation_comment or not self.rec.reservation_comment.strip():
+            flash("You must tell us why you would like this bike.")
+            valid_form = False
+                                
         if not self.rec.reservation_date:
             flash("You must pick a reservation time")
             valid_form = False
-                                
+
         return valid_form
         
         
@@ -194,7 +201,7 @@ def set_extra_context(res):
                 empty_slots += 1
                 has_open_slot = True
                 
-            if empty_slots < 4:
+            if empty_slots <= 4:
                 # avoid appointments stretched out too far
                 time_slots.append(d)
             else:

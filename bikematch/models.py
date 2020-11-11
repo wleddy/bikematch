@@ -256,6 +256,7 @@ class Reservation(SqliteTable):
             last_name TEXT,
             email TEXT,
             phone TEXT,
+            reservation_comment,
             reservation_date DATETIME,
             payment NUMBER,
             match_day_id INTEGER,
