@@ -12,7 +12,7 @@
 {{super()}}
 
 {% include "anytime_head.html"%}
-{% include "gallery_head.html"%}
+{% include 'gallery_head_style.html' %}
 <script>
 
  $(document).ready(function(){
@@ -45,7 +45,13 @@
         }
     }
     
-    function swap_bike(selected_bike_id){
+    function select_changed(){
+        var selected_style = $("#bike_style_select").val()
+        var selected_size = $("#bike_size_select").val()
+        $('#gallery-contain').load("{{ url_for('bike.gallery')}}",{"selected_style":selected_style,"selected_size":selected_size},set_controls_for_gallery);
+    }
+    
+    function reserve_bike(selected_bike_id){
         // set the bike_id value, change the form action
         //.  and then post it
         if (selected_bike_id != undefined){
@@ -56,11 +62,17 @@
     
     function show_gallery(){
         // after loading the gallery, change the click action for the bike
-        $('#gallery-contain').load('{{ url_for('bike.gallery')}}',function(){$('.bike-on-offer').off('click').click(function(){swap_bike($(this).attr('value'));})});
+        //$('#gallery-contain').load('{{ url_for('bike.gallery')}}',function(){$('.bike-on-offer').off('click').click(function(){swap_bike($(this).attr('value'));})});
+        $('#gallery-contain').load('{{ url_for('bike.gallery')}}');
+        set_controls_for_gallery();
+    }
+    
+    function set_controls_for_gallery(){
         $('#gallery-contain').show();
         $('#gallery-header').show();
         $('.main-form-buttons').hide();
     }
+    
     function hide_gallery(){
         $('#gallery-header').hide();
         $('#gallery-contain').hide();
@@ -115,7 +127,7 @@
              {% endif %}
          {% endif %}
     </div>
-    <div class="w3-row">
+    <div class="w3-row main-form-buttons">
         {% if not data.rec.match_id %}
             <p class="w3-col" >
                 <a class="w3-btn w3-ripple w3-save-button-color w3-mobile w3-round-large w3-shadow" onclick="match_bike()" >Match Bike</a>
@@ -152,7 +164,6 @@
 {% endif %}
 </p> 
     <div id="gallery-header" class="w3-row" style="display:none;">
-        <hr>
         <p class="w3-third bike-info-head">Choose a Bike</p>
         <p class="w3-quarter w3-btn w3-ripple w3-primary-color w3-mobile w3-round-large w3-shadow" onclick="hide_gallery()">Hide Bikes</p>
         <div id="gallery-contain"></div>

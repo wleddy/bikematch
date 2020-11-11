@@ -1,21 +1,3 @@
-<script>
-    function select_changed(){
-        var selected_style = $("#bike_style_select").val()
-        var selected_size = $("#bike_size_select").val()
-        $('#gallery-contain').load("{{ url_for('bike.gallery')}}",{"selected_style":selected_style,"selected_size":selected_size});
-    }
-    
-    function reserve_bike(bike_id){
-        // update the bikeid input 
-        //.  and then post the form
-        $('input#bike_id').val(bike_id);
-        var bikey = $('#bike_id').val();
-        $('#main-form').submit();
-    }
-    function replace_location(data){
-        location.replace(location.href);
-    }
-</script>
 <style>
     .gallery-image-contain{
         width:120pt;
