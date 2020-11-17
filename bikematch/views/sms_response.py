@@ -1,5 +1,5 @@
 from flask import request, session, g, redirect, url_for, \
-     render_template, flash, Blueprint
+     render_template, flash, Blueprint, Response
 from shotglass2.takeabeltof.texting import TextMessage, TextResponse
 from shotglass2.takeabeltof.utils import printException, cleanRecordID
 from shotglass2.takeabeltof.views import TableView, ListFilter
@@ -15,4 +15,6 @@ def handle_request(path=''):
     resp = TextResponse()
     resp.create_message("Hello World!")
     
-    return str(resp)
+    return Response(str(resp),
+                    mimetype="text/plain",
+                    )
