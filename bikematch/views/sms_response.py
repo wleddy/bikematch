@@ -17,5 +17,5 @@ def handle_request(path=''):
     resp.create_message("Hello World!")
     
     return Response(str(resp.message),
-                    mimetype="text/plain",
+                    mimetype="text/xml",
                     )
