@@ -5,6 +5,7 @@ from shotglass2 import shotglass
 from shotglass2.takeabeltof.database import Database
 from shotglass2.takeabeltof.jinja_filters import register_jinja_filters
 from shotglass2.users.admin import Admin
+from shotglass2.users.models import User
 from bikematch.models import Folks, Match, Bike, MatchDay, Reservation, Location, init_all_bikematch_tables
 
 # Create app
@@ -119,9 +120,16 @@ def _before():
     g.admin.register(Match,url_for('match.display'),display_name='Matches',minimum_rank_required=100)
     g.admin.register(Location,url_for('location.display'),display_name='Locations',minimum_rank_required=100)
     g.admin.register(MatchDay,url_for('match_day.display'),display_name='Match Days',minimum_rank_required=100)
-   
+    
     shotglass.user_setup() # g.admin now holds access rules Users, Prefs and Roles
 
+    g.admin.register(User,
+            url_for('tools.view_log'),
+            display_name='View Log',
+            top_level = True,
+            minimum_rank_required=500,
+        )
+        
 @app.teardown_request
 def _teardown(exception):
     if 'db' in g:
@@ -167,6 +175,8 @@ app.register_blueprint(folks.mod)
 app.register_blueprint(match_day.mod)
 app.register_blueprint(location.mod)
 
+from shotglass2.tools.views import tools
+app.register_blueprint(tools.mod)
 
 if __name__ == '__main__':
     
