@@ -8,6 +8,7 @@ from shotglass2.users.admin import login_required, table_access_required
 mod = Blueprint('sms_response',__name__, template_folder='templates/sms_response', url_prefix='/sms')
 
 
+@mod.route('/',methods=['GET','POST',])
 @mod.route('/<path:path>',methods=['GET','POST',])
 @mod.route('/<path:path>/',methods=['GET','POST',])
 def handle_request(path=''):
