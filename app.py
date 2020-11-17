@@ -166,7 +166,7 @@ shotglass.register_users(app)
 # from shotglass2.www.views import home
 # app.add_url_rule('/contact/',home.contact)
 
-from bikematch.views import bikematch, match, bike, reservation, folks, match_day, location
+from bikematch.views import bikematch, match, bike, reservation, folks, match_day, location, sms_response
 app.register_blueprint(bikematch.mod)
 app.register_blueprint(match.mod)
 app.register_blueprint(bike.mod)
@@ -174,6 +174,7 @@ app.register_blueprint(reservation.mod)
 app.register_blueprint(folks.mod)
 app.register_blueprint(match_day.mod)
 app.register_blueprint(location.mod)
+app.register_blueprint(sms_response.mod)
 
 from shotglass2.tools.views import tools
 app.register_blueprint(tools.mod)
