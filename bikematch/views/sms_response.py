@@ -13,8 +13,17 @@ mod = Blueprint('sms_response',__name__, template_folder='templates/sms_response
 @mod.route('/<path:path>/',methods=['GET','POST',])
 def handle_request(path=''):
     """Handle sms requests from twilio"""
+    
+    # is there a request.form?
+    if request.form:
+        mess = "form= " +str(request.form)
+    elif request.args:
+        mess = "args: " + str(request.args)
+    else:
+        mess = "no form or args"
+            
     resp = TextResponse()
-    resp.create_message("Hello World!")
+    resp.create_message(mess)
     
     return Response(str(resp.message),
                     mimetype="text/xml",
