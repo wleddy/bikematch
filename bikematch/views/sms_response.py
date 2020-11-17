@@ -23,7 +23,7 @@ def handle_request():
     # At this point, create your message text
     mess = "Hello World!"
     if resp.to_number or resp.from_number:
-        mess = "Hello {to_} from {from_}".format(to_=resp.to_number,from_=resp.from_number)
+        mess = "Hello {caller} from {us}".format(caller=resp.from_number,us=resp.to_number)
         
     #  and pass it to resp
     resp.create_message(mess)
