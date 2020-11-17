@@ -91,27 +91,27 @@
                 <p class='w3-col'>{{ label_only('Tell us how this bike will help you',req=True)}}</p>
                 <p class='w3-col' ><textarea rows=5 name="reservation_comment" required style="width:100%">{{ data.rec.reservation_comment | default('',True)}}</textarea></p>
             </div>
-            {% if not data.rec.price_is_fixed %}
-            <div class="w3-row">
-                <h3>Your Request will be reviewed</h3>
-                <p>
-                    We will review your request to determine if you are worthy of receiving this bike. Once the high
-                    council has made it's decision, you will receive a notification confirming your pickup appointment.
-                </p>
-            </div>
-            {% endif %}
             <div class="appointment_block">
-                <p class="w3-row bike-section-head">Please select your preferred appointment time.</p>
-                <p class="w3-row">
-                    Where to Pick Up Your Bike:
+                {% if not data.rec.price_is_fixed %}
+                <div>
+                    <h3>Select your preferred appointment time:</h3>
+                    <p>
+                        We will review your request and when approved, you will receive a notification confirming your pickup appointment.
+                    </p>
+                </div>
+                {% else %}
+                <p class=bike-section-head">Please select your preferred appointment time.</p>
+                {% endif %}
+                <p>
+                    Where:
                     <strong>{{ data.location.location_name }}</strong> 
                 </p>
-                <p class="w3-row" >
-                    Your Pickup Date
+                <p>
+                    When:
                    <strong> {{ data.match_day.start | abbr_date_string }}:</strong> 
                 </p>
-                <p class="w3-row"><strong>Select an open time slot:</strong> </p>
-                <div class="w3-row">
+                <p><strong>Select an open time slot:</strong> </p>
+                <div>
                     <input type="hidden" name="reservation_date" value="{{ data.rec.reservation_date | default('',True) }}" id="reservation_date" />
                      {% for slot in data.time_slots %}
                     <p rel="{{slot['slot_date']}}" class="w3-button w3-round-large w3-shadow w3-border time-slot-button {% if slot['slot_date'] == data.rec.reservation_date %}time-slot-selected{% elif not slot['open'] %}time-slot-disabled{%endif%}"

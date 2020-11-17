@@ -110,6 +110,11 @@
             <p>{{ input_field(reservation_date,"reservation_date",class="DatePickerButton",id="reservation_date",label="Reservation Date",req=True)}}</p>
         </div>
     </div>
+    <div class="w3-row">
+        <p class='w3-col'>{{ label_only("Recipient's Request")}}</p>
+        <p class='w3-col' ><textarea rows=5 name="reservation_comment" disabled style="width:100%">{{ data.rec.reservation_comment | default('',True)}}</textarea></p>
+    </div>
+    
     {% if data.bike %}
     <h4 class="bike-info-head">Bike Reserved</h4>
     <p>Bike ID: <strong>{{ data.rec.bike_id }}</strong></p>
