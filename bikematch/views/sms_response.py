@@ -1,16 +1,14 @@
-from flask import request, session, g, redirect, url_for, \
-     render_template, flash, Blueprint, Response
+from flask import request, url_for, \
+     Blueprint, Response
 from shotglass2.takeabeltof.texting import TextMessage, TextResponse
 from shotglass2.takeabeltof.utils import printException, cleanRecordID
-from shotglass2.takeabeltof.views import TableView, ListFilter
-from shotglass2.users.admin import login_required, table_access_required
 
 mod = Blueprint('sms_response',__name__, template_folder='templates/sms_response', url_prefix='/sms')
 
 
 @mod.route('/',methods=['GET','POST',])
 def handle_request():
-    """Handle sms requests from twilio"""
+    """This is a basic template for handling sms requests from twilio"""
             
     resp = TextResponse(request)
     # resp now contains these properties:
@@ -36,7 +34,7 @@ def handle_request():
     
     # and attach it to the message
     resp.attach_media(url)
-    # as many as you want...
+    # as many as you want to pay for...
     url = url_for('static',filename='favicon.png') # a site relative path 
     resp.attach_media(url)
     
