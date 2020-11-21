@@ -1,9 +1,0 @@
-<h2>{{ subject }}</h2>
-<p>The following contact request was made on {{ context['date'] | short_day_and_date_and_time_string }}</p>
-{% if custom_message %}
-{{ custom_message | safe }}
-{% endif %}
-<p>Name: {{context['name']}}</p>
-<p>email: {{context['email']}}</p>
-<p>Comment:</p>
-{{ context['comment'] | render_markdown | safe }}

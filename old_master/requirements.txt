@@ -1,7 +1,0 @@
-Flask
-Flask-Mail
-mistune
-namedlist
-pytest
-pytz
-
