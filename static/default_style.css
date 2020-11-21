@@ -1,0 +1,190 @@
+
+/* change the fixed width of the right menu here*/
+.menu_space {
+    margin-right:200px;
+}
+.menu_width {
+    width:200px;
+}
+
+p {margin-top:0;margin-bottom:.4em;}
+
+p#addRecord {
+    margin:0;
+    background-color: white;
+    padding:4pt;
+}
+
+hr {
+    border-top: 1px solid #737373;
+    margin: 15px 0;
+}
+
+
+pre {
+    overflow-x: scroll;
+    margin: .3em 0;
+}
+
+p.clear {
+    font-size:1pt;
+    clear:both;
+    margin:0;
+    padding:0;
+}
+
+/* make list tables look clickable */
+.datatable tr {
+    cursor:pointer;
+    background-color: whitesmoke;
+}
+
+#sg-list-template-contain {
+    background-color:white;
+    padding-top:6pt;
+    padding-bottom:6pt;
+}
+
+/* For the Table list form search */
+span.deleteicon {
+    position: relative;
+}
+span.deleteicon span {
+    position: absolute;
+    display: block;
+    top: -3px;
+    right: 3px;
+    width: 22px;
+    height: 24px;
+    background: url('/static/images/clear_input.png');
+    cursor: pointer;
+}
+span.deleteicon input {
+    padding-right: 20px;
+    box-sizing: border-box;
+}
+
+/* labels for the search fields in list forms */
+.sg-list-search-label{
+    vertical-align:top;
+    font-weight:800;
+}
+
+/* sortable icon for list table columns */
+.sg-sortable, .sg-sortable-asc, .sg-sortable-desc{
+    background: url('/static/images/order_default_icon.png');
+    background-repeat: no-repeat;
+    padding-left:16pt !important;
+ }
+   
+.sg-sortable-asc{
+    background: url('/static/images/order_asc_icon.png');
+    background-repeat: no-repeat; /*required after image change*/
+}
+
+.sg-sortable-desc{
+    background: url('/static/images/order_desc_icon.png');
+    background-repeat: no-repeat; /*required after image change*/
+}
+
+/* style the record count at the bottom of default list table */
+.list_record_count {
+    margin-top:6pt;
+    padding:6pt 20pt;
+    font-weight:800;
+    border-top:1pt solid #666;
+    border-bottom:1pt solid #666;
+}
+    
+/* no underline in navigation menus */
+#nav a {text-decoration:none;}
+/* add to sidebar navigation menu */
+.nav-sidebar-extra {
+    min-height:100vh;
+    overflow:auto;
+    position:absolute!important;
+    right:0;
+    top:0;
+}
+
+/*
+  Add a little blank space between input fields in w3 columns 
+  May want to add more later, but this will do for now...
+*/
+.w3-quarter label, .w3-quarter input,
+.w3-third label, .w3-third input,
+.w3-half label, .w3-half input
+{width:98%;}
+
+
+/* colors */
+/* Teal & pale green */
+.w3-menu-color,.w3-drop-menu-hover-color:hover,
+.w3-primary-color,.w3-primary-hover-color:hover,
+.w3-drop-menu-section-hover-color:hover,.w3-drop-menu-section-color:hover,
+.w3-drop-menu-section-color
+{color:#fff!important;background-color:#009688!important}
+.w3-primary-border-color,.w3-primary-hover-border-color:hover{border-color:rgb(63, 36, 20)!important}
+
+.w3-menu-hover-color:hover,
+.w3-secondary-color,.w3-secondary-hover-color:hover,.w3-drop-menu-color,
+.w3-label-color,.w3-label-hover-color:hover,.roster-hover-color:hover
+{color:#000!important;background-color:#ddffdd!important}
+.w3-secondary-border-color,.w3-secondary-hover-border-color:hover{border-color:#ddffdd!important}
+
+.w3-menu-border {
+    border:solid 1pt rgb(247, 240, 230)!important;
+}
+
+/* amber and sand */
+
+/*
+.w3-menu-color,
+.w3-menu-color,.w3-drop-menu-hover-color:hover,
+.w3-primary-color,.w3-primary-hover-color:hover,
+.w3-drop-menu-section-hover-color:hover,.w3-drop-menu-section-color:hover,
+.w3-drop-menu-section-color
+{color:#000!important;background-color:#ffc107!important}
+.w3-primary-border-color,.w3-primary-hover-border-color:hover{border-color:#ffc107!important}
+
+.w3-menu-hover-color:hover,
+.w3-secondary-color,.w3-secondary-hover-color:hover,.w3-drop-menu-color,
+.w3-label-color,.w3-label-hover-color:hover,.roster-hover-color:hover
+{color:#000!important;background-color:#fdf5e6!important}
+.w3-secondary-border-color,.w3-secondary-hover-border-color:hover{border-color:#fdf5e6!important}
+
+.w3-menu-border {
+    border:solid 1pt rgb(247, 240, 230)!important;
+}*/
+
+/* indigo and blue */
+/*
+.w3-menu-color,
+.w3-menu-color,.w3-drop-menu-hover-color:hover,
+.w3-primary-color,.w3-primary-hover-color:hover,
+.w3-drop-menu-section-hover-color:hover,.w3-drop-menu-section-color:hover,
+.w3-drop-menu-section-color
+{color:#fff!important;background-color:#3f51b5!important}
+.w3-primary-border-color,.w3-primary-hover-border-color:hover{border-color:#ddffff!important}
+
+.w3-menu-hover-color:hover,
+.w3-secondary-color,.w3-secondary-hover-color:hover,.w3-drop-menu-color,
+.w3-label-color,.w3-label-hover-color:hover,.roster-hover-color:hover
+{color:#000!important;background-color:#ddffff!important}
+.w3-secondary-border-color,.w3-secondary-hover-border-color:hover{border-color:#ddffff!important}
+
+.w3-menu-border {
+    border:solid 1pt rgb(247, 240, 230)!important;
+}*/
+
+/* for field labels and buttons */
+/* required fields */
+/* red */
+.w3-label-color,.w3-label-hover-color:hover{color:#000!important;background-color:#ddffdd!important}
+.w3-label-req,.w3-hover-label-req:hover{color:#000!important;background-color:#ffdddd!important}
+.w3-text-req,.w3-hover-text-req:hover{color:#f44336!important}
+
+/* buttons */
+.w3-save-button-color,.w3-save-button-hover-color:hover{color:#fff!important;background-color:#009688!important}
+.w3-delete-button-color,.w3-delete-button-hover-color:hover{color:#fff!important;background-color:#ff5722!important}
+.w3-cancel-button-color,.w3-delete-button-hover-color:hover{color:#fff!important;background-color:#3f51b5!important}

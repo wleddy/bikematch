@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>
+            Home - SABA #BikeMatchSac
+        </title>
+        <link rel="icon" type="image/png" href="/static/favicon.png">
+        <link rel="SHORTCUT ICON" type="image/vnd.microsoft.icon" href="/static/favicon.ico">
+        <link rel="apple-touch-icon" type="image/png" sizes="57x57" href="/static/apple-touch-icon-57.png"><!-- iPhone -->
+        <link rel="apple-touch-icon" type="image/png" sizes="72x72" href="/static/apple-touch-icon-72.png"><!-- iPad -->
+        <link rel="apple-touch-icon" type="image/png" sizes="114x114" href="/static/apple-touch-icon-114.png"><!-- iPhone4 -->
+        <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="/static/apple-touch-icon-120.png"><!-- iPhone7? -->
+        <link rel="icon" type="image/png" href="/static/apple-touch-icon-114.png"><!-- Opera Speed Dial, at least 144×114 px -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="/static/jquery.1.10.1.js"></script>
+        <script src="/static/common.js"></script>
+        <link rel="stylesheet" href="/static/w3.css">
+        <link rel="stylesheet" href="/static/default_style.css">
+        <link rel="stylesheet" href="/static/style.css">
+        <style>
+        #contain{
+            background-image:url('/static/backdrop.jpg');
+            background-color:rgb(247, 240, 230)!important;
+        }
+        #sg-header, #sg-footer, #sg-page-header {
+            background-color:rgba(247, 240, 230, .9)!important;
+        }
+        #sg-body {
+            background-color: rgba(255,255,255,.85);
+            width:80%;
+            margin:auto;
+        }
+        #record_access {
+            text-align:right;
+            margin-right:30pt;
+            font-size:10pt;
+            padding-bottom:6pt;
+        }
+        #hamburger {display:none;}
+        @media (max-width:768px){
+            #sg-body {
+                margin:6pt auto;
+                width:100%;
+            }
+        }
+        </style>
+        <style>
+        #sbk_logo {
+        float:right;
+        width:40%;
+        border:1pt solid #666;
+        padding:6pt;
+        }
+        #sbk_logo .sbk_image {
+        float:right;
+        margin-left:10pt;
+        }
+        p.sbk_image img {
+        width:100pt
+        }
+        a {
+        text-decoration:underline;
+        }
+        @media (max-width:768px){
+        #sbk_logo {
+            float:none;
+            width:100%;
+            border:1pt solid #666;
+            padding:6pt;
+        }
+        #sbk_logo .sbk_image {
+            float:right;
+            margin-left:10pt;
+        }
+        p.sbk_image img {
+            width:50pt
+
+        }
+
+        </style>
+    </head>
+    <body>
+        <div id="contain">
+            <div id="sg-header">
+                <div class="menu_space-off">
+                    <div class="w3-row">
+                        <div class="w3-col l1 m1 w3-hide-small" style="padding-left:57pt;">
+                            &nbsp;
+                        </div>
+                        <div class="w3-col l6 m7 w3-hide-small">
+                            <a id="header_home_image" href="/"><img id="headerlogo" src="/static/images/logo.png" alt="SABA Logo"></a>
+                        </div>
+                        <div class="w3-col s12 w3-hide-medium w3-hide-large" style="">
+                            <h3 style="line-height:1;padding-left:10pt;">
+                                <a id="header_home" href="/" style="text-decoration:none;">Sacramento Area Bicycle Advocates</a>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="sg-content" class="w3-main w3-container">
+                <div id="sg-page-header"></div>
+                <div id="sg-flasher"></div>
+                <div id="sg-body">
+                    <div class="sg-body-text">
+                        <h1>
+                            SABA #BikeMatchSac
+                        </h1>
+                        <div id="sbk_logo">
+                            <p class="sbk_image">
+                                <img src="/static/images/sbk_logo.jpg">
+                            </p>
+                            <p>
+                                We are working closely with the <a href="http://sacbikekitchen.org" target="_blank">Sacramento Bicycle Kitchen</a> to provide bikes to those who need them.
+                            </p>
+                        </div>
+                        <p>
+                            Bicycles are essential transportation for many who need to get around at any time but especially now during the coronavirus outbreak. 
+                            This might include traveling to essential jobs, running crucial errands, or participating in mutual aid for vulnerable people who cannot leave their homes.
+                        </p>
+                        <p>
+                            Sacramento Area Bicycle Advocates is connecting those who have an extra bicycle to folks in the community who need one.
+                            Whether you have a bike or need a bike, you can help or get help using the buttons below.
+                        </p>
+                        <h2>
+                            How it works:
+                        </h2>
+                        <h3>
+                            If you need a bike;
+                        </h3>
+                        <p>
+                        You will need to contact the Sacramento Bicycle Kitchen via email using the link below to request an appointment
+                        to see what bikes they have avaliable for the BikeMatch program. The 'Bicycle Kitchen' is closed to the public except
+                        by appointment at this time.
+                        </p>
+                        <p>
+                        The Bicycle Kitchen will contact you if they have a bike that may suit you.
+                        </p>
+                        <p>
+                            To request an appointment to see what bikes are available click this button and  and tell them about yourself and what you need.
+                        </p>
+                        <p>
+                            <a class="w3-button w3-primary-color w3-round-medium" href="mailto:info@sacbikekitchen.org?subject=BikeMatch%20Request&body=I%20would%20like%20a%20BikeMatch%20bike%20because...">I Need a Bike</a> 
+                        </p>
+                        <h3>
+                            If you have a bike;
+                        </h3>
+                        <p>
+                        We ask that you make an appointment to bring the bike to the Sacramento Bicycle Kitchen. Because the Bike Kitchen is closed to the public at this time
+                        please email them using the link below to make a drop-off appointment.
+                        </p>
+                        <p>
+                            <a class="w3-button w3-primary-color w3-round-medium" href="mailto:info@sacbikekitchen.org?subject=BikeMatch%20Donation&body=I%20have%20a%20bike%20to%20donate...">I Have a Bike</a> 
+                        </p>
+                        <h3>
+                            Guidelines
+                        </h3>
+                        <ol>
+                            <li>Participation in the Bike Match program constitues your agreement to the terms of the <a href="/static/saba_bike_match_liability_waiver.pdf">LIABILITY WAIVER</a>.
+                            </li>
+                            <li>Donated bikes should be in "ready to ride" condition. Something that you would ride, at least in a pinch.
+                            </li>
+                            <li>For sanitary purposes, clean the bike thoroughly before hand-off (handlebars, gear shifters, seat, etc). For the same reason, all bike exchanges are permanent.
+                            </li>
+                        </ol>
+                        <p>
+                            If you have any questions, please <a href="mailto:info@sacbike.org">contact us</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="sg-footer">
+            <p class="footer_image w3-hide-small">
+                &nbsp;
+            </p>
+            <p class="footer_image_small w3-hide-medium w3-hide-large">
+                &nbsp;
+            </p>
+        </div>
+        <div id="dialog"></div>
+        <div id="modal-form-contain" class="w3-modal" style="overflow:hidden;padding-top:20pt!important;z-index:auto;">
+            <div id="modal-form" class="w3-container w3-modal-content w3-card-4 w3-animate-top" style="max-height:95vh;overflow:scroll;"></div>
+        </div>
+    </body>
+</html>
