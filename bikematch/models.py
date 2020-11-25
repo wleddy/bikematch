@@ -185,9 +185,11 @@ class Match(SqliteTable):
         donor.first_name as donor_first_name,
         donor.last_name as donor_last_name,
         donor.first_name || ' ' || donor.last_name as donor_name,
+        donor.email as donor_email,
         recipient.first_name as recipient_first_name,
         recipient.last_name as recipient_last_name,
-        recipient.first_name || ' ' || recipient.last_name as recipient_name
+        recipient.first_name || ' ' || recipient.last_name as recipient_name,
+        recipient.email as recipient_email
         from match
         left join bike as donor on donor.id = match.donor_id 
         left join recipient as recipient on recipient.id = match.recipient_id

@@ -43,7 +43,9 @@ def display(path=None):
             {'name':'match_date','type':'date'},
             {'name':'match_status',},
             {'name':'recipient_name','label':'Recipient'},
+            {'name':'recipient_email'},
             {'name':'donor_name','label':'Donor'},
+            {'name':'donor_email'},
             {'name':'recipient_id','label':'Recpient ID'},
             {'name':'donor_id','label':'Bike ID'},
         ]
