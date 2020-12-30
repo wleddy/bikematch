@@ -32,7 +32,7 @@ def setExits():
 @table_access_required(Recipient)
 def display(path=None):
     # import pdb;pdb.set_trace()
-    
+    setExits()
     view = TableView(Recipient,g.db)
     # optionally specify the list fields
     view.list_fields = [
