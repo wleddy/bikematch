@@ -163,7 +163,7 @@ def validForm(rec):
         valid_form = False
         flash("You must enter something the Status field")
 
-    temp_date = getDatetimeFromString(rec.match_date.strip())
+    temp_date = getDatetimeFromString(rec.match_date)
     if not temp_date:
         valid_form = False
         flash("The 'Match' date is not a valid date")

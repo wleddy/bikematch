@@ -263,7 +263,7 @@ def valididate_form(rec):
         flash("You must specify a bike type")
         valid_form = False
         
-    temp_date = getDatetimeFromString(rec.created.strip())
+    temp_date = getDatetimeFromString(rec.created)
     if not temp_date:
         flash("The 'Created' date is not a valid date")
         valid_form = False
