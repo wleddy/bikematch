@@ -1,3 +1,16 @@
+""" Create Flask app
+
+Setup and initialize the flask app
+
+Starts the development server when run from the command line
+
+Args: None
+
+Returns:  None
+
+Raises: None
+"""
+
 from flask import Flask, g, session, request, redirect, flash, abort, url_for, session
 from flask_mail import Mail
 import os
@@ -8,10 +21,21 @@ from shotglass2.users.admin import Admin
 from bikematch.models import Recipient, Match, Bike
 
 # Create app
-# setting static_folder to None allows me to handle loading myself
-app = Flask(__name__, instance_relative_config=True,
-        static_folder=None)
-app.config.from_pyfile('site_settings.py', silent=True)
+# # setting static_folder to None allows me to handle loading myself
+# app = Flask(__name__, instance_relative_config=True,
+#         static_folder=None)
+# app.config.from_pyfile('site_settings.py', silent=True)
+import logging 
+try:
+    app = shotglass.create_app(
+            __name__,
+            instance_path='../data_store/instance',
+            config_filename='site_settings.py',
+            static_folder=None,
+            )
+except:
+    logging.exception('')
+
 
 @app.before_first_request
 def start_app():
