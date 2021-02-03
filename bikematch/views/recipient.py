@@ -188,9 +188,11 @@ def needabike():
             site_config = get_site_config()
 
             # inform sysop of new request
+            # the templates need rec, not the mailer
             mailer = Mailer(None,rec=rec)
             mailer.text_template = 'email/request_admin_email.txt'
             mailer.subject = "Bike Request Submitted"
+            mailer.reply_to = rec.email
             mailer.send()
             # Inform recipient that request was received
             mailer = Mailer((rec.full_name,rec.email),rec=rec)
