@@ -5,7 +5,8 @@ finding you a bike as quickly as possible. Here’s what we got from you:
 
 Height: {{ rec.bike_size }}
 Style Preference: {{ rec.bike_type }}
-Phone: {{ rec.phone }}
+Phone: {{ rec.phone | default('None Provided',True) }}
+Email Address: {{ rec.email }}
 Neighborhood: {{ rec.neighborhood }}
 Comments: {{ rec.bike_comment }}
 

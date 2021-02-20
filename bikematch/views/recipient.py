@@ -4,6 +4,7 @@ from pathlib import Path
 from flask import request, session, g, redirect, url_for, abort, \
      render_template, flash, Blueprint, Response, safe_join
 from shotglass2.users.admin import login_required, table_access_required
+from shotglass2.users.views.pref import get_contact_email
 from shotglass2.shotglass import get_site_config
 from shotglass2.takeabeltof.utils import render_markdown_for, printException, handle_request_error, send_static_file, \
     cleanRecordID, looksLikeEmailAddress, formatted_phone_number
@@ -188,9 +189,9 @@ def needabike():
             site_config = get_site_config()
 
             # inform sysop of new request
-            # the templates need rec, not the mailer
             mailer = Mailer(None,rec=rec)
             mailer.text_template = 'email/request_admin_email.txt'
+            mailer.add_address(get_contact_email())
             mailer.subject = "Bike Request Submitted"
             mailer.reply_to = rec.email
             mailer.send()
@@ -198,7 +199,7 @@ def needabike():
             mailer = Mailer((rec.full_name,rec.email),rec=rec)
             mailer.text_template = 'email/request_recipient_email.txt'
             mailer.subject = "Your Bike Match request has been recieved"
-            mailer.bcc = (site_config['MAIL_DEFAULT_SENDER'],site_config['MAIL_DEFAULT_ADDR'])
+            # mailer.bcc = (site_config['MAIL_DEFAULT_SENDER'],site_config['MAIL_DEFAULT_ADDR'])
             mailer.send()
             if not mailer.success:
                 mes = "Error: {}".format(mailer.result_text)

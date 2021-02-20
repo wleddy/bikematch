@@ -1,12 +1,15 @@
-Bike Match Request
+Bike Match Request was submitted by {{ rec.full_name }} as below:
 
-Record ID: {{ rec.id }}
+=============================================
 
-Date: {{rec.created}}
+Hi {{ rec.first_name }},
 
-Name: {{ rec.full_name }}
+We’ve received your request for a bike on Bike Match Sacramento and we’re working on 
+finding you a bike as quickly as possible. Here’s what we got from you:
 
-Occupation: {{ rec.occupation }}
-
-Comment: 
-{{ rec.request_comment }}
+Height: {{ rec.bike_size }}
+Style Preference: {{ rec.bike_type }}
+Email Address: {{ rec.email }}
+Phone: {{ rec.phone | default('None Provided',True) }}
+Neighborhood: {{ rec.neighborhood }}
+Comments: {{ rec.bike_comment }}
