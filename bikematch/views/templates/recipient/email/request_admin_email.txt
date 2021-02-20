@@ -12,4 +12,4 @@ Style Preference: {{ rec.bike_type }}
 Email Address: {{ rec.email }}
 Phone: {{ rec.phone | default('None Provided',True) }}
 Neighborhood: {{ rec.neighborhood }}
-Comments: {{ rec.bike_comment }}
+Comments: {{ rec.request_comment }}

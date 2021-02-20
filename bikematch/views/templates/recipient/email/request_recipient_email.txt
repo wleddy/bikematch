@@ -8,7 +8,7 @@ Style Preference: {{ rec.bike_type }}
 Phone: {{ rec.phone | default('None Provided',True) }}
 Email Address: {{ rec.email }}
 Neighborhood: {{ rec.neighborhood }}
-Comments: {{ rec.bike_comment }}
+Comments: {{ rec.request_comment }}
 
 If any of the information listed above is incorrect, please let us know ASAP. In the meantime, 
 if you have any questions or if your need for a bike changes, please let us know.
