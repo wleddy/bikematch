@@ -191,12 +191,15 @@ shotglass.register_users(app)
 # from shotglass2.www.views import home
 # app.add_url_rule('/contact/',home.contact)
 
+
 from bikematch.views import bikematch, match, bike, recipient
 app.register_blueprint(bikematch.mod)
 app.register_blueprint(match.mod)
 app.register_blueprint(bike.mod)
 app.register_blueprint(recipient.mod)
 
+# not really used, just so test will pass
+app.add_url_rule('/','www.home',bikematch.home)
 
 if __name__ == '__main__':
     
