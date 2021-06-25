@@ -5,7 +5,7 @@ from shotglass2.shotglass import get_site_config
 from shotglass2.users.admin import login_required, table_access_required
 from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString, date_to_string
 from shotglass2.takeabeltof.mailer import Mailer, email_admin
-from shotglass2.takeabeltof.texting import TextMessage
+from texting.twilio import TextMessage
 from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number, printException, cleanRecordID, validate_phone_number
 from shotglass2.takeabeltof.views import TableView, EditView
 

@@ -1,6 +1,6 @@
 from flask import request, url_for, \
      Blueprint, Response
-from shotglass2.takeabeltof.texting import TextMessage, TextResponse
+from texting.twilio import TextMessage, TextResponse
 from shotglass2.takeabeltof.utils import printException, cleanRecordID
 
 mod = Blueprint('sms_response',__name__, template_folder='templates/sms_response', url_prefix='/sms')
