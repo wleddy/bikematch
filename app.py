@@ -1,5 +1,4 @@
 from flask import Flask, g, session, request, redirect, flash, abort, url_for, session
-from flask_mail import Mail
 import os
 from shotglass2 import shotglass
 from shotglass2.takeabeltof.database import Database
@@ -8,11 +7,25 @@ from shotglass2.users.admin import Admin
 from shotglass2.users.models import User
 from bikematch.models import Folks, Match, Bike, MatchDay, Reservation, Location, init_all_bikematch_tables
 
+
 # Create app
-# setting static_folder to None allows me to handle loading myself
-app = Flask(__name__, instance_relative_config=True,
-        static_folder=None)
-app.config.from_pyfile('site_settings.py', silent=True)
+import logging 
+try:
+    app = shotglass.create_app(
+            __name__,
+            instance_path='../data_store/instance',
+            config_filename='site_settings.py',
+            static_folder=None,
+            )
+except:
+    logging.exception('')
+    
+        
+# # Create app
+# # setting static_folder to None allows me to handle loading myself
+# app = Flask(__name__, instance_relative_config=True,
+#         static_folder=None)
+# app.config.from_pyfile('site_settings.py', silent=True)
 
 @app.before_first_request
 def start_app():
@@ -34,7 +47,6 @@ def inject_site_config():
 register_jinja_filters(app)
 
 
-mail = Mail(app)
 
 def init_db(db=None):
     # to support old code
@@ -185,7 +197,7 @@ if __name__ == '__main__':
         # create the default database if needed
         initalize_all_tables()
         
-    #app.run(host='localhost', port=8000)
-    app.run()
+    app.run(host='bikematch.willie.local', port=5000)
+    # app.run()
     
     
