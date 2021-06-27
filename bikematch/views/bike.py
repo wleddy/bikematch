@@ -98,6 +98,7 @@ class BikeView(TableView):
 @table_access_required(PRIMARY_TABLE)
 def display(path=None):
     # import pdb;pdb.set_trace()
+    setExits()
     
     view = BikeView(PRIMARY_TABLE,g.db)
 
