@@ -5,7 +5,7 @@ from shotglass2.takeabeltof.database import Database
 from shotglass2.takeabeltof.jinja_filters import register_jinja_filters
 from shotglass2.users.admin import Admin
 from shotglass2.users.models import User
-from bikematch.models import Folks, Match, Bike, MatchDay, Reservation, Location, init_all_bikematch_tables
+from bikematch.models import Folks, Match, Bike, MatchDay, Reservation, MatchLocation, init_all_bikematch_tables
 
 
 # Create app
@@ -130,7 +130,7 @@ def _before():
     g.admin.register(Bike,url_for('bike.display'),display_name='Bikes',minimum_rank_required=100)
     g.admin.register(Reservation,url_for('reservation.display'),display_name='Reservations',minimum_rank_required=100)
     g.admin.register(Match,url_for('match.display'),display_name='Matches',minimum_rank_required=100)
-    g.admin.register(Location,url_for('location.display'),display_name='Locations',minimum_rank_required=100)
+    g.admin.register(MatchLocation,url_for('location.display'),display_name='Locations',minimum_rank_required=100)
     g.admin.register(MatchDay,url_for('match_day.display'),display_name='Match Days',minimum_rank_required=100)
     
     shotglass.user_setup() # g.admin now holds access rules Users, Prefs and Roles

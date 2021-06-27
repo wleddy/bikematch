@@ -342,11 +342,11 @@ class MatchDay(SqliteTable):
         return self.select(where=where)
         
 
-class Location(SqliteTable):
+class MatchLocation(SqliteTable):
     """Staffing Location Table"""
     def __init__(self,db_connection):
         super().__init__(db_connection)
-        self.table_name = 'location'
+        self.table_name = 'match_location'
         self.order_by_col = 'lower(location_name), id'
         self.defaults = {}
 
@@ -375,6 +375,6 @@ def init_all_bikematch_tables(db):
     BikeImage(db).init_table()
     MatchImage(db).init_table()
     Reservation(db).init_table()
-    Location(db).init_table()
+    MatchLocation(db).init_table()
     
     

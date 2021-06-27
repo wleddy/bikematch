@@ -1,6 +1,6 @@
 from flask import request, session, g, redirect, url_for, abort, \
      render_template, render_template_string, flash, Blueprint, Response, safe_join
-from bikematch.models import Reservation, Bike, Folks, Match, MatchDay, Location
+from bikematch.models import Reservation, Bike, Folks, Match, MatchDay, MatchLocation
 from shotglass2.shotglass import get_site_config
 from shotglass2.users.admin import login_required, table_access_required
 from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString, date_to_string
@@ -178,7 +178,7 @@ def set_extra_context(res):
         #limit to only the next event
         match_day = match_day[0]
         # get the location for this day
-        location = Location(g.db).get(match_day.location_id)
+        location = MatchLocation(g.db).get(match_day.location_id)
             
         # construct the list of time slots
         time_slots = []

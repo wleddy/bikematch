@@ -4,10 +4,10 @@ from shotglass2.takeabeltof.utils import printException, cleanRecordID
 from shotglass2.users.admin import login_required, table_access_required
 from shotglass2.takeabeltof.date_utils import local_datetime_now, getDatetimeFromString
 from shotglass2.takeabeltof.utils import looksLikeEmailAddress, formatted_phone_number
-from bikematch.models import Location
+from bikematch.models import MatchLocation
 import pdb
 
-PRIMARY_TABLE = Location
+PRIMARY_TABLE = MatchLocation
 
 mod = Blueprint('location',__name__, template_folder='templates/location', url_prefix='/location',static_folder='static/')
 
