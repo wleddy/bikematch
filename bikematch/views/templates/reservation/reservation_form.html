@@ -1,0 +1,150 @@
+{% extends "layout.html" %}
+{% block title %}{{ g.title }}{% endblock %}
+
+{% from "_layout_helpers.html" import left_column_spacer, form_column_class %}
+{% from "_form_helpers.html" import input_field, select_field, radio_field, checkbox_field, label_only %}
+
+{% block head %}
+{{ super() }}
+<script>
+    function test_email(which){
+        // test if the email address is already used to reserve a bike
+         $.post("{{ url_for('reservation.email_check')}}",{"email_address":which.value},email_check_result)
+    }
+    function email_check_result(data){
+        if (data == "ok"){
+            // do nothing
+        } else if (data == "duplicate") {
+            alert("You already have a bike reserved. You can only have one reservation at a time.\rIf you want to reserve more than one, say for your children, please use the 'contact us' link and we will be able to help you.")
+            window.location = '{{ url_for('bikematch.home')}}'
+        }
+    }
+    
+    function set_reservation_date(selected_time){
+        $(".time-slot-button").removeClass("time-slot-selected");
+        $(selected_time).addClass('time-slot-selected');
+        res = $("#reservation_date")
+        t = $(selected_time).attr('rel');
+        $("#reservation_date").val(t);
+    }
+</script>
+<style>
+    .time-slot-button {
+        background-color:white!important;
+    }
+    .time-slot-selected, .time-slot-selected:hover {
+        background-color:green!important;
+        color:white!important;
+    }
+    .time-slot-disabled, .time-slot-disabled:hover {
+        background-color:#666!important;
+        color:#ccc!important;
+        cursor:default;
+    } 
+    .appointment_block {
+        border:2pt solid #666;
+        border-radius:10pt;
+        background-color:antiquewhite;
+        padding:10pt;
+        margin:6pt;
+    }
+</style>
+
+
+{% endblock head %}
+
+{% block body %}
+
+<div class="w3-container">
+    {{ left_column_spacer() }}
+    <form id="main-form" action="{{ url_for('reservation.reserve') }}" method=post class="entry {{ form_column_class() }}" enctype="multipart/form-data">
+        <p>{{ input_field(data.rec.id,"id",id="id",type="hidden",default=0)}}</p>
+        <p>{{ input_field(data.bike.id,"bike_id",id="bike_id",type="hidden",default=0)}}</p>
+        <input type="hidden" name="validate_me" value="{{ data.validate_me | default(''.True)}}" id="validate_me" />
+        <input type="hidden" id="match_day_id" name="match_day_id" value="{{ data.match_day.id }}" />
+        <h4 class="bike-info-head">The Bike You Are Reserving</h4>
+        
+        {% include "bike_data_block.html" %}
+
+        <div class="reservation-instructions">
+            <p>
+                Please provide your contact information. 
+            </p>
+            <p>
+                After you submit this form you will
+                receive an email confirmation with your reservation details.
+            </p>
+        </div>
+        <fieldset>
+            <div class="w3-row">
+                <p class='w3-col' >{{ input_field(data.rec.email,"email",label="Your email address",req=True,extras='onblur="test_email(this)"')}}</p>
+            </div>
+        {% if data.rec %}
+            <div class="w3-row">
+                <p class='w3-col w3-half'>{{ input_field(data.rec.first_name,"first_name",req=True,)}}</p>
+                <p class='w3-col w3-half'>{{ input_field(data.rec.last_name,"last_name",req=True,)}}</p>
+            </div>
+            <div class="w3-row">
+                <p class='w3-col w3-half' >{{ input_field(data.rec.phone,'phone',)}}</p>
+            </div>
+            <div class="w3-row">
+                <p class='w3-col'>{{ label_only('Tell us how this bike will help you',req=True)}}</p>
+                <p class='w3-col' ><textarea rows=5 name="reservation_comment" required style="width:100%">{{ data.rec.reservation_comment | default('',True)}}</textarea></p>
+            </div>
+            <div class="appointment_block">
+                {% if not data.rec.price_is_fixed %}
+                <div>
+                    <h3>Select your preferred appointment time:</h3>
+                    <p>
+                        We will review your request and when approved, you will receive a notification confirming your pickup appointment.
+                    </p>
+                </div>
+                {% else %}
+                <p class=bike-section-head">Please select your preferred appointment time.</p>
+                {% endif %}
+                <p>
+                    Where:
+                    <strong>{{ data.location.location_name }}</strong> 
+                </p>
+                <p>
+                    When:
+                   <strong> {{ data.match_day.start | abbr_date_string }}:</strong> 
+                </p>
+                <p><strong>Select an open time slot:</strong> </p>
+                <div>
+                    <input type="hidden" name="reservation_date" value="{{ data.rec.reservation_date | default('',True) }}" id="reservation_date" />
+                     {% for slot in data.time_slots %}
+                    <p rel="{{slot['slot_date']}}" class="w3-button w3-round-large w3-shadow w3-border time-slot-button {% if slot['slot_date'] == data.rec.reservation_date %}time-slot-selected{% elif not slot['open'] %}time-slot-disabled{%endif%}"
+                    {% if slot['open'] %} onclick="set_reservation_date(this)" {%endif%}>
+                        {{ slot['slot_date'] | local_time_string }}</p>
+                         {% endfor %}
+                     </p>
+               </div>
+           </div>
+            {% if data.bike.price and data.bike.price > 0 %}
+            <div class="w3-row">
+                {% if data.bike.price_is_fixed %}
+                <p class='w3-col ' >This bike has a Price of <strong>${{ data.bike.price | money }}</strong> that is due at pick up.</p>
+                {% else %}           
+                <p class='w3-col ' >
+                    This bike has a suggested donation amount of <strong>${{ data.bike.price | money }}</strong>.
+                    The donation amount is only a suggestion. You may pay less or nothing at all if you are unable to do so.
+                </p>
+                {% endif %}
+                <p>We accept Cash (exact price, please), Check, Credit or Debit card.</p>
+            </div>
+            {% endif %}
+         {% endif %} {# if rec #}
+         
+        <p class="form_button_row w3-contain w3-panel" >
+        	<a class="w3-btn w3-ripple w3-save-button-color w3-mobile w3-round-large w3-shadow" onclick="$('#main-form').submit()">Reserve This Bike</a>&nbsp;&nbsp;
+            <a  class="w3-btn w3-ripple w3-cancel-button-color w3-mobile w3-round-large" href="{% if g.cancelURL %}{{g.cancelURL}}{% else %}{{ url_for('bikematch.home') }}{% endif %}" >Cancel</a>
+        </p> 
+		
+    
+         </fieldset>
+     </form>
+</div>
+
+{% endblock body %}
+

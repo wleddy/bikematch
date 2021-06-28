@@ -11,7 +11,7 @@ from shotglass2.takeabeltof.file_upload import FileUpload
 from shotglass2.takeabeltof.mailer import Mailer, email_admin
 from shotglass2.takeabeltof.date_utils import datetime_as_string, local_datetime_now, date_to_string, getDatetimeFromString
 from shotglass2.takeabeltof.views import TableView
-from bikematch.models import Recipient, Match
+from bikematch.models import Match
 from werkzeug.exceptions import RequestEntityTooLarge
 
     
@@ -30,7 +30,7 @@ def setExits():
 def home():
     setExits()
     g.title = 'Home'
-    g.suppress_page_header = False
+    g.suppress_page_header = True
 
     return render_template('index.html',)
 
@@ -41,7 +41,6 @@ def haveabike():
     """handle bike donation contact"""
     setExits()
     g.title = 'I Have a Bike'
-    # return redirect('http://bikematch.safelanes.org/sacramento/donate/')
     
     return sendcontact(html_template='haveabike_contact.html',
                         subject='I have a Bike',
@@ -168,7 +167,7 @@ def sendcontact(**kwargs):
             kwargs=kwargs,
             )
             
-    handle_request_error(mes,request)
+    handle_request_error(mes,request,500)
     flash(mes)
     return render_template('500.html'), 500
         

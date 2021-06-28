@@ -9,6 +9,7 @@
         width:40%;
         border:1pt solid #666;
         padding:6pt;
+        margin-left:6pt;
     }
     #sbk_logo .sbk_image {
         float:right;
@@ -20,7 +21,31 @@
     a {
         text-decoration:underline;
     }
+    #contain{
+        background-image:url('/static/backdrop.jpg');
+        background-color:rgb(247, 240, 230)!important;
+    }
+    #sg-header, #sg-footer, #sg-page-header {
+        background-color:rgba(247, 240, 230, .9)!important;
+    }
+    #sg-body {
+        background-color: rgba(255,255,255,.85);
+        width:80%;
+        margin:auto;
+    }
+    #record_access {
+        text-align:right;
+        margin-right:30pt;
+        font-size:10pt;
+        padding-bottom:6pt;
+    }
+    #hamburger {display:none;}
+    
     @media (max-width:768px){
+        #sg-body {
+            margin:6pt auto;
+            width:100%;
+        }
         #sbk_logo {
             float:none;
             width:100%;
@@ -35,39 +60,39 @@
             width:50pt
 
         }
-    
-</style>
+    }
+    </style>
 {% endblock head %}
 
 
 {% block body %}
 <div class="sg-body-text">
     <h1>SABA #BikeMatchSac</h1>
-<div id="sbk_logo">
-    <p class="sbk_image"><img src="{{ url_for('static',filename='images/sbk_logo.jpg')}}" /></p>
-    <p>
-        We are working closely with the <a href="http://sacbikekitchen.org" target="_blank">Sacramento Bicycle Kitchen</a>
-        to provide bikes to those who need them.
-    </p>
-</div>    
+    <div id="sbk_logo">
+        <p class="sbk_image"><img src="{{ url_for('static',filename='images/sbk_logo.jpg')}}" /></p>
+        <p>
+            We are working closely with the <a href="http://sacbikekitchen.org" target="_blank">Sacramento Bicycle Kitchen</a>
+            to provide bikes to those who need them.
+        </p>
+    </div>    
     <p>Bicycles are essential transportation for many who need to get around at any time but especially 
-    now during the coronavirus outbreak. This might include traveling to essential jobs, running crucial 
-    errands, or participating in mutual aid for vulnerable people who cannot leave their homes.</p>
+    now during the coronavirus outbreak. This might include traveling to work, running 
+    errands.</p>
     <p>Sacramento Area Bicycle Advocates is connecting those who have an extra bicycle to folks in the community
     who need one. Whether you have a bike or need a bike, contact us via the links below, and we will match you.</p>
     
 
     <h2>How it works:</h2>
     <h3>If you need a bike;</h3>
-    <p>Fill out the <a class="w3-button w3-primary-color w3-round-medium" href="{{ url_for('recipient.needabike')}}">I Need a Bike</a> form and tell us about yourself
-    and what you need.</p>
-    <p>
-        We will contact you when we have a match for you and make arrangements to meet and hand the bike off to you.
-        Our preferred way to do the hand off is for us to meet at the Sacramento Bicycle Kitchen in Midtown Sacramento.
-    </p>
-    <p> 
-        <strong>IF YOU CAN'T COME TO PICK UP YOUR BIKE</strong>: we will do our best to make other arrangements.
-    </p>        
+    <ol>
+        <li>The button below will lead to a list of the bikes we currently have available.</li>
+        <li>Once you find the bike you'd like, click on the image to reserve the bike.</li>
+        <li>During the reservation process you will select the date when you will pick up your bike.<br>
+            Currently all hand-offs happen at the Sacramento Bike Kitchen on I Street in Midtown.</li>
+        <li>Show up on the date of your hand-off and receive your bike. If you don't have a vehicle to transport
+            your bike we will explain how to use the bike racks on the RT buses as well as help with planning your route.</li>
+    </ol>
+    <p><a class="w3-button w3-primary-color w3-round-medium" href="{{ url_for('bike.gallery')}}">Reserve a Bike</a></p>
     
     <h3>If you have a bike;</h3>
     <p>Fill out the <a class="w3-button w3-primary-color w3-round-medium" href="{{ url_for('bikematch.haveabike')}}">I Have a Bike</a> form and tell us about the bike.</p>

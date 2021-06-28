@@ -2,6 +2,8 @@ Flask
 Flask-Mail
 mistune
 namedlist
+Pillow
 pytest
 pytz
-
+qrcode[pil]
+twilio

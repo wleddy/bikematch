@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% from "_form_helpers.html" import input_field, select_field, radio_field, checkbox_field, label_only %}
+
+{% block head %}
+{{ super() }}
+{% include 'gallery_head_script.html' %}
+{% include 'gallery_head_style.html' %}
+{% endblock head %}
+
+{% block body %}
+<p>
+    These are the bikes that we have available for match right now. You can use the Drop Down menus to filter the 
+    selection to find the right bike for you.
+</p>
+<p>
+    Most bikes are available for free or a very low donation. Some premium bikes will have a higher minimum donation
+    amount noted. Click on the bike image for more information.
+</p>
+<p>
+    If you don't find a bike you'd like, check back in a week or so. We get more bikes all the time.
+</p>
+<form action="{{ url_for('reservation.reserve')}}" id="main-form" method="post" accept-charset="utf-8">
+    <input type="hidden" name="bike_id" value="" id="bike_id" />
+</form>
+
+<div id="gallery-contain">
+    {% include 'gallery_grid.html' %}
+</div>
+
+{% endblock body %}

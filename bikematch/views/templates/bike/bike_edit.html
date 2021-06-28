@@ -5,32 +5,66 @@
 {% block head %}
 {{ super() }}
 {% include "anytime_head.html"%}
-<script>
-    function send_emails(donor_id, recipient_id){
-        if(donor_id == 0 || recipient_id == 0 ){
-            alert("You must select a donor and a recipient first.");
-            return;
-        }
-        alert("This is not connected yet. Sorry.")
+
+<style>
+    .bike-status-header {
+        
     }
-</script>
+</style>
 {% endblock head %}
 
 {% block fieldset %}
+{% if rec.bike_status | lower != "available"%}
+<div class="w3-primary-color w3-border w3-center w3-padding w3-large bike-status-header">
+    {% if rec.bike_status | lower == "matched"%}
+    <p>This bike has been {{ rec.bike_status }} to {{ rec.recipient_full_name |default("",True) }}</p>
+    {% elif rec.bike_status | lower == "reserved"%}
+    <p>This bike is {{ rec.bike_status }} for {{ rec.reservation_full_name | default("",True)}}</p>
+    {% endif %}
+</div>
+{% endif %}
 <fieldset>
     <p>{{ input_field(rec.id,"id",type="hidden",default=0)}}</p>
+    <p>{{ input_field(rec.donor_id,"donor_id",type="hidden",default=0)}}</p>
     {% if rec.id %}<p><strong>Bike ID:</strong> {{ rec.id }}</p>{% endif %}
+    {% if rec.id %}{% set donor_extras = "readonly" %}{% else %}{% set donor_extras = ""%}{% endif %}
+    {% if rec.id %}{% set folks_req = False %}{% else %}{% set folks_req = True %}{% endif %}
     <div class="w3-row">
-        <p class='w3-col w3-half'>{{ input_field(rec.first_name,"first_name",req=True)}}</p>
-        <p class='w3-col w3-half'>{{ input_field(rec.last_name,"last_name",req=True)}}</p>
+        <p class='w3-col w3-half'>{{ input_field(rec.donor_first_name,"donor_first_name",req=folks_req,extras=donor_extras)}}</p>
+        <p class='w3-col w3-half'>{{ input_field(rec.donor_last_name,"donor_last_name",req=folks_req,extras=donor_extras)}}</p>
     </div>
-    <p>{{ input_field(rec.email,"email",req=True)}}</p>
-    <p>{{ input_field(rec.phone,"phone",)}}</p>
-    <p>{{ input_field(rec.city,"city",req=True)}}</p>
-    <p>{{ input_field(rec.zip,"zip",label="Zip Code",req=True)}}</p>
-    <p>{{ input_field(rec.neighborhood,"neighborhood",req=True)}}</p>
+    <div class="w3-row">
+    <p class='w3-col w3-half' >{{ input_field(rec.donor_email,"donor_email",req=folks_req,extras=donor_extras)}}</p>
+    <p class='w3-col w3-half' >{{ input_field(rec.donor_phone,'donor_phone',extras=donor_extras,)}}</p>
+    </div>
+    <div class="w3-row">
+    <p>{{ label_only('Description',req=True)}}</p>
+    <p><textarea style="width:100%;" rows="6" name="bike_comment" required>{{ rec.bike_comment | default('',True)}}</textarea></p>
+    </div>
     
-    {% include '/bike_size_and_type.html' %}
+    <div class="w3-row">
+        <p class="w3-col w3-third">
+            {{ input_field(rec.min_pedal_length,'min_pedal_length',label="Min Pedal Len.", req=True) }}
+        </p>
+        <p class="w3-col w3-third">
+            {{ input_field(rec.max_pedal_length,'max_pedal_length',label="Max Pedal Len.", req=True) }}
+        </p>
+        <p class="w3-col w3-third">
+            {{ input_field(rec.make,'make',label="Make of Bike") }}
+        </p>
+    </div>
+    <div class="w3-row">
+        <p class="w3-col w3-half">
+            {% import "bike_styles_list.html" as bike_styles %} {# the property bike_styes.bike_styles is a list of styles #}
+            {{ select_field('bike_type',label="Bicycle Style", id="bike_type", req=True) }}
+                <option value="" selected >Select a Type</option>
+                {% for style in bike_styles.bike_styles %}
+                <option value="{{style}}" {% if rec.bike_type == style %}selected{% endif %}>{{ style | title }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p class='w3-col w3-half' >{{ input_field(rec.number_of_gears,'number_of_gears',default="",)}}</p>
+    </div>
     
     <p>{{ label_only('Bike Image')}}
     {% if rec.image_path %}
@@ -39,8 +73,6 @@
     {{ input_field(rec.image_path, "image_file",label=None,type="file")}}
     {% endif %}
     </p>
-    <p>{{ label_only('Comment')}}</p>
-    <p><textarea style="width:100%;" rows="6" name="bike_comment">{{ rec.bike_comment | default('',True)}}</textarea></p>
     <p>{{ label_only('Staff Comment')}}</p>
     <p><textarea style="width:100%;" rows="6" name="staff_comment">{{ rec.staff_comment | default('',True)}}</textarea></p>
     <div class="w3-row">
@@ -48,19 +80,18 @@
             {% set creation_date = '' %}
             {% if rec.created %}{% set creation_date = rec.created | short_date_string %}{% endif %}
             
-            <p>{{ input_field(creation_date,"created",class="DatePickerButton",id="created",label="Date Created")}}</p>
+            <p>{{ input_field(creation_date,"created",class="DatePickerButton",id="created",label="Date Created",req=True)}}</p>
         </div>
-            <p class="w3-col l1 m1 s2"><br>
-                <a href="javascript:addPicker('created','%m/%d/%y')"  class="DatePickerButton">
-                <img src="{{ url_for('static', filename='anytime/calendar.png' ) }}" alt="[calendar icon]"/>
-                </a>
-            </p>
-        <p class="w3-col w3-half">
-            {{ select_field('status',label="Status", id="status") }}
-                <option value="Open" {% if rec.status == "Open" %}selected{% endif %}>Open</option>
-                <option value="Matched" {% if rec.status == "Matched" %}selected{% endif %}>Matched</option>
-                <option value="Hold" {% if rec.status == "Hold" %}selected{% endif %}>Hold</option>
-            </select>
+        <p class="w3-col l1 m1 s2"><br>
+            <a href="javascript:addPicker('created','%m/%d/%y')"  class="DatePickerButton">
+            <img src="{{ url_for('static', filename='anytime/calendar.png' ) }}" alt="[calendar icon]"/>
+            </a>
+        </p>
+        <p class='w3-col w3-quarter' >
+            {{ input_field(rec.price,"price",placeholder="0.00",)}}
+        </p>
+        <p class='w3-col w3-quarter' >
+            {{ checkbox_field(rec.price_is_fixed,"price_is_fixed",extras='onclick="if(this.value != 1){this.value = 1;}else{this.value = 0;}"')}}
         </p>
         
     </div>

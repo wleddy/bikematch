@@ -1,30 +1,14 @@
-""" Create Flask app
-
-Setup and initialize the flask app
-
-Starts the development server when run from the command line
-
-Args: None
-
-Returns:  None
-
-Raises: None
-"""
-
 from flask import Flask, g, session, request, redirect, flash, abort, url_for, session
-from flask_mail import Mail
 import os
 from shotglass2 import shotglass
 from shotglass2.takeabeltof.database import Database
 from shotglass2.takeabeltof.jinja_filters import register_jinja_filters
 from shotglass2.users.admin import Admin
-from bikematch.models import Recipient, Match, Bike
+from shotglass2.users.models import User
+from bikematch.models import Folks, Match, Bike, MatchDay, Reservation, MatchLocation, init_all_bikematch_tables
+
 
 # Create app
-# # setting static_folder to None allows me to handle loading myself
-# app = Flask(__name__, instance_relative_config=True,
-#         static_folder=None)
-# app.config.from_pyfile('site_settings.py', silent=True)
 import logging 
 try:
     app = shotglass.create_app(
@@ -35,15 +19,19 @@ try:
             )
 except:
     logging.exception('')
-
+    
+        
+# # Create app
+# # setting static_folder to None allows me to handle loading myself
+# app = Flask(__name__, instance_relative_config=True,
+#         static_folder=None)
+# app.config.from_pyfile('site_settings.py', silent=True)
 
 @app.before_first_request
 def start_app():
     shotglass.start_logging(app)
     get_db() # ensure that the database file exists
-    # shotglass.start_backup_thread(os.path.join(app.root_path,app.config['DATABASE_PATH']))
-    # use os.path.normpath to resolve true path to data file when using '../' shorthand
-    shotglass.start_backup_thread(os.path.normpath(os.path.join(app.root_path,shotglass.get_site_config()['DATABASE_PATH'])))
+    shotglass.start_backup_thread(os.path.join(app.root_path,app.config['DATABASE_PATH']))
 
 @app.context_processor
 def inject_site_config():
@@ -59,7 +47,6 @@ def inject_site_config():
 register_jinja_filters(app)
 
 
-mail = Mail(app)
 
 def init_db(db=None):
     # to support old code
@@ -73,9 +60,8 @@ def initalize_all_tables(db=None):
     shotglass.initalize_user_tables(db)
     
     ### setup any other tables you need here....
-    Recipient(db).init_table()
-    Match(db).init_table()
-    Bike(db).init_table()
+    init_all_bikematch_tables(db)
+        
     
 def get_db(filespec=None):
     """Return a connection to the database.
@@ -135,26 +121,27 @@ def _before():
     #  with keys of 'title' & 'url' used to construct
     #  the items in the main menu
     # g.menu_items = shotglass.get_menu_items()
-    # g.menu_items = [{'title':'Home','url':url_for('bikematch.home')},
- #        {'title':'I Need a Bike','url':url_for('recipient.needabike')},
- #        {'title':'I Have a Bike','url':url_for('bikematch.haveabike')},
- #        {'title':'Alternative Sources','url':url_for('bikematch.alternatives')},
- #        ]
-    g.menu_items = [
-        {'title':'Home','url':None,'drop_down_menu':[
-            {'title':'Bikematch Home','url':url_for('bikematch.home')},
-            {'title':'SABA Home','url':"http://sacbike.org"},
-            ]},        
+    g.menu_items = [{'title':'Gallery','url':url_for('bike.gallery')},
         ]
     # g.admin items are added to the navigation menu by default
     g.admin = Admin(g.db) # This is where user access rules are stored
-    g.admin.register(Recipient,None,display_name='BikeMatch Admin',header_row=True,minimum_rank_required=100)
-    g.admin.register(Recipient,url_for('recipient.display'),display_name='Recipients',minimum_rank_required=100)
+    g.admin.register(Bike,None,display_name='BikeMatch Admin',header_row=True,minimum_rank_required=100)
+    g.admin.register(Folks,url_for('folks.display'),display_name='Folks',minimum_rank_required=100)
     g.admin.register(Bike,url_for('bike.display'),display_name='Bikes',minimum_rank_required=100)
+    g.admin.register(Reservation,url_for('reservation.display'),display_name='Reservations',minimum_rank_required=100)
     g.admin.register(Match,url_for('match.display'),display_name='Matches',minimum_rank_required=100)
+    g.admin.register(MatchLocation,url_for('location.display'),display_name='Locations',minimum_rank_required=100)
+    g.admin.register(MatchDay,url_for('match_day.display'),display_name='Match Days',minimum_rank_required=100)
     
     shotglass.user_setup() # g.admin now holds access rules Users, Prefs and Roles
 
+    g.admin.register(User,
+            url_for('tools.view_log'),
+            display_name='View Log',
+            top_level = True,
+            minimum_rank_required=500,
+        )
+        
 @app.teardown_request
 def _teardown(exception):
     if 'db' in g:
@@ -191,15 +178,18 @@ shotglass.register_users(app)
 # from shotglass2.www.views import home
 # app.add_url_rule('/contact/',home.contact)
 
-
-from bikematch.views import bikematch, match, bike, recipient
+from bikematch.views import bikematch, match, bike, reservation, folks, match_day, location, sms_response
 app.register_blueprint(bikematch.mod)
 app.register_blueprint(match.mod)
 app.register_blueprint(bike.mod)
-app.register_blueprint(recipient.mod)
+app.register_blueprint(reservation.mod)
+app.register_blueprint(folks.mod)
+app.register_blueprint(match_day.mod)
+app.register_blueprint(location.mod)
+app.register_blueprint(sms_response.mod)
 
-# not really used, just so test will pass
-app.add_url_rule('/','www.home',bikematch.home)
+from shotglass2.tools.views import tools
+app.register_blueprint(tools.mod)
 
 if __name__ == '__main__':
     
@@ -207,7 +197,7 @@ if __name__ == '__main__':
         # create the default database if needed
         initalize_all_tables()
         
-    #app.run(host='localhost', port=8000)
-    app.run()
+    app.run(host='bikematch.willie.local', port=5000)
+    # app.run()
     
     
